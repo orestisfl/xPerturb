@@ -1,6 +1,6 @@
-# jPerturb : A tool to introduce perturbation into java code
+# jPerturb : a state perturbation tool for Java.
 
-## Be aware :
+### Be aware :
 For the moment, you need to take spoon from the branch "fixcompilation" on my own fork :
    [https://github.com/danglotb/spoon/tree/fixcompilation]
 
