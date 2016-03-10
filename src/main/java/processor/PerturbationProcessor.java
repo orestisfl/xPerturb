@@ -1,5 +1,6 @@
 package processor;
 
+import perturbator.UtilPerturbation;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.CtArrayWrite;
 import spoon.reflect.code.CtAssignment;
@@ -14,8 +15,6 @@ import spoon.reflect.code.CtUnaryOperator;
 import spoon.reflect.code.CtVariableWrite;
 import spoon.reflect.code.CtWhile;
 import spoon.reflect.code.UnaryOperatorKind;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtArrayTypeReference;
@@ -27,23 +26,14 @@ public class PerturbationProcessor extends AbstractProcessor<CtExpression> {
 
     @Override
     public void process(CtExpression ctExpression) {
-        ctExpression.replace(PertProcessor.createStaticCall(getFactory(), "p"+PertProcessor.function(ctExpression),  getFactory().Core().clone(ctExpression)));
-    }
-
-    /*
-        Yay beurk
-     */
-    private boolean checkClass(CtExpression candidate) {
-        CtElement parent = candidate;
-        while(! ((parent = parent.getParent()) instanceof CtClass)) ;
-        return ((CtClass) parent).getQualifiedName().equals("perturbator.Perturbator");
+        ctExpression.replace(UtilPerturbation.createStaticCall(getFactory(), "p"+UtilPerturbation.function(ctExpression),  getFactory().Core().clone(ctExpression)));
     }
 
     @Override
     public boolean isToBeProcessed(CtExpression candidate) {
 
 //        if (getFactory().Class().get("perturbator.Perturbator").getElements(new TypeFilter<>(CtExpression.class)).contains(candidate))
-        if (checkClass(candidate))//Using a smelly method to replace the condition just above
+        if (UtilPerturbation.checkClass(candidate))//Using a smelly method to replace the condition just above
             return false;
 
         if (candidate.getType() == null)
@@ -87,7 +77,7 @@ public class PerturbationProcessor extends AbstractProcessor<CtExpression> {
                 return false;
         }
 
-        return PertProcessor.types.contains(candidate.getType().getSimpleName());
+        return UtilPerturbation.types.contains(candidate.getType().getSimpleName());
     }
 
     private static void addCast(CtExpression candidate, CtNewArray parent) {
