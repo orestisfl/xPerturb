@@ -14,6 +14,8 @@ public class Perturbator {
 
     private static AbstractPerturbator pertubator = new RndPerturbator();
 
+    private static int number = 1;
+
     /*
         Methods setting
      */
