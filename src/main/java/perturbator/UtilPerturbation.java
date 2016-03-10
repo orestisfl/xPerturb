@@ -90,10 +90,16 @@ public class UtilPerturbation {
 		typeAccess.setType(classReference);
 		typeAccess.setAccessedType(classReference);
 
+		String position = arguments[0].getPosition().getFile().getName()+":"+arguments[0].getPosition().getLine();
+
+
+
 		//Add the location to arguments.
 		CtExpression[] args = new CtExpression[arguments.length + 1];
 		CtLiteral<Integer> litCounter = factory.Code().createLiteral(location);
-		args[0] = litCounter;
+//		args[0] = litCounter;
+		args[0] = factory.Code().createConstructorCall(factory.Type().createReference(Location.class),
+				new CtExpression[] {factory.Code().createLiteral(location), factory.Code().createLiteral(position)});
 		for (int i = 0; i < arguments.length; i++)
 			args[i + 1] = arguments[i];
 		location++;
