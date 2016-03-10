@@ -1,5 +1,6 @@
 package processor;
 
+import perturbator.UtilPerturbation;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.CtBinaryOperator;
 import spoon.reflect.code.CtCase;
@@ -15,11 +16,14 @@ public class PertVarProcessor extends AbstractProcessor<CtVariableRead>{
 
 	@Override
 	public void process(CtVariableRead var) {
-		var.replace(PertProcessor.createStaticCall(getFactory(), "p"+PertProcessor.function(var),  getFactory().Core().clone(var)));
+		var.replace(UtilPerturbation.createStaticCall(getFactory(), "p"+ UtilPerturbation.function(var),  getFactory().Core().clone(var)));
 	}
 
 	@Override
 	public boolean isToBeProcessed(CtVariableRead candidate) {
+
+		if (UtilPerturbation.checkClass(candidate))
+			return false;
 
 		if (candidate.getParent() instanceof CtUnaryOperator && ((CtUnaryOperator) candidate.getParent()).getKind() != UnaryOperatorKind.NEG
 				&& ((CtUnaryOperator) candidate.getParent()).getKind() != UnaryOperatorKind.NOT &&
@@ -52,6 +56,6 @@ public class PertVarProcessor extends AbstractProcessor<CtVariableRead>{
 				return false;
 		}
 
-		return PertProcessor.types.contains(candidate.getType().getSimpleName());
+		return UtilPerturbation.types.contains(candidate.getType().getSimpleName());
 	}
 }

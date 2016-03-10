@@ -28,7 +28,7 @@ public class LocalVariableProcessor extends AbstractProcessor<CtLocalVariable> {
             case "Byte" : return getFactory().Type().BYTE_PRIMITIVE;
             case "Double" : return getFactory().Type().DOUBLE_PRIMITIVE;
             case "Float" : return getFactory().Type().FLOAT_PRIMITIVE;
-            default: return getFactory().Type().SHORT_PRIMITIVE;//@TODO add the short case, but need to include in spoon first
+            default: return getFactory().Type().SHORT_PRIMITIVE;
         }
     }
 
