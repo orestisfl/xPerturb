@@ -3,6 +3,7 @@ package processor;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import perturbator.UtilPerturbation;
 import spoon.Launcher;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
@@ -41,6 +42,7 @@ public class ImplicitCastTest {
 
         launcher.addProcessor(new PertLitProcessor());
 
+        launcher.addInputResource("src/main/java/perturbator/Perturbator.java");
         launcher.addInputResource("src/test/resources/CastRes.java");
         launcher.run();
 
@@ -72,7 +74,7 @@ public class ImplicitCastTest {
 
     @AfterClass
     public static void close(){
-        PertProcessor.reset();
+        UtilPerturbation.reset();
     }
 
 }

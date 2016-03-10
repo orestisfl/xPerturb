@@ -3,6 +3,7 @@ package processor;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import perturbator.UtilPerturbation;
 import spoon.Launcher;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtVariableRead;
@@ -39,6 +40,7 @@ public class VariableTest {
 
         launcher.addProcessor(new PertVarProcessor());
 
+        launcher.addInputResource("src/main/java/perturbator/Perturbator.java");
         launcher.addInputResource("src/test/resources/SimpleRes.java");
         launcher.run();
 
@@ -136,7 +138,7 @@ public class VariableTest {
         f.setAccessible(true);
         List l = (List) f.get(null);
         //put 1 in the list of location
-        l.add(1);
+        l.add(0);
 
         //Loadding the class LiteralRessource
         Class<?> aClass = sysloader.loadClass(c.getQualifiedName());
@@ -183,7 +185,7 @@ public class VariableTest {
 
     @AfterClass
     public static void close(){
-         PertProcessor.reset();
+         UtilPerturbation.reset();
     }
 
 }

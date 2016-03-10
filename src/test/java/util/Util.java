@@ -19,6 +19,8 @@ public class Util {
         launcher.addProcessor(new AssignmentProcessor());
         launcher.addProcessor(new LocalVariableProcessor());
 
+//        launcher.addProcessor(new VariableCaster());
+
         launcher.getEnvironment().setShouldCompile(true);
         launcher.getEnvironment().setAutoImports(true);
         launcher.setBinaryOutputDirectory("spooned/bin");

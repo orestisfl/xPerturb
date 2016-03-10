@@ -3,6 +3,7 @@ package processor;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import perturbator.UtilPerturbation;
 import spoon.Launcher;
 import spoon.reflect.code.CtBinaryOperator;
 import spoon.reflect.code.CtInvocation;
@@ -35,6 +36,7 @@ public class BinaryOpTest {
 
         launcher.addProcessor(new PertBinOpProcessor());
 
+        launcher.addInputResource("src/main/java/perturbator/Perturbator.java");
         launcher.addInputResource("src/test/resources/BinOpRes.java");
         launcher.run();
 
@@ -71,7 +73,6 @@ public class BinaryOpTest {
         Class<?> aClass = sysloader.loadClass(c.getQualifiedName());
         Object o = aClass.newInstance();
 
-
         assertEquals(false, aClass.getMethod("or", boolean.class, boolean.class).invoke(o,true,false));
         assertEquals(false, aClass.getMethod("or", boolean.class, boolean.class).invoke(o,false,true));
         assertEquals(false, aClass.getMethod("or", boolean.class, boolean.class).invoke(o,true,true));
@@ -93,6 +94,6 @@ public class BinaryOpTest {
 
     @AfterClass
     public static void close(){
-        PertProcessor.reset();
+        UtilPerturbation.reset();
     }
 }

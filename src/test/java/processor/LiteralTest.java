@@ -3,6 +3,7 @@ package processor;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import perturbator.UtilPerturbation;
 import spoon.Launcher;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
@@ -39,6 +40,7 @@ public class LiteralTest {
 
         launcher.addProcessor(new PertLitProcessor());
 
+        launcher.addInputResource("src/main/java/perturbator/Perturbator.java");
         launcher.addInputResource("src/test/resources/SimpleRes.java");
         launcher.run();
 
@@ -60,7 +62,7 @@ public class LiteralTest {
             for (CtLiteral elem : elems) {
                 //parent is invokation
                 assertTrue(elem.getParent() instanceof CtInvocation);
-                //this invokation come from pertubator
+                //this invokation come from perturbator
                 assertTrue(((CtInvocationImpl) elem.getParent()).getExecutable().getDeclaringType().equals(p.getReference()));
             }
         }
@@ -91,9 +93,10 @@ public class LiteralTest {
         assertTrue(((char)(Util.execMethod("character", aClass, o)) != '0'));
         assertTrue(((char)(Util.execMethod("charactercstr", aClass, o)) != '0'));
 
+        //Because all perturbation are activated, there is two !!true = true
         assertFalse((boolean)(Util.execMethod("Boolean", aClass, o)));
         assertFalse((boolean)(Util.execMethod("bool", aClass, o)));
-        assertFalse((boolean)(Util.execMethod("boolcstr", aClass, o)));
+        assertFalse((boolean)(Util.execMethod("boolcstr", aClass, o)));//3 perturbation
 
         assertTrue(((int)(Util.execMethod("Int", aClass, o)) != 0));
         assertTrue(((int)(Util.execMethod("integer", aClass, o)) != 0));
@@ -138,7 +141,7 @@ public class LiteralTest {
         f.setAccessible(true);
         List l = (List) f.get(null);
         //put 1 in the list of location
-        l.add(1);
+        l.add(0);
 
         //Loadding the class LiteralRessource
         Class<?> aClass = sysloader.loadClass(c.getQualifiedName());
@@ -185,7 +188,7 @@ public class LiteralTest {
 
     @AfterClass
     public static void close(){
-        PertProcessor.reset();
+        UtilPerturbation.reset();
     }
 
 
