@@ -1,5 +1,6 @@
 package processor;
 
+import perturbator.UtilPerturbation;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.CtCase;
 import spoon.reflect.code.CtConditional;
@@ -15,7 +16,7 @@ import spoon.reflect.reference.CtArrayTypeReference;
 public class PertLitProcessor extends AbstractProcessor<CtLiteral>{
 	
 	public void process(CtLiteral lit) {
-		lit.replace(PertProcessor.createStaticCall(getFactory(), "p"+PertProcessor.function(lit),  getFactory().Core().clone(lit)));
+		lit.replace(UtilPerturbation.createStaticCall(getFactory(), "p"+ UtilPerturbation.function(lit),  getFactory().Core().clone(lit)));
 	}
 
 	private static void addCast(CtLiteral candidate, CtNewArray parent) {
@@ -31,6 +32,9 @@ public class PertLitProcessor extends AbstractProcessor<CtLiteral>{
 
 	@Override
 	public boolean isToBeProcessed(CtLiteral candidate) {
+
+		if (UtilPerturbation.checkClass(candidate))
+			return false;
 
 		if(candidate.getType() == null || candidate.getParent() instanceof CtCase ||
 				(candidate.getParent() instanceof CtUnaryOperator && candidate.getParent().getParent() instanceof CtCase)) {
@@ -51,7 +55,7 @@ public class PertLitProcessor extends AbstractProcessor<CtLiteral>{
 		}
 
 		if(candidate.getParent() instanceof CtLocalVariable) {
-			if (PertProcessor.types.contains(((CtLocalVariable) candidate.getParent()).getType().getSimpleName().toLowerCase()))
+			if (UtilPerturbation.types.contains(((CtLocalVariable) candidate.getParent()).getType().getSimpleName().toLowerCase()))
 				return true;
 		}
 
@@ -65,7 +69,7 @@ public class PertLitProcessor extends AbstractProcessor<CtLiteral>{
 				addCast(candidate, (CtNewArray) candidate.getParent().getParent());
 		}
 
-		return PertProcessor.types.contains(candidate.getType().getSimpleName().toLowerCase());
+		return UtilPerturbation.types.contains(candidate.getType().getSimpleName().toLowerCase());
 	}
 
 }

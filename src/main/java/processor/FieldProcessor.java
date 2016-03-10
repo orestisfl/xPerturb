@@ -1,5 +1,6 @@
 package processor;
 
+import perturbator.UtilPerturbation;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.declaration.CtField;
 
@@ -14,6 +15,9 @@ public class FieldProcessor extends AbstractProcessor<CtField> {
 
     @Override
     public boolean isToBeProcessed(CtField candidate) {
+
+        if (UtilPerturbation.checkClass(candidate))
+            return false;
 
         if (!candidate.getType().isPrimitive()) {
             return false;

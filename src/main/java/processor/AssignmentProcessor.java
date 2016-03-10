@@ -1,5 +1,6 @@
 package processor;
 
+import perturbator.UtilPerturbation;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.CtAssignment;
 
@@ -11,6 +12,9 @@ public class AssignmentProcessor extends AbstractProcessor<CtAssignment> {
 
     @Override
     public boolean isToBeProcessed(CtAssignment candidate) {
+
+        if (UtilPerturbation.checkClass(candidate))
+            return false;
 
         if (!candidate.getType().isPrimitive()) {
             return false;

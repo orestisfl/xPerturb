@@ -3,7 +3,9 @@ package processor;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import perturbator.UtilPerturbation;
 import spoon.Launcher;
+import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
@@ -41,6 +43,7 @@ public class ImplicitCastTest {
 
         launcher.addProcessor(new PertLitProcessor());
 
+        launcher.addInputResource("src/main/java/perturbator/Perturbator.java");
         launcher.addInputResource("src/test/resources/CastRes.java");
         launcher.run();
 
@@ -57,6 +60,8 @@ public class ImplicitCastTest {
         for (CtMethod m : methods) {
             List<CtLiteral> elems = m.getElements(new TypeFilter(CtLiteral.class));
             for (CtLiteral elem : elems) {
+                if (elem.getParent() instanceof CtConstructorCall && ((CtConstructorCall) elem.getParent()).getExecutable().getType().getSimpleName().equals("Location"))
+                    continue;// we skip lit introduce by the perturbation
                 //parent is invokation
                 assertTrue(elem.getParent() instanceof CtInvocation);
                 //this invokation come from pertubator
@@ -72,7 +77,7 @@ public class ImplicitCastTest {
 
     @AfterClass
     public static void close(){
-        PertProcessor.reset();
+        UtilPerturbation.reset();
     }
 
 }

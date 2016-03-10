@@ -3,6 +3,7 @@ package processor;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import perturbator.UtilPerturbation;
 import spoon.Launcher;
 import spoon.reflect.code.CtCase;
 import spoon.reflect.code.CtInvocation;
@@ -40,6 +41,7 @@ public class NotPerturbableTest {
         launcher.addProcessor(new PertLitProcessor());
         launcher.addProcessor(new PertVarProcessor());
 
+        launcher.addInputResource("src/main/java/perturbator/Perturbator.java");
         launcher.addInputResource("src/test/resources/NotPerturbableRes.java");
         launcher.run();
 
@@ -82,6 +84,6 @@ public class NotPerturbableTest {
 
     @AfterClass
     public static void close(){
-        PertProcessor.reset();
+        UtilPerturbation.reset();
     }
 }
