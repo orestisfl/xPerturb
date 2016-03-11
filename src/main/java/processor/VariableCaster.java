@@ -1,8 +1,7 @@
 package processor;
 
+import perturbator.UtilPerturbation;
 import spoon.processing.AbstractProcessor;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtVariable;
 import spoon.reflect.reference.CtTypeReference;
 
@@ -31,22 +30,15 @@ public class VariableCaster extends AbstractProcessor<CtVariable> {
         else
             ctVariable.getDefaultExpression().addTypeCast(getPrimitiveFromObject(ctVariable.getType()));
     }
-    /*
-        Yay beurk
-    */
-    private boolean checkClass(CtVariable candidate) {
-        CtElement parent = candidate;
-        while(! ((parent = parent.getParent()) instanceof CtClass)) ;
-        return ((CtClass) parent).getQualifiedName().equals("perturbator.Perturbator");
-    }
 
     @Override
     public boolean isToBeProcessed(CtVariable candidate) {
-//        if (getFactory().Class().get("perturbator.Perturbator").getElements(new TypeFilter<>(CtExpression.class)).contains(candidate))
-        if (checkClass(candidate))//Using a smelly method to replace the condition just above
+        if (UtilPerturbation.checkIsNotInPerturbatorPackage(candidate))
             return false;
 
-        if (candidate.getDefaultExpression() == null)
+        if (candidate.getDefaultExpression() == null ||
+                candidate.getDefaultExpression().getType() == null ||
+                !UtilPerturbation.perturbableTypes.contains(candidate.getDefaultExpression().getType().getSimpleName()))
             return false;
 
         return !candidate.getType().equals(candidate.getDefaultExpression().getType()) && candidate.getDefaultExpression().getTypeCasts().isEmpty();

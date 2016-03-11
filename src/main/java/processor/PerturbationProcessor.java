@@ -15,6 +15,7 @@ import spoon.reflect.code.CtUnaryOperator;
 import spoon.reflect.code.CtVariableWrite;
 import spoon.reflect.code.CtWhile;
 import spoon.reflect.code.UnaryOperatorKind;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtArrayTypeReference;
@@ -26,14 +27,13 @@ public class PerturbationProcessor extends AbstractProcessor<CtExpression> {
 
     @Override
     public void process(CtExpression ctExpression) {
-        ctExpression.replace(UtilPerturbation.createStaticCall(getFactory(), "p"+UtilPerturbation.function(ctExpression),  getFactory().Core().clone(ctExpression)));
+        ctExpression.replace(UtilPerturbation.createStaticCallOfPerturbationFunction(getFactory(), "p"+UtilPerturbation.function(ctExpression),  getFactory().Core().clone(ctExpression)));
     }
 
     @Override
     public boolean isToBeProcessed(CtExpression candidate) {
 
-//        if (getFactory().Class().get("perturbator.Perturbator").getElements(new TypeFilter<>(CtExpression.class)).contains(candidate))
-        if (UtilPerturbation.checkClass(candidate))//Using a smelly method to replace the condition just above
+        if (UtilPerturbation.checkIsNotInPerturbatorPackage(candidate))
             return false;
 
         if (candidate.getType() == null)
@@ -66,18 +66,24 @@ public class PerturbationProcessor extends AbstractProcessor<CtExpression> {
         if (candidate.getParent() instanceof CtNewArray)
             addCast(candidate, (CtNewArray) candidate.getParent());
 
-        //
         if (candidate.getParent() instanceof CtBinaryOperator) {
-            if (((CtBinaryOperator) candidate.getParent()).getLeftHandOperand() instanceof CtInvocation ||
-            ((CtBinaryOperator) candidate.getParent()).getLeftHandOperand() instanceof CtInvocation)
-                return false;
-            if (!((CtBinaryOperator) candidate.getParent()).getLeftHandOperand().getType().equals(
-                    ((CtBinaryOperator) candidate.getParent()).getRightHandOperand().getType()
-            ))
-                return false;
+            CtBinaryOperator parent = (CtBinaryOperator) candidate.getParent();
+            return checkBrotherCtBinaryOpererator(candidate, parent, (CtClass) getFactory().Class().get("perturbator.Perturbator"));
         }
 
-        return UtilPerturbation.types.contains(candidate.getType().getSimpleName());
+        return UtilPerturbation.perturbableTypes.contains(candidate.getType().getSimpleName());
+    }
+
+    private static boolean checkBrotherCtBinaryOpererator(CtExpression candidate, CtBinaryOperator parent, CtClass p) {
+        CtExpression brother = parent.getLeftHandOperand().equals(candidate)?parent.getRightHandOperand():parent.getLeftHandOperand();
+        if (brother.getType() == null) {
+            if (brother instanceof CtInvocation &&
+                    ((CtInvocation) brother).getTarget().equals(p))
+                return true;
+            else
+                return UtilPerturbation.perturbableTypes.contains(candidate.getType().getSimpleName());
+        }
+        return UtilPerturbation.perturbableTypes.contains(brother.getType().getSimpleName()) && UtilPerturbation.perturbableTypes.contains(candidate.getType().getSimpleName());
     }
 
     private static void addCast(CtExpression candidate, CtNewArray parent) {
@@ -90,4 +96,5 @@ public class PerturbationProcessor extends AbstractProcessor<CtExpression> {
             }
         }
     }
+
 }

@@ -13,7 +13,7 @@ public class AssignmentProcessor extends AbstractProcessor<CtAssignment> {
     @Override
     public boolean isToBeProcessed(CtAssignment candidate) {
 
-        if (UtilPerturbation.checkClass(candidate))
+        if (UtilPerturbation.checkIsNotInPerturbatorPackage(candidate))
             return false;
 
         if (!candidate.getType().isPrimitive()) {
