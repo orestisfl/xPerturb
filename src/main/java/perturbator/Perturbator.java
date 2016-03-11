@@ -10,94 +10,79 @@ public class Perturbator {
 
     private static boolean firstTime = true;
 
-    private static List<Integer> l = new ArrayList<>();
+    private static List<Integer> locationsToPerturb = new ArrayList<>();
 
-    private static AbstractPerturbator pertubator = new RndPerturbator();
-
-    private static int number = 1;
-
-    private static List<Location> locations = new ArrayList<Location>();
+    private static PerturbatorInterface pertubator = new RndPerturbatorImpl();
 
     /*
-        Methods setting
+        Setting method
      */
-
     public static void setOneTime(boolean setOneTime) {
         oneTime = setOneTime;
     }
 
-    public static void setPertubator(AbstractPerturbator p) {
+    public static void setPertubator(PerturbatorInterface p) {
         pertubator = p;
     }
 
     public static void add(Integer i) {
-        l.add(i);
+        locationsToPerturb.add(i);
     }
 
     public static boolean remove(Integer i) {
-        return l.remove((Object)i);
+        return locationsToPerturb.remove(i);
     }
 
     public static void clear() {
-        l.clear();
+        locationsToPerturb.clear();
     }
 
-    public static String getLocation(int location) {
-        for (Location l : locations) {
-            if (l.location == location)
-                return l.position;
-        }
-        return "location of perturbation not found";
+    public static int numberOfPerturbationSetOn() {
+        return locationsToPerturb.size();
     }
 
+
+    /*
+       Perturbation Methods
+     */
     private static boolean perturbation(int location) {
-        if (firstTime && (l.contains(-1)|| l.contains(location))) {
+        if (firstTime && (locationsToPerturb.contains(-1)|| locationsToPerturb.contains(location))) {
             firstTime = !oneTime;
             return true;
         } else
             return false;
     }
 
-    /*
-        Methods perturbation
-     */
-    public static boolean pboolean(Location location, boolean value) {
-        locations.add(location);
-        return (perturbation(location.location)?pertubator.pboolean(value):value);
+    public static boolean pboolean(int location, boolean value) {
+        return (perturbation(location)?pertubator.pboolean(value):value);
     }
 
-    public static byte pbyte(Location location, byte value) {
-        locations.add(location);
-        return (perturbation(location.location)?pertubator.pbyte(value):value);
+    public static byte pbyte(int location, byte value) {
+        return (perturbation(location)?pertubator.pbyte(value):value);
     }
 
-    public static short pshort(Location location, short value) {
-        locations.add(location);
-        return (perturbation(location.location)?pertubator.pshort(value):value);
+    public static short pshort(int location, short value) {
+        return (perturbation(location)?pertubator.pshort(value):value);
     }
 
-    public static int pint(Location location, int value) {
-        return (perturbation(location.location)?pertubator.pint(value):value);
+    public static int pint(int location, int value) {
+        return (perturbation(location)?pertubator.pint(value):value);
     }
 
-    public static long plong(Location location, long value) {
-        locations.add(location);
-        return (perturbation(location.location)?pertubator.plong(value):value);
+    public static long plong(int location, long value) {
+        return (perturbation(location)?pertubator.plong(value):value);
     }
 
-    public static char pchar(Location location, char value) {
-        locations.add(location);
-        return (perturbation(location.location)?pertubator.pchar(value):value);
+    public static char pchar(int location, char value) {
+        return (perturbation(location)?pertubator.pchar(value):value);
     }
 
-    public static float pfloat(Location location, float value) {
-        locations.add(location);
-        return (perturbation(location.location)?pertubator.pfloat(value):value);
+    public static float pfloat(int location, float value) {
+        return (perturbation(location)?pertubator.pfloat(value):value);
     }
 
-    public static double pdouble(Location location, double value) {
-        locations.add(location);
-        return (perturbation(location.location)?pertubator.pdouble(value):value);
+    public static double pdouble(int location, double value) {
+        return (perturbation(location)?pertubator.pdouble(value):value);
     }
 
 }

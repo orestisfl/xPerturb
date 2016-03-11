@@ -3,9 +3,14 @@ package perturbator;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.CtNewArray;
 import spoon.reflect.code.CtTypeAccess;
+import spoon.reflect.cu.SourcePosition;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
+import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtPackage;
+import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
@@ -16,38 +21,40 @@ import java.util.List;
 
 public class UtilPerturbation {
 
-	public static List<String> types = new ArrayList<String>();
+	public static List<String> perturbableTypes = new ArrayList<String>();
 
-	private static int location = 0;
+	private static int currentLocation = 0;
 
 	private static ModifierKind [] modifiersPublic = {ModifierKind.PUBLIC, ModifierKind.STATIC};
 
 	private static CtClass perturbator = null;
+
+	private static CtClass location = null;
 
 	private UtilPerturbation() {
 
 	}
 
 	static  {
-		types.add("char");
-		types.add("Character");
+		perturbableTypes.add("char");
+		perturbableTypes.add("Character");
 
-		types.add("byte");
-		types.add("Byte");
-		types.add("short");
-		types.add("Short");
-		types.add("int");
-		types.add("Integer");
-		types.add("long");
-		types.add("Long");
+		perturbableTypes.add("byte");
+		perturbableTypes.add("Byte");
+		perturbableTypes.add("short");
+		perturbableTypes.add("Short");
+		perturbableTypes.add("int");
+		perturbableTypes.add("Integer");
+		perturbableTypes.add("long");
+		perturbableTypes.add("Long");
 
-		types.add("boolean");
-		types.add("Boolean");
+		perturbableTypes.add("boolean");
+		perturbableTypes.add("Boolean");
 
-		types.add("float");
-		types.add("Float");
-		types.add("double");
-		types.add("Double");
+		perturbableTypes.add("float");
+		perturbableTypes.add("Float");
+		perturbableTypes.add("double");
+		perturbableTypes.add("Double");
 	}
 
 	public static String function(CtExpression e) {
@@ -64,21 +71,37 @@ public class UtilPerturbation {
 		}
 	}
 
-	public static void reset() {
-		perturbator = null;
-		location = 0;
+	public static boolean checkIsNotInPerturbatorPackage(CtElement candidate) {
+		CtElement parent = candidate;
+		while(! ((parent = parent.getParent()) instanceof CtPackage)) ;
+		return ((CtPackage) parent).getQualifiedName().equals("perturbator");
 	}
 
-	public static boolean checkClass(CtElement candidate) {
-		CtElement parent = candidate;
-		while(! ((parent = parent.getParent()) instanceof CtClass)) ;
-		return ((CtClass) parent).getQualifiedName().equals("perturbator.Perturbator");
+	private static String getTypeParametersAsString(CtMethod method) {
+		String listOfParameters = "";
+		List<CtParameter<?>> parameters = method.getParameters();
+		for (CtParameter<?> parameter : parameters)
+			listOfParameters += parameter.getType()+">";
+		return listOfParameters.length()>0?listOfParameters.substring(0, listOfParameters.length()-1):listOfParameters;
+	}
+
+	private static String getMethodName(CtExpression arg) {
+		CtMethod<?>[] methods =  arg.getPosition().getCompilationUnit().getDeclaredTypes().get(0).getMethods().toArray(new CtMethod<?>[]{});
+		SourcePosition argPosition = arg.getPosition();
+		for (int i = 0 ; i < methods.length ; i++) {
+			if (methods[i].getPosition().getSourceStart() <= argPosition.getSourceStart() &&
+					methods[i].getPosition().getSourceEnd() >= argPosition.getSourceEnd())
+				return ":"+methods[i].getSimpleName()+":"+getTypeParametersAsString(methods[i]);
+		}
+		return "";
 	}
 	
-	public static CtInvocation createStaticCall(Factory factory, String methodName, CtExpression...arguments) {
+	public static CtInvocation createStaticCallOfPerturbationFunction(Factory factory, String methodName, CtExpression argument) {
 
-		if (perturbator == null)
+		if (perturbator == null) {
 			perturbator = (CtClass) factory.Class().get("perturbator.Perturbator");
+			location = (CtClass) factory.Class().get("perturbator.Location");
+		}
 
 		CtTypeReference<?> classReference = factory.Type().createReference(perturbator);
 		CtExecutableReference execRef = factory.Core().createExecutableReference();
@@ -90,21 +113,16 @@ public class UtilPerturbation {
 		typeAccess.setType(classReference);
 		typeAccess.setAccessedType(classReference);
 
-		String position = arguments[0].getPosition().getFile().getName()+":"+arguments[0].getPosition().getLine();
+		//ToReview
+		CtLiteral stringPosition = factory.Code().createLiteral(argument.getPosition().getCompilationUnit().getFile().getName() + getMethodName(argument) + ":" + argument.getPosition().getLine());
+		((CtNewArray) location.getField("locations").getDefaultExpression()).addElement(stringPosition);
 
+		//Add the currentLocation to arguments.
+		CtExpression[] args = new CtExpression[2];
+		args[0] = factory.Code().createLiteral(currentLocation);
+		args[1] = argument;
 
-
-		//Add the location to arguments.
-		CtExpression[] args = new CtExpression[arguments.length + 1];
-		CtLiteral<Integer> litCounter = factory.Code().createLiteral(location);
-//		args[0] = litCounter;
-		args[0] = factory.Code().createConstructorCall(factory.Type().createReference(Location.class),
-				new CtExpression[] {factory.Code().createLiteral(location), factory.Code().createLiteral(position)});
-		for (int i = 0; i < arguments.length; i++)
-			args[i + 1] = arguments[i];
-		location++;
-
-		perturbator.getField("number").replace(factory.Code().createCtField("number", factory.Type().INTEGER_PRIMITIVE, location + "", modifiersPublic));
+		currentLocation++;
 
 		return factory.Code().createInvocation(typeAccess, execRef, args);
 	}
