@@ -5,7 +5,7 @@ package perturbator;
  * All of the methods will return a pseudo random (from java.util.Random()) of the appropriate type
  * except for pboolean which will return the complementary of the value.
  */
-public class RndPerturbator extends AbstractPerturbator {
+public class RndPerturbatorImpl implements PerturbatorInterface {
 
     @Override
     public boolean pboolean(boolean value) {

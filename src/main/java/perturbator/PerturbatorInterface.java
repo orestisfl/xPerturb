@@ -3,7 +3,7 @@ package perturbator;
 /**
  * Created by spirals on 09/03/16.
  */
-public abstract class AbstractPerturbator {
+public abstract class PerturbatorInterface {
 
     public abstract boolean pboolean(boolean value);
 

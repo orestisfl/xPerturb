@@ -1,8 +1,6 @@
-# jPerturb : a state perturbation tool for Java.
+![Travis Build Status](https://api.travis-ci.org/Spirals-Team/jPerturb.svg?branch=master)](https://api.travis-ci.org/Spirals-Team/jPerturb)
 
-### Be aware :
-For the moment, you need to take spoon from the branch "fixcompilation" on my own fork :
-   [https://github.com/danglotb/spoon/tree/fixcompilation]
+# jPerturb : a state perturbation tool for Java.
 
 ## Download & Install
 
