@@ -1,9 +1,6 @@
 package processor;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import perturbator.UtilPerturbation;
 import spoon.Launcher;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtInvocation;
@@ -26,36 +23,23 @@ import static org.junit.Assert.assertTrue;
  */
 public class ImplicitCastTest {
 
-    /**
-     * Test if processor replace implicit cast by explicit
-     */
-    private static CtClass c;
-    private static CtClass p;
-    private static Launcher launcher;
+    @Test
+    public void testAddPertubation() throws Exception {
 
-    @BeforeClass
-    public static void setUp() {
-        launcher = Util.createSpoon();
+        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
 
         launcher.addProcessor(new AssignmentProcessor());
-        launcher.addProcessor(new LocalVariableProcessor());
-        launcher.addProcessor(new FieldProcessor());
+        launcher.addProcessor(new VariableCaster());
+        launcher.addProcessor(new PerturbationProcessor());
 
-        launcher.addProcessor(new PertLitProcessor());
-
-        launcher.addInputResource("src/main/java/perturbator/Perturbator.java");
         launcher.addInputResource("src/test/resources/CastRes.java");
         launcher.run();
 
-        c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("CastRes")).get(0);
+        CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("CastRes")).get(0);
 
-        p = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
+        CtClass p = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
 
-//        System.out.println(c);
-    }
 
-    @Test
-    public void testAddPertubation() throws Exception {
         Set<CtMethod> methods = c.getAllMethods();
         for (CtMethod m : methods) {
             List<CtLiteral> elems = m.getElements(new TypeFilter(CtLiteral.class));
@@ -68,16 +52,12 @@ public class ImplicitCastTest {
                 assertTrue(((CtInvocationImpl) elem.getParent()).getExecutable().getDeclaringType().equals(p.getReference()));
             }
         }
+
         //We assume if we can't instanciate the class, something went wrong
         Util.addPathToClassPath(launcher.getModelBuilder().getBinaryOutputDirectory().toURL());
         URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
         Class<?> CastResClass = sysloader.loadClass(c.getQualifiedName());
         Object CastResInstance = CastResClass.newInstance();
-    }
-
-    @AfterClass
-    public static void close(){
-        UtilPerturbation.reset();
     }
 
 }

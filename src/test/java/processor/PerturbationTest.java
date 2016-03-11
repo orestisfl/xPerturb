@@ -28,19 +28,24 @@ import static org.junit.Assert.assertTrue;
  */
 public class PerturbationTest {
 
-    /**
-     * Test if we introduce perturbation well
-     */
-    @Test
-    public void testSpoon() {
+    private static Launcher launcher = null;
+    private static CtClass perturbator = null;
+    private static CtClass simpleResWithPerturbation = null;
 
-        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
+    private static void intialisationTest() {
+        launcher = Util.createSpoonWithPerturbationProcessors();
 
         launcher.addInputResource("src/test/resources/SimpleRes.java");
         launcher.run();
 
-        CtClass simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
-        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
+        simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
+        perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
+    }
+
+    @Test
+    public void testIntroductionOfPerturbation() {
+        if (launcher == null)
+            intialisationTest();
 
         Set<CtMethod> methods = simpleResWithPerturbation.getAllMethods();
 
@@ -57,21 +62,18 @@ public class PerturbationTest {
         }
     }
 
-    /**
-     * Test on specific location
-     */
     @Test
-    public void testLocation() throws Exception {
+    public void testPerturbaion() throws Exception {
+        if (launcher == null)
+            intialisationTest();
 
-        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
-
-        launcher.addInputResource("src/test/resources/SimpleRes.java");
-        launcher.run();
-
-        CtClass simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
-        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
-
-        //URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+//        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
+//
+//        launcher.addInputResource("src/test/resources/SimpleRes.java");
+//        launcher.run();
+//
+//        CtClass simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
+//        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
 
         //The pertubation works?
         Util.addPathToClassPath(launcher.getModelBuilder().getBinaryOutputDirectory().toURL());
@@ -88,6 +90,8 @@ public class PerturbationTest {
         Object objectLocation = classLocation.newInstance();
         Method getLocation = classLocation.getMethod("getLocation", int.class);
         int numberOfLocation = (Integer)classLocation.getMethod("numberOfLocation").invoke(objectLocation);
+
+        System.out.println("number of Location perturbable : " + numberOfLocation);
 
         //SimpleRes Class Under Test
         Class<?> classUnderTest = classLoaderWithoutOldFile.loadClass(simpleResWithPerturbation.getQualifiedName());
@@ -118,6 +122,7 @@ public class PerturbationTest {
             }
 
             clearLocationToPerturb.invoke(objectPerturbator);
+
         }
     }
 

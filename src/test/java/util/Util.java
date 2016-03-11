@@ -1,7 +1,8 @@
 package util;
 
 import processor.AssignmentProcessor;
-import processor.LocalVariableProcessor;
+import processor.PerturbationProcessor;
+import processor.VariableCaster;
 import spoon.Launcher;
 
 import java.lang.reflect.Method;
@@ -13,19 +14,32 @@ import java.net.URLClassLoader;
  */
 public class Util {
 
-    public static Launcher createSpoon() {
+    public static Launcher createSpoonWithPerturbationProcessors() {
         Launcher launcher = new Launcher();
 
         launcher.addProcessor(new AssignmentProcessor());
-        launcher.addProcessor(new LocalVariableProcessor());
+        launcher.addProcessor(new VariableCaster());
+        launcher.addProcessor(new PerturbationProcessor());
 
-//        launcher.addProcessor(new VariableCaster());
+        launcher.addInputResource("src/main/java/perturbator/");
 
         launcher.getEnvironment().setShouldCompile(true);
         launcher.getEnvironment().setAutoImports(true);
         launcher.setBinaryOutputDirectory("spooned/bin");
 
         return launcher;
+    }
+
+    public static URLClassLoader removeOldFileFromClassPath(URLClassLoader sysloader) {
+        URL [] urls = new URL[sysloader.getURLs().length-1];
+        for (int i = 0, j = 0; i < sysloader.getURLs().length ; i++, j++) {
+            if (sysloader.getURLs()[i].toString().endsWith("jPerturb/target/classes/"))
+                j--;
+            else
+                urls[j] = sysloader.getURLs()[i];
+        }
+        URLClassLoader classLoaderWithoutOldFild = URLClassLoader.newInstance(urls, null);
+        return classLoaderWithoutOldFild;
     }
 
     public static void addPathToClassPath(URL u) {
@@ -41,11 +55,6 @@ public class Util {
             t.printStackTrace();
             throw new RuntimeException("Error, could not add URL to system classloader");
         }
-    }
-
-    public static Object execMethod(String name, Class<?> aClass, Object o) throws Exception {
-        Method method = aClass.getMethod(name);
-        return method.invoke(o);
     }
 
 }

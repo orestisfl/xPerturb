@@ -1,9 +1,6 @@
 package processor;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import perturbator.UtilPerturbation;
 import spoon.Launcher;
 import spoon.reflect.code.CtCase;
 import spoon.reflect.code.CtInvocation;
@@ -26,33 +23,16 @@ import static org.junit.Assert.assertEquals;
  */
 public class NotPerturbableTest {
 
-    private static CtClass c;
-    private static CtClass p;
-    private static Launcher launcher;
+    @Test
+    public void testNoPertubationField() throws Exception {
 
-    @BeforeClass
-    public static void setUp() {
-        launcher = Util.createSpoon();
+        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
 
-        launcher.addProcessor(new LocalVariableProcessor());
-        launcher.addProcessor(new FieldProcessor());
-        launcher.addProcessor(new AssignmentProcessor());
-        launcher.addProcessor(new PertBinOpProcessor());
-        launcher.addProcessor(new PertLitProcessor());
-        launcher.addProcessor(new PertVarProcessor());
-
-        launcher.addInputResource("src/main/java/perturbator/Perturbator.java");
         launcher.addInputResource("src/test/resources/NotPerturbableRes.java");
         launcher.run();
 
-        c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("NotPerturbableRes")).get(0);
-        p = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
+        CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("NotPerturbableRes")).get(0);
 
-//        System.out.println(c);
-    }
-
-    @Test
-    public void testNoPertubationField() throws Exception {
         List<CtField> aFields = c.getFields();
         assertEquals(1, aFields.size());
         assertFalse(aFields.get(0).getReference().getDeclaration().getAssignment() instanceof CtInvocation);
@@ -60,6 +40,14 @@ public class NotPerturbableTest {
 
     @Test
     public void testNoPerturbationSwitch() throws Exception {
+
+        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
+
+        launcher.addInputResource("src/test/resources/NotPerturbableRes.java");
+        launcher.run();
+
+        CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("NotPerturbableRes")).get(0);
+
         List<CtSwitch> aSwitch = c.getElements(new TypeFilter<>(CtSwitch.class));
         List<CtCase> aCases = aSwitch.get(0).getCases();
         assertEquals(3, aCases.size());
@@ -70,6 +58,14 @@ public class NotPerturbableTest {
 
     @Test
     public void testNoPerturbationUnary() throws Exception {
+
+        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
+
+        launcher.addInputResource("src/test/resources/NotPerturbableRes.java");
+        launcher.run();
+
+        CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("NotPerturbableRes")).get(0);
+
         List<CtUnaryOperator> unaryOperatorList = c.getElements(new TypeFilter<>(CtUnaryOperator.class));
         for (CtUnaryOperator aUnaryOperator : unaryOperatorList) {
             assertFalse(aUnaryOperator.getParent() instanceof CtInvocation);
@@ -78,12 +74,16 @@ public class NotPerturbableTest {
 
     @Test
     public void testNoPertubationWhileTrue() throws Exception {
+
+        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
+
+        launcher.addInputResource("src/test/resources/NotPerturbableRes.java");
+        launcher.run();
+
+        CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("NotPerturbableRes")).get(0);
+
         List<CtWhile> whiles = c.getElements(new TypeFilter<>(CtWhile.class));
         assertFalse(whiles.get(0).getLoopingExpression().getParent() instanceof CtInvocation);
     }
 
-    @AfterClass
-    public static void close(){
-        UtilPerturbation.reset();
-    }
 }
