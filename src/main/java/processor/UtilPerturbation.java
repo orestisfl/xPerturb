@@ -1,9 +1,7 @@
-package perturbator;
+package processor;
 
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtLiteral;
-import spoon.reflect.code.CtNewArray;
 import spoon.reflect.code.CtTypeAccess;
 import spoon.reflect.cu.SourcePosition;
 import spoon.reflect.declaration.CtClass;
@@ -18,6 +16,7 @@ import spoon.reflect.reference.CtTypeReference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class UtilPerturbation {
 
@@ -85,14 +84,20 @@ public class UtilPerturbation {
 		return listOfParameters.length()>0?listOfParameters.substring(0, listOfParameters.length()-1):listOfParameters;
 	}
 
+
+	//@TODO replace try/catch
 	private static String getMethodName(CtExpression arg) {
-		CtMethod<?>[] methods =  arg.getPosition().getCompilationUnit().getDeclaredTypes().get(0).getMethods().toArray(new CtMethod<?>[]{});
-		SourcePosition argPosition = arg.getPosition();
-		for (int i = 0 ; i < methods.length ; i++) {
-			if (methods[i].getPosition().getSourceStart() <= argPosition.getSourceStart() &&
-					methods[i].getPosition().getSourceEnd() >= argPosition.getSourceEnd())
-				return ":"+methods[i].getSimpleName()+":"+getTypeParametersAsString(methods[i]);
-		}
+		try {
+			CtMethod<?>[] methods = ((Set<CtMethod<?>>) arg.getPosition().getCompilationUnit().getDeclaredTypes().get(0).getMethods()).toArray(new CtMethod<?>[]{});
+			SourcePosition argPosition = arg.getPosition();
+			for (int i = 0; i < methods.length; i++) {
+				if (methods[i].getPosition().getSourceStart() <= argPosition.getSourceStart() &&
+						methods[i].getPosition().getSourceEnd() >= argPosition.getSourceEnd())
+					return ":" + methods[i].getSimpleName() + ":" + getTypeParametersAsString(methods[i]);
+			}
+		} catch (java.lang.UnsupportedOperationException e) {
+				return "";
+			}
 		return "";
 	}
 	
@@ -114,8 +119,9 @@ public class UtilPerturbation {
 		typeAccess.setAccessedType(classReference);
 
 		//ToReview
-		CtLiteral stringPosition = factory.Code().createLiteral(argument.getPosition().getCompilationUnit().getFile().getName() + getMethodName(argument) + ":" + argument.getPosition().getLine());
-		((CtNewArray) location.getField("locations").getDefaultExpression()).addElement(stringPosition);
+//		CtLiteral stringPosition = factory.Code().createLiteral(argument.getPosition().getCompilationUnit().getFile().getName()
+//				+ getMethodName(argument) + ":" + argument.getPosition().getLine());
+//		((CtNewArray) location.getField("locations").getDefaultExpression()).addElement(stringPosition);
 
 		//Add the currentLocation to arguments.
 		CtExpression[] args = new CtExpression[2];

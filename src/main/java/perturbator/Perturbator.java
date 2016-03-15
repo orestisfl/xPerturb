@@ -10,7 +10,7 @@ public class Perturbator {
 
     private static boolean firstTime = true;
 
-    private static List<Integer> locationsToPerturb = new ArrayList<>();
+    private static List<Integer> locationsToPerturb = new ArrayList<Integer>();
 
     private static PerturbatorInterface pertubator = new RndPerturbatorImpl();
 

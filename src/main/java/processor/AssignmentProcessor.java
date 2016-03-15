@@ -1,6 +1,5 @@
 package processor;
 
-import perturbator.UtilPerturbation;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.CtAssignment;
 
