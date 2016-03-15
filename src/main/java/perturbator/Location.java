@@ -5,17 +5,19 @@ package perturbator;
  */
 public class Location {
 
-    private static final String[] locations = new String[] {};
+    public final int locationIndex;
 
-    public static String getLocation(int i) {
-        if (i >= locations.length)
-            return "location not found";
-        else
-            return locations[i];
+    public final String locationInCode;
+
+    private Location() {
+        locationInCode = "";
+        locationIndex = -1;
     }
 
-    public static int numberOfLocation() {
-        return locations.length;
+    public Location(String location, int index) {
+        locationInCode = location;
+        locationIndex = index;
+
     }
 
 }
