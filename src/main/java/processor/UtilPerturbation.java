@@ -1,156 +1,230 @@
 package processor;
 
-import perturbator.Location;
+import perturbator.PerturbationLocation;
+import spoon.reflect.code.CtAssignment;
+import spoon.reflect.code.CtBlock;
+import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldRead;
+import spoon.reflect.code.CtFieldWrite;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtStatement;
 import spoon.reflect.code.CtTypeAccess;
-import spoon.reflect.cu.SourcePosition;
+import spoon.reflect.declaration.CtAnonymousExecutable;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtPackage;
-import spoon.reflect.declaration.CtParameter;
-import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class UtilPerturbation {
 
-	public static List<String> perturbableTypes = new ArrayList<String>();
+    public static List<String> perturbableTypes = new ArrayList<>();
 
-	static  {
-		perturbableTypes.add("char");
-		perturbableTypes.add("Character");
+    static {
+        perturbableTypes.add("char");
+//        perturbableTypes.add("Character");
 
-		perturbableTypes.add("byte");
-		perturbableTypes.add("Byte");
-		perturbableTypes.add("short");
-		perturbableTypes.add("Short");
-		perturbableTypes.add("int");
-		perturbableTypes.add("Integer");
-		perturbableTypes.add("long");
-		perturbableTypes.add("Long");
+        perturbableTypes.add("byte");
+//        perturbableTypes.add("Byte");
+        perturbableTypes.add("short");
+//        perturbableTypes.add("Short");
+        perturbableTypes.add("int");
+//        perturbableTypes.add("Integer");
+        perturbableTypes.add("long");
+//        perturbableTypes.add("Long");
 
-		perturbableTypes.add("boolean");
-		perturbableTypes.add("Boolean");
+        perturbableTypes.add("boolean");
+//        perturbableTypes.add("Boolean");
 
-		perturbableTypes.add("float");
-		perturbableTypes.add("Float");
-		perturbableTypes.add("double");
-		perturbableTypes.add("Double");
-	}
+        perturbableTypes.add("float");
+//        perturbableTypes.add("Float");
+        perturbableTypes.add("double");
+//        perturbableTypes.add("Double");
+    }
 
-	private UtilPerturbation() {
+    private UtilPerturbation() {
+        perturbator = null;
+    }
 
-	}
+    private static CtClass perturbator = null;
 
-	private static CtClass perturbator = null;
+    private static Map<CtClass, List<CtMethod>> methodsByClass = new HashMap<>();
 
-	private static Map<CtType, Integer> nbFieldByClass = new HashMap<CtType, Integer>();
+    private static Map<CtClass, List<CtField>>  listOfFieldByClass = new HashMap<>();
 
-	private static int currentLocation = 0;
+    private static Map<CtClass, CtAnonymousExecutable>  staticBlockByClass = new HashMap<>();
 
-	public static String function(CtExpression e) {
-		String type = e.getType().getSimpleName().toLowerCase();
-		if (e.getTypeCasts().size() > 0)
-			type = ((CtTypeReference)e.getTypeCasts().get(0)).getSimpleName().toLowerCase();
-		switch (type) {
-			case "integer":
-				return "int";
-			case "character":
-				return "char";
-			default:
-				return type;
-		}
-	}
+    private static int currentLocation = 0;
 
-	public static boolean checkIsNotInPerturbatorPackage(CtElement candidate) {
-		CtElement parent = candidate;
-		while(! ((parent = parent.getParent()) instanceof CtPackage)) ;
-		return ((CtPackage) parent).getQualifiedName().equals("perturbator");
-	}
+    public static boolean checkIsNotInPerturbatorPackage(CtElement candidate) {
+        CtPackage parent =  candidate.getParent(CtPackage.class);
+        return parent.getQualifiedName().equals("perturbator");
+    }
 
-	private static String getTypeParametersAsString(CtMethod method) {
-		String listOfParameters = "";
-		List<CtParameter<?>> parameters = method.getParameters();
-		for (CtParameter<?> parameter : parameters)
-			listOfParameters += parameter.getType()+">";
-		return listOfParameters.length()>0?listOfParameters.substring(0, listOfParameters.length()-1):listOfParameters;
-	}
+    public static CtInvocation createStaticCallOfPerturbationFunction(Factory factory, String methodName, CtExpression argument) {
 
-	//@TODO replace try/catch
-	private static String getMethodName(CtExpression arg) {
-		try {
-			CtMethod<?>[] methods = ((Set<CtMethod<?>>) arg.getPosition().getCompilationUnit().getDeclaredTypes().get(0).getMethods()).toArray(new CtMethod<?>[]{});
-			SourcePosition argPosition = arg.getPosition();
-			for (int i = 0; i < methods.length ; i++) {
-				if (methods[i].getPosition().getSourceStart() <= argPosition.getSourceStart() &&
-						methods[i].getPosition().getSourceEnd() >= argPosition.getSourceEnd())
-					return ":" + methods[i].getSimpleName() + ":" + getTypeParametersAsString(methods[i]);
-			}
-		} catch (java.lang.UnsupportedOperationException e) {
-				return "";
-			}
-		return "";
-	}
-	
-	public static CtInvocation createStaticCallOfPerturbationFunction(Factory factory, String methodName, CtExpression argument) {
+        if (perturbator == null)
+            perturbator = (CtClass) factory.Class().get("perturbator.Perturbator");
 
-		if (perturbator == null)
-			perturbator = (CtClass) factory.Class().get("perturbator.Perturbator");
+        CtTypeReference<?> classReference = factory.Type().createReference(perturbator);
+        CtExecutableReference execRef = factory.Core().createExecutableReference();
+        execRef.setDeclaringType(classReference);
+        execRef.setSimpleName(methodName);
+        execRef.setStatic(true);
 
-		CtTypeReference<?> classReference = factory.Type().createReference(perturbator);
-		CtExecutableReference execRef = factory.Core().createExecutableReference();
-		execRef.setDeclaringType(classReference);
-		execRef.setSimpleName(methodName);
-		execRef.setStatic(true);
+        CtTypeAccess typeAccess = factory.Core().createTypeAccess();
+        typeAccess.setType(classReference);
+        typeAccess.setAccessedType(classReference);
 
-		CtTypeAccess typeAccess = factory.Core().createTypeAccess();
-		typeAccess.setType(classReference);
-		typeAccess.setAccessedType(classReference);
+        CtExpression[] args = new CtExpression[2];
+        args[0] = addFieldLocationToClass(factory, argument);
+        args[1] = argument;
 
-		CtExpression[] args = new CtExpression[2];
-		args[0] = addFieldLocationToClass(factory, argument);
-		args[1] = argument;
+        currentLocation++;
 
-		currentLocation++;
+        return factory.Code().createInvocation(typeAccess, execRef, args);
+    }
 
-		return factory.Code().createInvocation(typeAccess, execRef, args);
-	}
+    private static CtFieldRead addFieldLocationToClass(Factory factory, CtExpression argument) {
+
+        CtClass clazz = argument.getParent(new TypeFilter<CtClass>(CtClass.class) {
+            @Override
+            public boolean matches(CtClass element) {
+                return !element.isAnonymous() && super.matches(element);
+            }
+        });
 
 
-	public static CtFieldRead addFieldLocationToClass(Factory factory, CtExpression argument) {
+        if (!listOfFieldByClass.containsKey(clazz)) {
+            listOfFieldByClass.put(clazz, new ArrayList<>());
+            methodsByClass.put(clazz, new ArrayList<>());
+        }
 
-		String constructor = "new Location(\""+argument.getPosition().getCompilationUnit().getFile().getName()
-				+ getMethodName(argument) + ":" + argument.getPosition().getLine()+"\","+currentLocation+")";
+        String fieldName = "__L" + currentLocation;
 
-		CtType typeContainer = factory.Type().get(argument.getPosition().getCompilationUnit().getMainType().getQualifiedName());
+        CtField fieldLocation = factory.Core().createField();
+        fieldLocation.setSimpleName(fieldName);
+        fieldLocation.setType(factory.Type().createReference(PerturbationLocation.class));
+        fieldLocation.addModifier(ModifierKind.PUBLIC);
+        fieldLocation.addModifier(ModifierKind.STATIC);
+        fieldLocation.setParent(clazz);
 
-		if (!nbFieldByClass.containsKey(typeContainer))
-			nbFieldByClass.put(typeContainer, 0);
+        listOfFieldByClass.get(clazz).add(fieldLocation);
 
-		CtField fieldLocation = factory.Code().createCtField("__L"+nbFieldByClass.get(typeContainer), factory.Type().createReference(Location.class),
-				constructor, new ModifierKind[]{ModifierKind.PUBLIC, ModifierKind.STATIC, ModifierKind.FINAL});
+        String constructor = argument.getPosition().getCompilationUnit().getFile().getName() + ":" + argument.getPosition().getLine();
+        CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get("perturbator.PerturbationLocation").getReference(),
+                factory.Code().createLiteral(constructor), factory.Code().createLiteral(currentLocation));
 
-		typeContainer.addFieldAtTop(fieldLocation);
+        CtFieldWrite writeField = factory.Core().createFieldWrite();
+        writeField.setVariable(fieldLocation.getReference());
 
-		CtFieldRead readFieldLocation = factory.Core().createFieldRead();
+        CtAssignment assignmentField = factory.Core().createAssignment();
+        assignmentField.setAssigned(writeField);
+        assignmentField.setAssignment(constructorCall);
 
-		readFieldLocation.setVariable(fieldLocation.getReference());
+        //Methods
+        if (!methodsByClass.get(clazz).isEmpty()) {
+            if (methodsByClass.get(clazz).get(methodsByClass.get(clazz).size()-1).getBody().getStatements().size() < 1000) {
+                methodsByClass.get(clazz).get(methodsByClass.get(clazz).size()-1).getBody().insertEnd(assignmentField);
+            } else
+                addInitMethodTo(clazz, factory, assignmentField);
+        } else
+            addInitMethodTo(clazz, factory, assignmentField);
 
-		nbFieldByClass.put(typeContainer, nbFieldByClass.get(typeContainer)+1);
+        //Build the read of the field for the parameter of the perturbation function
+        CtFieldRead readFieldLocation = factory.Core().createFieldRead();
+        readFieldLocation.setVariable(fieldLocation.getReference());
 
-		return readFieldLocation;
-	}
+        return readFieldLocation;
+    }
+
+    private static void addInitMethodTo(CtClass clazz, Factory factory, CtStatement firstStatement) {
+
+        CtTypeReference typeReference = clazz.getReference();
+
+        CtMethod initMethod = factory.Core().createMethod();
+        initMethod.setSimpleName("initPerturbationLocation"+(methodsByClass.get(clazz).size()));
+
+        Set<ModifierKind> modifierKinds = new HashSet<ModifierKind>();
+        modifierKinds.add(ModifierKind.PRIVATE);
+        modifierKinds.add(ModifierKind.STATIC);
+        initMethod.setModifiers(modifierKinds);
+        initMethod.setType(factory.Type().VOID_PRIMITIVE);
+        initMethod.setBody(factory.Code().createCtBlock(firstStatement));
+
+        methodsByClass.get(clazz).add(initMethod);
+
+        CtTypeAccess typeAccess = factory.Core().createTypeAccess();
+        typeAccess.setType(typeReference);
+        typeAccess.setAccessedType(typeReference);
+
+        CtExecutableReference execRef = factory.Core().createExecutableReference();
+        execRef.setDeclaringType(clazz.getReference());
+        execRef.setSimpleName("initPerturbationLocation"+(methodsByClass.get(clazz).size()-1));
+        execRef.setStatic(true);
+
+        if (staticBlockByClass.containsKey(clazz)) {
+            staticBlockByClass.get(clazz).getBody().insertEnd(factory.Code().createInvocation(typeAccess, execRef));
+        } else {
+            CtBlock initBlock = factory.Code().createCtBlock(factory.Code().createInvocation(typeAccess, execRef));
+            CtAnonymousExecutable staticBlock = factory.Core().createAnonymousExecutable();
+            staticBlock.addModifier(ModifierKind.STATIC);
+            staticBlock.setBody(initBlock);
+            staticBlockByClass.put(clazz, staticBlock);
+        }
+
+    }
+
+    public static void addAllFieldsAndMethods(Factory factory) {
+        CtClass perturbator = (CtClass) factory.Class().get("perturbator.Perturbator");
+
+        CtField nbPerturbation = factory.Core().createField();
+        nbPerturbation.setSimpleName("nbPerturbation");
+        nbPerturbation.setAssignment(factory.Code().createLiteral(currentLocation));
+        nbPerturbation.setType(factory.Type().createReference(int.class));
+        nbPerturbation.addModifier(ModifierKind.PUBLIC);
+        nbPerturbation.addModifier(ModifierKind.STATIC);
+        nbPerturbation.addModifier(ModifierKind.FINAL);
+        nbPerturbation.setParent(perturbator);
+
+        perturbator.addField(nbPerturbation);
+
+        //maps have the sames key
+        for(CtClass clazz : listOfFieldByClass.keySet()) {
+            //Add all fields at top of the current class
+            for (CtField field : listOfFieldByClass.get(clazz)) {
+                clazz.addFieldAtTop(field);
+            }
+
+            //Add Methods
+            List<CtMethod> methods = methodsByClass.get(clazz);
+            for (CtMethod method : methods) {
+                clazz.addMethod(method);
+            }
+
+            //Add static block init
+            List<CtAnonymousExecutable> anonymousExecutables = new ArrayList<CtAnonymousExecutable>();
+            List<CtAnonymousExecutable> existingExecutables = clazz.getAnonymousExecutables();
+            for (CtAnonymousExecutable existing : existingExecutables) {
+                anonymousExecutables.add(existing);
+            }
+            anonymousExecutables.add(staticBlockByClass.get(clazz));
+            clazz.setAnonymousExecutables(anonymousExecutables);
+        }
+
+    }
 
 }
