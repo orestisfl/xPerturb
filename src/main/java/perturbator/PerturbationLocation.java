@@ -3,18 +3,18 @@ package perturbator;
 /**
  * Created by spirals on 08/03/16.
  */
-public class Location {
+public class PerturbationLocation {
 
     public final int locationIndex;
 
     public final String locationInCode;
 
-    private Location() {
+    private PerturbationLocation() {
         locationInCode = "";
         locationIndex = -1;
     }
 
-    public Location(String location, int index) {
+    public PerturbationLocation(String location, int index) {
         locationInCode = location;
         locationIndex = index;
 
