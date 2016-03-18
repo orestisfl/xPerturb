@@ -5,9 +5,17 @@ package perturbator;
  */
 public class PerturbationLocation {
 
-    public final int locationIndex;
+    private final int locationIndex;
 
-    public final String locationInCode;
+    private final String locationInCode;
+
+    public int getLocationIndex(){
+        return locationIndex;
+    }
+
+    public String getLocationInCode() {
+        return locationInCode;
+    }
 
     private PerturbationLocation() {
         locationInCode = "";

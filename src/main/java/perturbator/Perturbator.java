@@ -46,7 +46,7 @@ public class Perturbator {
        Perturbation Methods
      */
     private static boolean perturbation(PerturbationLocation perturbationLocation) {
-        if (firstTime && (locationsToPerturb.contains(-1)|| locationsToPerturb.contains(perturbationLocation.locationIndex))) {
+        if (firstTime && (locationsToPerturb.contains(-1)|| locationsToPerturb.contains(perturbationLocation.getLocationIndex()))) {
             firstTime = !oneTime;
             return true;
         } else
