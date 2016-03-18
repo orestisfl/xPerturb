@@ -15,6 +15,9 @@ public class AssignmentProcessor extends AbstractProcessor<CtAssignment> {
         if (UtilPerturbation.checkIsNotInPerturbatorPackage(candidate))
             return false;
 
+        if (candidate.getType() == null)
+            return false;
+
         if (!candidate.getType().isPrimitive()) {
             return false;
         }
