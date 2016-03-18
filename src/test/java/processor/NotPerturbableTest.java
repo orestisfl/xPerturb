@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 public class NotPerturbableTest {
 
     @Test
-    public void testNoPertubationField() throws Exception {
+    public void testNoPerturbationField() throws Exception {
 
         Launcher launcher = Util.createSpoonWithPerturbationProcessors();
 
@@ -34,7 +34,6 @@ public class NotPerturbableTest {
         CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("NotPerturbableRes")).get(0);
 
         List<CtField> aFields = c.getFields();
-        assertEquals(1, aFields.size());
         assertFalse(aFields.get(0).getReference().getDeclaration().getAssignment() instanceof CtInvocation);
     }
 
@@ -73,7 +72,7 @@ public class NotPerturbableTest {
     }
 
     @Test
-    public void testNoPertubationWhileTrue() throws Exception {
+    public void testNoPerturbationWhileTrue() throws Exception {
 
         Launcher launcher = Util.createSpoonWithPerturbationProcessors();
 

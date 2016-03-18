@@ -17,6 +17,8 @@ public class Util {
     public static Launcher createSpoonWithPerturbationProcessors() {
         Launcher launcher = new Launcher();
 
+//        launcher.getEnvironment().setLevel(Level.ALL.toString());
+
         launcher.addProcessor(new AssignmentProcessor());
         launcher.addProcessor(new VariableCaster());
         launcher.addProcessor(new PerturbationProcessor());

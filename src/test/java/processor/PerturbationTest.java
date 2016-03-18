@@ -5,6 +5,7 @@ import spoon.Launcher;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.CtReturn;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.NameFilter;
@@ -12,6 +13,7 @@ import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.code.CtInvocationImpl;
 import util.Util;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.HashMap;
@@ -20,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -28,52 +29,50 @@ import static org.junit.Assert.assertTrue;
  */
 public class PerturbationTest {
 
-    private static Launcher launcher = null;
-    private static CtClass perturbator = null;
-    private static CtClass simpleResWithPerturbation = null;
-
-    private static void intialisationTest() {
-        launcher = Util.createSpoonWithPerturbationProcessors();
-
-        launcher.addInputResource("src/test/resources/SimpleRes.java");
-        launcher.run();
-
-        simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
-        perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
-    }
-
     @Test
     public void testIntroductionOfPerturbation() {
-        if (launcher == null)
-            intialisationTest();
+        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
+
+        launcher.addInputResource("src/test/resources/SimpleRes.java");
+
+        launcher.run();
+
+        CtClass simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
+
+        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
 
         Set<CtMethod> methods = simpleResWithPerturbation.getAllMethods();
 
         for (CtMethod m : methods) {
             List<CtLiteral> elems = m.getElements(new TypeFilter(CtLiteral.class));
             for (CtLiteral elem : elems) {
-                if (elem.getParent() instanceof CtConstructorCall && ((CtConstructorCall) elem.getParent()).getExecutable().getType().getSimpleName().equals("Location"))
+                if (elem.getParent() instanceof CtConstructorCall && ((CtConstructorCall) elem.getParent()).getExecutable().getType().getSimpleName().equals("PerturbationLocation"))
                     continue;// we skip lit introduce by the perturbation
                 //parent is invokation
                 assertTrue(elem.getParent() instanceof CtInvocation);
                 //this invokation come from perturbator
                 assertTrue(((CtInvocationImpl) elem.getParent()).getExecutable().getDeclaringType().equals(perturbator.getReference()));
             }
+            List<CtReturn> returns = m.getElements(new TypeFilter<>(CtReturn.class));
+            for (CtReturn ret : returns) {
+                assertTrue(ret.getReturnedExpression() instanceof CtInvocation);
+                assertTrue(((CtInvocationImpl) ret.getReturnedExpression()).getExecutable().getDeclaringType().equals(perturbator.getReference()));
+            }
         }
     }
 
     @Test
-    public void testPerturbaion() throws Exception {
-        if (launcher == null)
-            intialisationTest();
+    public void testPerturbation() throws Exception {
 
-//        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
-//
-//        launcher.addInputResource("src/test/resources/SimpleRes.java");
-//        launcher.run();
-//
-//        CtClass simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
-//        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
+        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
+
+        launcher.addInputResource("src/test/resources/SimpleRes.java");
+
+        launcher.run();
+
+        CtClass simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
+
+        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
 
         //The pertubation works?
         Util.addPathToClassPath(launcher.getModelBuilder().getBinaryOutputDirectory().toURL());
@@ -81,49 +80,50 @@ public class PerturbationTest {
 
         //Perturbator
         Class<?> classPerturbator = classLoaderWithoutOldFile.loadClass("perturbator.Perturbator");
+        int nbPerturbation = (int) classPerturbator.getField("nbPerturbation").get(null);
         Object objectPerturbator = classPerturbator.newInstance();
         Method addLocationToPerturb = classPerturbator.getMethod("add", Integer.class);
         Method clearLocationToPerturb = classPerturbator.getMethod("clear");
 
-        //Locations
-        Class<?> classLocation = classLoaderWithoutOldFile.loadClass("perturbator.Location");
-        Object objectLocation = classLocation.newInstance();
-        Method getLocation = classLocation.getMethod("getLocation", int.class);
-        int numberOfLocation = (Integer)classLocation.getMethod("numberOfLocation").invoke(objectLocation);
+        assertEquals(0, classPerturbator.getMethod("numberOfPerturbationSetOn").invoke(objectPerturbator));
 
-        System.out.println("number of Location perturbable : " + numberOfLocation);
-
-        //SimpleRes Class Under Test
         Class<?> classUnderTest = classLoaderWithoutOldFile.loadClass(simpleResWithPerturbation.getQualifiedName());
         Object objectUnderTest = classUnderTest.newInstance();
 
-        assertEquals(0, classPerturbator.getMethod("numberOfPerturbationSetOn").invoke(objectPerturbator));
+        Map<Method, Object> returnWithoutPerturbation = new HashMap<>();
+        Method[] methods = classUnderTest.getMethods();
 
-        Map<String,Object> returnWithoutPerturbation = new HashMap<>();
-        for (int i = 0 ; i < numberOfLocation ; i++) {
-            String methodName = ((String) getLocation.invoke(objectLocation, i)).split(":")[1];
-            returnWithoutPerturbation.put(methodName,classUnderTest.getMethod(methodName).invoke(objectUnderTest));
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].getName().startsWith("_p"))
+                returnWithoutPerturbation.put(methods[i], methods[i].invoke(objectUnderTest));
         }
 
-        for (int i = 0 ; i < numberOfLocation ; i++) {
-            String methodNameUnderPerturbation = ((String) getLocation.invoke(objectLocation, i)).split(":")[1];
-            addLocationToPerturb.invoke(objectPerturbator, i);
+        boolean perturbation;
 
-            //Perturbation is done here
-            assertNotEquals(returnWithoutPerturbation.get(methodNameUnderPerturbation),
-                    classUnderTest.getMethod(methodNameUnderPerturbation).invoke(objectUnderTest));
+        Field[] fields = classUnderTest.getFields();//Getting all field Location in the class under Test
+        Class<?> classLocation = classLoaderWithoutOldFile.loadClass("perturbator.PerturbationLocation");
+        Method getLocationIndex = classLocation.getMethod("getLocationIndex");
 
-            //But not for all other method
-            for (int j = 0 ; j < numberOfLocation ; j++) {
-                String methodNameNotPerturbed =  ((String) getLocation.invoke(objectLocation, j)).split(":")[1];
-                if (!methodNameUnderPerturbation.equals(methodNameNotPerturbed))
-                    assertEquals(returnWithoutPerturbation.get(methodNameNotPerturbed),
-                            classUnderTest.getMethod(methodNameNotPerturbed).invoke(objectUnderTest));
+        for (int f = 0; f < fields.length; f++) {
+            if (fields[f].getName().startsWith("__L")) {
+                Object instanceField = fields[f].get(objectUnderTest);
+                Integer i = (Integer)  getLocationIndex.invoke(instanceField);
+                addLocationToPerturb.invoke(objectPerturbator, i);//Activated the right location
+                perturbation = false;
+                for (int m = 0; m < methods.length; m++) {
+                    if (methods[m].getName().startsWith("_p")) {
+                        if (!methods[m].invoke(objectUnderTest).equals(returnWithoutPerturbation.get(methods[m]))) {
+                            if (perturbation)
+                                assertTrue(false);//One and only one perturbation is activated
+                            else
+                                perturbation = true;
+                        } else
+                            assertEquals(returnWithoutPerturbation.get(methods[m]), methods[m].invoke(objectUnderTest));//Others are the same w/o
+                    }
+                }
+                assertTrue(perturbation);//One perturbation is activated
+                clearLocationToPerturb.invoke(objectPerturbator);//clean location of perturbation
             }
-
-            clearLocationToPerturb.invoke(objectPerturbator);
-
         }
     }
-
 }

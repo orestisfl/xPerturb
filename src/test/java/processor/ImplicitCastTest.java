@@ -24,15 +24,12 @@ import static org.junit.Assert.assertTrue;
 public class ImplicitCastTest {
 
     @Test
-    public void testAddPertubation() throws Exception {
+    public void testCast() throws Exception {
 
         Launcher launcher = Util.createSpoonWithPerturbationProcessors();
 
-        launcher.addProcessor(new AssignmentProcessor());
-        launcher.addProcessor(new VariableCaster());
-        launcher.addProcessor(new PerturbationProcessor());
-
         launcher.addInputResource("src/test/resources/CastRes.java");
+
         launcher.run();
 
         CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("CastRes")).get(0);
@@ -44,7 +41,7 @@ public class ImplicitCastTest {
         for (CtMethod m : methods) {
             List<CtLiteral> elems = m.getElements(new TypeFilter(CtLiteral.class));
             for (CtLiteral elem : elems) {
-                if (elem.getParent() instanceof CtConstructorCall && ((CtConstructorCall) elem.getParent()).getExecutable().getType().getSimpleName().equals("Location"))
+                if (elem.getParent() instanceof CtConstructorCall && ((CtConstructorCall) elem.getParent()).getExecutable().getType().getSimpleName().equals("PerturbationLocation"))
                     continue;// we skip lit introduce by the perturbation
                 //parent is invokation
                 assertTrue(elem.getParent() instanceof CtInvocation);
