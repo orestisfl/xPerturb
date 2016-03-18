@@ -10,6 +10,7 @@ import spoon.reflect.code.CtFieldWrite;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.code.CtTypeAccess;
+import spoon.reflect.cu.SourcePosition;
 import spoon.reflect.declaration.CtAnonymousExecutable;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
@@ -35,24 +36,24 @@ public class UtilPerturbation {
 
     static {
         perturbableTypes.add("char");
-//        perturbableTypes.add("Character");
+        perturbableTypes.add("Character");
 
         perturbableTypes.add("byte");
-//        perturbableTypes.add("Byte");
+        perturbableTypes.add("Byte");
         perturbableTypes.add("short");
-//        perturbableTypes.add("Short");
+        perturbableTypes.add("Short");
         perturbableTypes.add("int");
-//        perturbableTypes.add("Integer");
+        perturbableTypes.add("Integer");
         perturbableTypes.add("long");
-//        perturbableTypes.add("Long");
+        perturbableTypes.add("Long");
 
         perturbableTypes.add("boolean");
-//        perturbableTypes.add("Boolean");
+        perturbableTypes.add("Boolean");
 
         perturbableTypes.add("float");
-//        perturbableTypes.add("Float");
+        perturbableTypes.add("Float");
         perturbableTypes.add("double");
-//        perturbableTypes.add("Double");
+        perturbableTypes.add("Double");
     }
 
     private UtilPerturbation() {
@@ -103,7 +104,7 @@ public class UtilPerturbation {
         CtClass clazz = argument.getParent(new TypeFilter<CtClass>(CtClass.class) {
             @Override
             public boolean matches(CtClass element) {
-                return !element.isAnonymous() && super.matches(element);
+                return element.getParent(CtClass.class) != null ? element.getModifiers().contains(ModifierKind.STATIC) : super.matches(element);
             }
         });
 
@@ -214,17 +215,21 @@ public class UtilPerturbation {
             for (CtMethod method : methods) {
                 clazz.addMethod(method);
             }
-
             //Add static block init
             List<CtAnonymousExecutable> anonymousExecutables = new ArrayList<CtAnonymousExecutable>();
             List<CtAnonymousExecutable> existingExecutables = clazz.getAnonymousExecutables();
             for (CtAnonymousExecutable existing : existingExecutables) {
                 anonymousExecutables.add(existing);
             }
+
+            //Put the static block in first statement
+            SourcePosition position = factory.Core().createSourcePosition(clazz.getPosition().getCompilationUnit(),-1,-1,1,new int[0]);
+
+            staticBlockByClass.get(clazz).setPosition(position);
+
             anonymousExecutables.add(staticBlockByClass.get(clazz));
             clazz.setAnonymousExecutables(anonymousExecutables);
         }
-
     }
 
 }
