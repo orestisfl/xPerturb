@@ -6,13 +6,15 @@ import java.util.List;
 
 public class Perturbator {
 
+    private static boolean activeAll = false;
+
     private static boolean perturbed = false;
 
     private static boolean oneTime = false;
 
     private static boolean firstTime = true;
 
-    private static List<Integer> locationsToPerturb = new ArrayList<Integer>();
+    private static List<PerturbationLocation> locationsToPerturb = new ArrayList<PerturbationLocation>();
 
     private static PerturbatorInterface pertubator = new RndPerturbatorImpl();
 
@@ -27,18 +29,26 @@ public class Perturbator {
         pertubator = p;
     }
 
-    public static void add(Integer i) {
-        locationsToPerturb.add(i);
+    public static void add(PerturbationLocation location) {
+        locationsToPerturb.add(location);
     }
 
-    public static boolean remove(Integer i) {
-        return locationsToPerturb.remove(i);
+    public static boolean remove(PerturbationLocation location) {
+        return locationsToPerturb.remove(location);
     }
 
     public static void reset() {
         locationsToPerturb.clear();
         perturbed = false;
         firstTime = true;
+    }
+
+    public static void enableAllPerturbation() {
+        activeAll = true;
+    }
+
+    public static void disableAllPerturbation() {
+        activeAll = false;
     }
 
     public static int numberOfPerturbationSetOn() {
@@ -50,8 +60,9 @@ public class Perturbator {
        Perturbation Methods
      */
     private static boolean perturbation(PerturbationLocation perturbationLocation) {
-        if (firstTime && (locationsToPerturb.contains(-1)|| locationsToPerturb.contains(perturbationLocation.getLocationIndex()))) {
-            firstTime = !(oneTime);
+        if (locationsToPerturb.contains(perturbationLocation) || activeAll) {
+            if (oneTime)
+                locationsToPerturb.remove(perturbationLocation);
             perturbed = true;
             return true;
         } else
