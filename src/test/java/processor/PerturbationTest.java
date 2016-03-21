@@ -81,7 +81,7 @@ public class PerturbationTest {
         Class<?> classPerturbator = classLoaderWithoutOldFile.loadClass("perturbator.Perturbator");
         int nbPerturbation = (int) classPerturbator.getField("nbPerturbation").get(null);
         Object objectPerturbator = classPerturbator.newInstance();
-        Method addLocationToPerturb = classPerturbator.getMethod("add", Integer.class);
+        Method addLocationToPerturb = classPerturbator.getMethod("add",  classLoaderWithoutOldFile.loadClass("perturbator.PerturbationLocation"));
         Method clearLocationToPerturb = classPerturbator.getMethod("reset");
 
         assertEquals(0, classPerturbator.getMethod("numberOfPerturbationSetOn").invoke(objectPerturbator));
@@ -106,8 +106,7 @@ public class PerturbationTest {
         for (int f = 0; f < fields.length; f++) {
             if (fields[f].getName().startsWith("__L")) {
                 Object instanceField = fields[f].get(objectUnderTest);
-                Integer i = (Integer)  getLocationIndex.invoke(instanceField);
-                addLocationToPerturb.invoke(objectPerturbator, i);//Activated the right location
+                addLocationToPerturb.invoke(objectPerturbator, instanceField);//Activated the right location
                 perturbation = false;
                 for (int m = 0; m < methods.length; m++) {
                     if (methods[m].getName().startsWith("_p")) {
