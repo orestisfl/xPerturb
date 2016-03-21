@@ -1,5 +1,6 @@
 package processor;
 
+import org.junit.Assert;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.CtConstructorCall;
@@ -51,7 +52,7 @@ public class PerturbationTest {
                 //parent is invokation
                 assertTrue(elem.getParent() instanceof CtInvocation);
                 //this invokation come from perturbator
-                assertTrue(((CtInvocationImpl) elem.getParent()).getExecutable().getDeclaringType().equals(perturbator.getReference()));
+                Assert.assertEquals(perturbator.getReference(), ((CtInvocationImpl) elem.getParent()).getExecutable().getDeclaringType());
             }
             List<CtReturn> returns = m.getElements(new TypeFilter<>(CtReturn.class));
             for (CtReturn ret : returns) {
@@ -72,8 +73,6 @@ public class PerturbationTest {
 
         CtClass simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
 
-        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbator")).get(0);
-
         //The pertubation works?
         Util.addPathToClassPath(launcher.getModelBuilder().getBinaryOutputDirectory().toURL());
         URLClassLoader classLoaderWithoutOldFile = Util.removeOldFileFromClassPath((URLClassLoader) ClassLoader.getSystemClassLoader());
@@ -83,7 +82,7 @@ public class PerturbationTest {
         int nbPerturbation = (int) classPerturbator.getField("nbPerturbation").get(null);
         Object objectPerturbator = classPerturbator.newInstance();
         Method addLocationToPerturb = classPerturbator.getMethod("add", Integer.class);
-        Method clearLocationToPerturb = classPerturbator.getMethod("clear");
+        Method clearLocationToPerturb = classPerturbator.getMethod("reset");
 
         assertEquals(0, classPerturbator.getMethod("numberOfPerturbationSetOn").invoke(objectPerturbator));
 
