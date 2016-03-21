@@ -17,6 +17,8 @@ public class PerturbationLocation {
         return locationInCode;
     }
 
+    public String replacement;
+
     private PerturbationLocation() {
         locationInCode = "";
         locationIndex = -1;
@@ -25,7 +27,6 @@ public class PerturbationLocation {
     public PerturbationLocation(String location, int index) {
         locationInCode = location;
         locationIndex = index;
-
     }
 
 }

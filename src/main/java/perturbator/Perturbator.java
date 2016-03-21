@@ -6,6 +6,8 @@ import java.util.List;
 
 public class Perturbator {
 
+    private static boolean perturbed = false;
+
     private static boolean oneTime = false;
 
     private static boolean firstTime = true;
@@ -33,8 +35,10 @@ public class Perturbator {
         return locationsToPerturb.remove(i);
     }
 
-    public static void clear() {
+    public static void reset() {
         locationsToPerturb.clear();
+        perturbed = false;
+        firstTime = true;
     }
 
     public static int numberOfPerturbationSetOn() {
@@ -47,42 +51,83 @@ public class Perturbator {
      */
     private static boolean perturbation(PerturbationLocation perturbationLocation) {
         if (firstTime && (locationsToPerturb.contains(-1)|| locationsToPerturb.contains(perturbationLocation.getLocationIndex()))) {
-            firstTime = !oneTime;
+            firstTime = !(oneTime);
+            perturbed = true;
             return true;
         } else
             return false;
     }
 
     public static boolean pboolean(PerturbationLocation perturbationLocation, boolean value) {
-        return (perturbation(perturbationLocation)?pertubator.pboolean(value):value);
+        if (perturbation(perturbationLocation)) {
+            boolean perturbation = pertubator.pboolean(value);
+            perturbationLocation.replacement = value + "->" + perturbation;
+            return perturbation;
+        } else
+            return value;
     }
 
     public static byte pbyte(PerturbationLocation perturbationLocation, byte value) {
-        return (perturbation(perturbationLocation)?pertubator.pbyte(value):value);
+        if (perturbation(perturbationLocation)) {
+            byte perturbation = pertubator.pbyte(value);
+            perturbationLocation.replacement = value + "->" + perturbation;
+            return perturbation;
+        } else
+            return value;
     }
 
     public static short pshort(PerturbationLocation perturbationLocation, short value) {
-        return (perturbation(perturbationLocation)?pertubator.pshort(value):value);
+        if (perturbation(perturbationLocation)) {
+            short perturbation = pertubator.pshort(value);
+            perturbationLocation.replacement = value + "->" + perturbation;
+            return perturbation;
+        } else
+            return value;
     }
 
     public static int pint(PerturbationLocation perturbationLocation, int value) {
-        return (perturbation(perturbationLocation)?pertubator.pint(value):value);
+        if (perturbation(perturbationLocation)) {
+            int perturbation = pertubator.pint(value);
+            perturbationLocation.replacement = value + "->" + perturbation;
+            return perturbation;
+        } else
+            return value;
     }
 
     public static long plong(PerturbationLocation perturbationLocation, long value) {
-        return (perturbation(perturbationLocation)?pertubator.plong(value):value);
+        if (perturbation(perturbationLocation)) {
+            long perturbation = pertubator.plong(value);
+            perturbationLocation.replacement = value + "->" + perturbation;
+            return perturbation;
+        } else
+            return value;
     }
 
     public static char pchar(PerturbationLocation perturbationLocation, char value) {
-        return (perturbation(perturbationLocation)?pertubator.pchar(value):value);
+        if (perturbation(perturbationLocation)) {
+            char perturbation = pertubator.pchar(value);
+            perturbationLocation.replacement = value + "->" + perturbation;
+            return perturbation;
+        } else
+            return value;
     }
 
     public static float pfloat(PerturbationLocation perturbationLocation, float value) {
-        return (perturbation(perturbationLocation)?pertubator.pfloat(value):value);
+        if (perturbation(perturbationLocation)) {
+            float perturbation = pertubator.pfloat(value);
+            perturbationLocation.replacement = value + "->" + perturbation;
+            return perturbation;
+        } else
+            return value;
     }
 
     public static double pdouble(PerturbationLocation perturbationLocation, double value) {
-        return (perturbation(perturbationLocation)?pertubator.pdouble(value):value);
+        if (perturbation(perturbationLocation)) {
+            double perturbation = pertubator.pdouble(value);
+            perturbationLocation.replacement = value + "->" + perturbation;
+            return perturbation;
+        } else
+            return value;
     }
 
 }

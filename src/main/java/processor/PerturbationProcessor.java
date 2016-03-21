@@ -98,8 +98,6 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
                     return false;
             }
 
-
-
             if (candidateParent instanceof CtConstructorCall) {
                 if (candidateParent.isParentInitialized() && candidateParent.getParent() instanceof CtEnumValue)
                     return false;
