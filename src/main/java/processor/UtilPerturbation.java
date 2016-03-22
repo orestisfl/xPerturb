@@ -36,24 +36,16 @@ public class UtilPerturbation {
 
     static {
         perturbableTypes.add("char");
-        perturbableTypes.add("Character");
 
         perturbableTypes.add("byte");
-        perturbableTypes.add("Byte");
         perturbableTypes.add("short");
-        perturbableTypes.add("Short");
         perturbableTypes.add("int");
-        perturbableTypes.add("Integer");
         perturbableTypes.add("long");
-        perturbableTypes.add("Long");
 
         perturbableTypes.add("boolean");
-        perturbableTypes.add("Boolean");
 
         perturbableTypes.add("float");
-        perturbableTypes.add("Float");
         perturbableTypes.add("double");
-        perturbableTypes.add("Double");
     }
 
     private UtilPerturbation() {
