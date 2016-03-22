@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by spirals on 08/03/16.
  */
-public class BinaryOpTest {
+public class TestProcessBinaryOp {
 
     @Test
     public void testIntroductionOfPerturbation() throws Exception {

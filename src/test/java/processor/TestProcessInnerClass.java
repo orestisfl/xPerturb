@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by spirals on 21/03/16.
  */
-public class InnerClassTess {
+public class TestProcessInnerClass {
 
     @Test
     public void testNoAnonymousBlockInNotStaticInnerClass() throws Exception {

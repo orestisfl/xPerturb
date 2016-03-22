@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by spirals on 08/03/16.
  */
-public class ImplicitCastTest {
+public class TestProcessImplicitCast {
 
     @Test
     public void testCast() throws Exception {

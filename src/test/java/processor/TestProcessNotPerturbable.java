@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by spirals on 08/03/16.
  */
-public class NotPerturbableTest {
+public class TestProcessNotPerturbable {
 
     @Test
     public void testNoPerturbationField() throws Exception {
