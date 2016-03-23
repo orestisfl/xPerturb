@@ -16,4 +16,9 @@ public class AlwaysActivator extends AbstractActivator {
     public boolean shouldBeActivated(PerturbationLocation location) {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "always";
+    }
 }

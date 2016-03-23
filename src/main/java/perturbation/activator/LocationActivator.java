@@ -26,4 +26,9 @@ public class LocationActivator extends AbstractActivator {
         } else
             return false;
     }
+
+    @Override
+    public String toString() {
+        return "nTimeLocation";
+    }
 }

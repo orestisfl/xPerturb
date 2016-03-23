@@ -113,4 +113,8 @@ public class Perturbator {
             return value;
     }
 
+    public static String print() {
+        return pertubator.toString()+"/"+activator.toString();
+    }
+
 }
