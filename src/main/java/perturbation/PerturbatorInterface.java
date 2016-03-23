@@ -1,4 +1,4 @@
-package perturbator;
+package perturbation;
 
 /**
  * Created by spirals on 09/03/16.
@@ -16,5 +16,8 @@ public interface PerturbatorInterface {
 
     float pfloat(float value);
     double pdouble(double value);
+
+    @Override
+    String toString();
 
 }

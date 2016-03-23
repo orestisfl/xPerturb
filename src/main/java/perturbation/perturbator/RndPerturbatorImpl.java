@@ -1,4 +1,6 @@
-package perturbator;
+package perturbation.perturbator;
+
+import perturbation.PerturbatorInterface;
 
 /**
  * Created by spirals on 09/03/16.
@@ -45,5 +47,10 @@ public class RndPerturbatorImpl implements PerturbatorInterface {
     @Override
     public double pdouble(double value) {
         return (double)(new java.util.Random().nextFloat());
+    }
+
+    @Override
+    public String toString() {
+        return "rnd perturbator";
     }
 }

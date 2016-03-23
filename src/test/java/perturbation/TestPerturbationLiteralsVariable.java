@@ -1,4 +1,4 @@
-package perturbator;
+package perturbation;
 
 import org.junit.Test;
 import spoon.Launcher;

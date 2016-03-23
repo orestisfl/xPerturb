@@ -1,7 +1,9 @@
-package perturbator;
+package perturbation;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -38,31 +40,40 @@ public class PerturbationLocation {
         return locationIndex+"\t"+locationInCode+"\t"+replacement;
     }
 
-    public static List<List<PerturbationLocation>> getSubListsFromClass(Class clazz, int size) {
+    public static List<List<PerturbationLocation>> buildSubList(Class clazz, int k) {
+        List<PerturbationLocation> locations = PerturbationLocation.getLocationFromClass(clazz);
         List<List<PerturbationLocation>> subLists = new ArrayList<List<PerturbationLocation>>();
-        buildSubList(subLists, null, getLocationFromClass(clazz), size);
+        LinkedList<String> indices = comb(k, locations.size());
+        for (String indice : indices) {
+            List<PerturbationLocation> currentSubList = new ArrayList<PerturbationLocation>();
+            String [] loc = indice.split(" ");
+            for (int i = 0 ; i < k ; i++) {
+                currentSubList.add(locations.get(Integer.parseInt(loc[i])));
+            }
+            subLists.add(currentSubList);
+        }
         return subLists;
     }
 
-    private static void buildSubList( List<List<PerturbationLocation>> subLists, List<PerturbationLocation> current, List<PerturbationLocation> locations, int size) {
+    private static String bitprint(int u) {
+        String s = "";
+        for (int n = 0; u > 0; ++n, u >>= 1)
+            if ((u & 1) > 0) s += n + " ";
+        return s;
+    }
 
-        if (current == null)
-            current = new ArrayList<PerturbationLocation>();
+    private static int bitcount(int u) {
+        int n;
+        for (n = 0; u > 0; ++n, u &= (u - 1));
+        return n;
+    }
 
-        for (int i = 0 ; i < locations.size() - size ; i++) {
-            PerturbationLocation value = locations.get(i);
-            current.add(value);
-            locations.remove(value);
-            if (current.size() == size) {
-                List<PerturbationLocation> subList = new ArrayList<PerturbationLocation>();
-                subList.addAll(current);
-                subLists.add(subList);
-            }
-            List<PerturbationLocation> newLocations = new ArrayList<PerturbationLocation>();
-            newLocations.addAll(locations);
-            buildSubList(subLists, current, newLocations, size);
-            current.remove(value);
-        }
+    private static LinkedList<String> comb(int c, int n) {
+        LinkedList<String> s = new LinkedList<String>();
+        for (int u = 0; u < 1 << n; u++)
+            if (bitcount(u) == c) s.push(bitprint(u));
+        Collections.sort(s);
+        return s;
     }
 
     public static List<PerturbationLocation> getLocationFromClass(Class clazz) {
@@ -85,7 +96,7 @@ public class PerturbationLocation {
 
     @Override
     public boolean equals(Object that) {
-        return that instanceof PerturbationLocation && (perturbator.PerturbationLocation.this.locationIndex) == ((PerturbationLocation)that).locationIndex;
+        return that instanceof PerturbationLocation && (perturbation.PerturbationLocation.this.locationIndex) == ((PerturbationLocation)that).locationIndex;
     }
 
 }

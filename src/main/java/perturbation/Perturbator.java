@@ -1,4 +1,4 @@
-package perturbator;
+package perturbation;
 
 
 import java.util.ArrayList;
@@ -55,6 +55,9 @@ public class Perturbator {
         return locationsToPerturb.size();
     }
 
+    public static boolean isPerturbed() {
+        return perturbed;
+    }
 
     /*
        Perturbation Methods
