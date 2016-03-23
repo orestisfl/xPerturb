@@ -69,7 +69,7 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
                 return false;
         }
 
-        CtType perturbatorClass = getFactory().Type().get("perturbator.Perturbator");
+        CtType perturbatorClass = getFactory().Type().get("perturbation.Perturbator");
         CtTypeReference perturbatorReference = perturbatorClass.getReference();
 
         //An object on which we call a method can not be perturb

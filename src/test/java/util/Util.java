@@ -23,7 +23,7 @@ public class Util {
         launcher.addProcessor(new VariableCaster());
         launcher.addProcessor(new PerturbationProcessor());
 
-        launcher.addInputResource("src/main/java/perturbator/");
+        launcher.addInputResource("src/main/java/perturbation/");
 
         launcher.getEnvironment().setShouldCompile(true);
         launcher.getEnvironment().setAutoImports(true);

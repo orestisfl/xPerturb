@@ -36,9 +36,9 @@ public class TestPerturbationLiteralsVariable {
         URLClassLoader classLoaderWithoutOldFile = Util.removeOldFileFromClassPath((URLClassLoader) ClassLoader.getSystemClassLoader());
 
         //Perturbator
-        Class<?> classPerturbator = classLoaderWithoutOldFile.loadClass("perturbator.Perturbator");
+        Class<?> classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.Perturbator");
         Object objectPerturbator = classPerturbator.newInstance();
-        Method addLocationToPerturb = classPerturbator.getMethod("add",  classLoaderWithoutOldFile.loadClass("perturbator.PerturbationLocation"));
+        Method addLocationToPerturb = classPerturbator.getMethod("add",  classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation"));
         Method clearLocationToPerturb = classPerturbator.getMethod("reset");
 
         assertEquals(0, classPerturbator.getMethod("numberOfPerturbationSetOn").invoke(objectPerturbator));

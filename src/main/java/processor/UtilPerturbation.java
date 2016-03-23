@@ -1,6 +1,6 @@
 package processor;
 
-import perturbator.PerturbationLocation;
+import perturbation.PerturbationLocation;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtConstructorCall;
@@ -64,13 +64,13 @@ public class UtilPerturbation {
 
     public static boolean checkIsNotInPerturbatorPackage(CtElement candidate) {
         CtPackage parent =  candidate.getParent(CtPackage.class);
-        return parent.getQualifiedName().equals("perturbator");
+        return parent.getQualifiedName().startsWith("perturbation");
     }
 
     public static CtInvocation createStaticCallOfPerturbationFunction(Factory factory, String methodName, CtExpression argument) {
 
         if (perturbator == null)
-            perturbator = (CtClass) factory.Class().get("perturbator.Perturbator");
+            perturbator = (CtClass) factory.Class().get("perturbation.Perturbator");
 
         CtTypeReference<?> classReference = factory.Type().createReference(perturbator);
         CtExecutableReference execRef = factory.Core().createExecutableReference();
@@ -118,7 +118,7 @@ public class UtilPerturbation {
         listOfFieldByClass.get(clazz).add(fieldLocation);
 
         String constructor = argument.getPosition().getCompilationUnit().getFile().getName() + ":" + argument.getPosition().getLine();
-        CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get("perturbator.PerturbationLocation").getReference(),
+        CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get("perturbation.PerturbationLocation").getReference(),
                 factory.Code().createLiteral(constructor), factory.Code().createLiteral(currentLocation));
 
         CtFieldWrite writeField = factory.Core().createFieldWrite();
@@ -182,7 +182,7 @@ public class UtilPerturbation {
     }
 
     public static void addAllFieldsAndMethods(Factory factory) {
-        CtClass perturbator = (CtClass) factory.Class().get("perturbator.Perturbator");
+        CtClass perturbator = (CtClass) factory.Class().get("perturbation.Perturbator");
 
         CtField nbPerturbation = factory.Core().createField();
         nbPerturbation.setSimpleName("nbPerturbation");
