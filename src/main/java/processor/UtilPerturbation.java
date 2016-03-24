@@ -34,12 +34,21 @@ public class UtilPerturbation {
 
     public static List<String> perturbableTypes = new ArrayList<>();
 
+    public static final String PACKAGE_NAME_PERTURBATION = "perturbation";
+
+    public static final String QUALIFIED_NAME_PERTURBATOR = PACKAGE_NAME_PERTURBATION+".Perturbator";
+
+    public static final String QUALIFIED_NAME_LOCATION = PACKAGE_NAME_PERTURBATION+".PerturbationLocation";
+
+    private static final String INIT_METHOD_NAME = "initPerturbationLocation";
+
     static {
         perturbableTypes.add("char");
 
         perturbableTypes.add("byte");
         perturbableTypes.add("short");
         perturbableTypes.add("int");
+        perturbableTypes.add("Integer");
         perturbableTypes.add("long");
 
         perturbableTypes.add("boolean");
@@ -64,13 +73,13 @@ public class UtilPerturbation {
 
     public static boolean checkIsNotInPerturbatorPackage(CtElement candidate) {
         CtPackage parent =  candidate.getParent(CtPackage.class);
-        return parent.getQualifiedName().startsWith("perturbation");
+        return parent.getQualifiedName().startsWith(PACKAGE_NAME_PERTURBATION);
     }
 
     public static CtInvocation createStaticCallOfPerturbationFunction(Factory factory, String methodName, CtExpression argument) {
 
         if (perturbator == null)
-            perturbator = (CtClass) factory.Class().get("perturbation.Perturbator");
+            perturbator = (CtClass) factory.Class().get(QUALIFIED_NAME_PERTURBATOR);
 
         CtTypeReference<?> classReference = factory.Type().createReference(perturbator);
         CtExecutableReference execRef = factory.Core().createExecutableReference();
@@ -118,7 +127,7 @@ public class UtilPerturbation {
         listOfFieldByClass.get(clazz).add(fieldLocation);
 
         String constructor = argument.getPosition().getCompilationUnit().getFile().getName() + ":" + argument.getPosition().getLine();
-        CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get("perturbation.PerturbationLocation").getReference(),
+        CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get(QUALIFIED_NAME_LOCATION).getReference(),
                 factory.Code().createLiteral(constructor), factory.Code().createLiteral(currentLocation));
 
         CtFieldWrite writeField = factory.Core().createFieldWrite();
@@ -149,7 +158,7 @@ public class UtilPerturbation {
         CtTypeReference typeReference = clazz.getReference();
 
         CtMethod initMethod = factory.Core().createMethod();
-        initMethod.setSimpleName("initPerturbationLocation"+(methodsByClass.get(clazz).size()));
+        initMethod.setSimpleName(INIT_METHOD_NAME+(methodsByClass.get(clazz).size()));
 
         Set<ModifierKind> modifierKinds = new HashSet<ModifierKind>();
         modifierKinds.add(ModifierKind.PRIVATE);
@@ -166,7 +175,7 @@ public class UtilPerturbation {
 
         CtExecutableReference execRef = factory.Core().createExecutableReference();
         execRef.setDeclaringType(clazz.getReference());
-        execRef.setSimpleName("initPerturbationLocation"+(methodsByClass.get(clazz).size()-1));
+        execRef.setSimpleName(INIT_METHOD_NAME+(methodsByClass.get(clazz).size()-1));
         execRef.setStatic(true);
 
         if (staticBlockByClass.containsKey(clazz)) {
@@ -182,7 +191,7 @@ public class UtilPerturbation {
     }
 
     public static void addAllFieldsAndMethods(Factory factory) {
-        CtClass perturbator = (CtClass) factory.Class().get("perturbation.Perturbator");
+        CtClass perturbator = (CtClass) factory.Class().get(QUALIFIED_NAME_PERTURBATOR);
 
         CtField nbPerturbation = factory.Core().createField();
         nbPerturbation.setSimpleName("nbPerturbation");

@@ -4,10 +4,12 @@ import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.CtArrayWrite;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBinaryOperator;
+import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtCase;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldWrite;
+import spoon.reflect.code.CtIf;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtNewArray;
@@ -38,8 +40,13 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
 
         expr.setParent(ctExpression.getParent());
 
+        String type = ""+ (ctExpression.getTypeCasts().isEmpty()?ctExpression.getType().getSimpleName().toLowerCase():ctExpression.getTypeCasts().get(0)).toString().toLowerCase();
+
+        if (type.equals("integer"))
+            type = "int";
+
         ctExpression.replace(UtilPerturbation.createStaticCallOfPerturbationFunction(getFactory(),
-                "p" +  (ctExpression.getTypeCasts().isEmpty()?ctExpression.getType().getSimpleName().toLowerCase():ctExpression.getTypeCasts().get(0)), expr));
+                "p" + type , expr));
 
     }
 
@@ -69,12 +76,20 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
                 return false;
         }
 
-        CtType perturbatorClass = getFactory().Type().get("perturbation.Perturbator");
+        CtType perturbatorClass = getFactory().Type().get(UtilPerturbation.QUALIFIED_NAME_PERTURBATOR);
         CtTypeReference perturbatorReference = perturbatorClass.getReference();
 
         //An object on which we call a method can not be perturb
         if (candidate.isParentInitialized()) {
             CtElement candidateParent = candidate.getParent();
+
+            //@TODO
+            if (candidate instanceof CtInvocation) {
+                if (candidateParent instanceof CtBlock)
+                    return false;
+                if (candidateParent instanceof CtIf && ((CtIf) candidateParent).getCondition() != candidate)
+                    return false;
+            }
 
             if (candidateParent instanceof CtInvocation) {
                 CtExpression target = ((CtInvocation) candidateParent).getTarget();
