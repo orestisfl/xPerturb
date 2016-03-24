@@ -6,7 +6,7 @@ import perturbation.PerturbationLocation;
 /**
  * Created by spirals on 23/03/16.
  */
-public class LocationActivator extends AbstractActivator {
+public class NTimeLocationActivator extends AbstractActivator {
 
     /**
      * This method will add n time the given location at the list in order to activate it n time.

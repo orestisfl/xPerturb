@@ -48,6 +48,6 @@ public class ZeroPerturbatorImpl implements PerturbatorInterface {
 
     @Override
     public String toString() {
-        return "zero perturbator";
+        return "0";
     }
 }

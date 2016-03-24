@@ -48,7 +48,7 @@ public class RndPosPerturbatorImpl extends RndPerturbatorImpl {
 
     @Override
     public String toString() {
-        return "rnd pos perturbator";
+        return "Rnd+";
     }
 
 

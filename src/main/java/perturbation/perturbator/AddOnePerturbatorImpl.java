@@ -50,6 +50,6 @@ public class AddOnePerturbatorImpl implements PerturbatorInterface {
 
     @Override
     public String toString() {
-        return "add one perturbator";
+        return "+1";
     }
 }

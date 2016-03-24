@@ -49,6 +49,6 @@ public class MinusOnePerturbatorImpl implements PerturbatorInterface {
 
     @Override
     public String toString() {
-        return "minus one perturbator";
+        return "-1";
     }
 }

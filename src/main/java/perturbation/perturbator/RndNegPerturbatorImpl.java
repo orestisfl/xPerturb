@@ -48,7 +48,7 @@ public class RndNegPerturbatorImpl extends RndPerturbatorImpl {
 
     @Override
     public String toString() {
-        return "rnd neg perturbator";
+        return "Rnd-";
     }
 
 }

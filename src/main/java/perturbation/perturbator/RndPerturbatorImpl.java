@@ -51,6 +51,6 @@ public class RndPerturbatorImpl implements PerturbatorInterface {
 
     @Override
     public String toString() {
-        return "rnd perturbator";
+        return "Rnd";
     }
 }
