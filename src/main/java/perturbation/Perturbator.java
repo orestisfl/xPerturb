@@ -1,14 +1,14 @@
 package perturbation;
 
 
-import perturbation.activator.LocationActivator;
+import perturbation.activator.NTimeLocationActivator;
 import perturbation.perturbator.RndPerturbatorImpl;
 
 public class Perturbator {
 
     private static PerturbatorInterface pertubator = new RndPerturbatorImpl();
 
-    private static AbstractActivator activator = new LocationActivator();
+    private static AbstractActivator activator = new NTimeLocationActivator(1);
 
     /*
         Setting method
