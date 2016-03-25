@@ -1,17 +1,17 @@
-package perturbation.activator;
+package perturbation.enactor;
 
 import perturbation.PerturbationLocation;
 
 /**
  * Created by spirals on 23/03/16.
  */
-public class LocationRandomActivator extends RandomActivator {
+public class LocationRandomEnactor extends RandomEnactor {
 
-    public LocationRandomActivator(float epsilon) {
+    public LocationRandomEnactor(float epsilon) {
         super(epsilon);
     }
 
-    public LocationRandomActivator(float epsilon, int seed) {
+    public LocationRandomEnactor(float epsilon, int seed) {
         super(epsilon, seed);
     }
 

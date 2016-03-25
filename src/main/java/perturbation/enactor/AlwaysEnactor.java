@@ -1,14 +1,13 @@
-package perturbation.activator;
+package perturbation.enactor;
 
-import perturbation.AbstractActivator;
 import perturbation.PerturbationLocation;
 
 /**
  * Created by spirals on 23/03/16.
  */
-public class AlwaysActivator extends AbstractActivator {
+public class AlwaysEnactor extends AbstractEnactor {
 
-    public AlwaysActivator() {
+    public AlwaysEnactor() {
         super();
     }
 

@@ -1,17 +1,15 @@
 package perturbation.perturbator;
 
-import perturbation.PerturbatorInterface;
-
 /**
  * Created by spirals on 09/03/16.
  * All of the methods will return a pseudo random (from java.util.Random()) of the appropriate type
  * except for pboolean which will return the complementary of the value.
  */
-public class RndPerturbatorImpl implements PerturbatorInterface {
+public class RndPerturbatorImpl implements Perturbator {
 
     @Override
     public boolean pboolean(boolean value) {
-        return !value;
+        return new java.util.Random().nextBoolean();
     }
 
     @Override

@@ -1,48 +1,50 @@
 package perturbation;
 
 
-import perturbation.activator.NTimeLocationActivator;
-import perturbation.perturbator.RndPerturbatorImpl;
+import perturbation.enactor.AbstractEnactor;
+import perturbation.enactor.NTimeLocationEnactor;
+import perturbation.perturbator.InvPerturbatorImpl;
 
-public class Perturbator {
+public class Perturbation {
 
-    private static PerturbatorInterface pertubator = new RndPerturbatorImpl();
+    private static perturbation.perturbator.Perturbator pertubator = new InvPerturbatorImpl();
 
-    private static AbstractActivator activator = new NTimeLocationActivator(1);
+    private static AbstractEnactor enactor = new NTimeLocationEnactor(1);
 
     /*
         Setting method
      */
-    public static void setPertubator(PerturbatorInterface p) {
+    public static void setPerturbator(perturbation.perturbator.Perturbator p) {
         pertubator = p;
     }
 
-    public static void setActivator(AbstractActivator a) {
-        activator= a;
+    public static void setEnactor(AbstractEnactor a) {
+        enactor = a;
     }
 
     public static void add(PerturbationLocation location) {
-        activator.addLocation(location);
+        enactor.addLocation(location);
     }
 
     public static boolean remove(PerturbationLocation location) {
-        return activator.removeLocation(location);
+        return enactor.removeLocation(location);
     }
 
     public static void reset() {
-        activator.reset();
+        enactor.reset();
     }
 
     public static int numberOfPerturbationSetOn() {
-        return activator.numberOfPerturbationOn();
+        return enactor.numberOfPerturbationOn();
     }
 
     /*
        Perturbation Methods
      */
 
+
     public static boolean pboolean(PerturbationLocation perturbationLocation, boolean value) {
-        if (activator.shouldBeActivated(perturbationLocation)) {
+        if (enactor.shouldBeActivated(perturbationLocation)) {
             boolean perturbation = pertubator.pboolean(value);
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -51,7 +53,7 @@ public class Perturbator {
     }
 
     public static byte pbyte(PerturbationLocation perturbationLocation, byte value) {
-        if (activator.shouldBeActivated(perturbationLocation)) {
+        if (enactor.shouldBeActivated(perturbationLocation)) {
             byte perturbation = pertubator.pbyte(value);
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -60,7 +62,7 @@ public class Perturbator {
     }
 
     public static short pshort(PerturbationLocation perturbationLocation, short value) {
-        if (activator.shouldBeActivated(perturbationLocation)) {
+        if (enactor.shouldBeActivated(perturbationLocation)) {
             short perturbation = pertubator.pshort(value);
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -69,7 +71,7 @@ public class Perturbator {
     }
 
     public static int pint(PerturbationLocation perturbationLocation, int value) {
-        if (activator.shouldBeActivated(perturbationLocation)) {
+        if (enactor.shouldBeActivated(perturbationLocation)) {
             int perturbation = pertubator.pint(value);
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -78,7 +80,7 @@ public class Perturbator {
     }
 
     public static long plong(PerturbationLocation perturbationLocation, long value) {
-        if (activator.shouldBeActivated(perturbationLocation)) {
+        if (enactor.shouldBeActivated(perturbationLocation)) {
             long perturbation = pertubator.plong(value);
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -87,7 +89,7 @@ public class Perturbator {
     }
 
     public static char pchar(PerturbationLocation perturbationLocation, char value) {
-        if (activator.shouldBeActivated(perturbationLocation)) {
+        if (enactor.shouldBeActivated(perturbationLocation)) {
             char perturbation = pertubator.pchar(value);
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -96,7 +98,7 @@ public class Perturbator {
     }
 
     public static float pfloat(PerturbationLocation perturbationLocation, float value) {
-        if (activator.shouldBeActivated(perturbationLocation)) {
+        if (enactor.shouldBeActivated(perturbationLocation)) {
             float perturbation = pertubator.pfloat(value);
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -105,7 +107,7 @@ public class Perturbator {
     }
 
     public static double pdouble(PerturbationLocation perturbationLocation, double value) {
-        if (activator.shouldBeActivated(perturbationLocation)) {
+        if (enactor.shouldBeActivated(perturbationLocation)) {
             double perturbation = pertubator.pdouble(value);
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -114,7 +116,7 @@ public class Perturbator {
     }
 
     public static String print() {
-        return pertubator.toString()+"/"+activator.toString();
+        return pertubator.toString()+"/"+ enactor.toString();
     }
 
 }

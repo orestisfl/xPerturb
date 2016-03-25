@@ -1,6 +1,5 @@
-package perturbation.activator;
+package perturbation.enactor;
 
-import perturbation.AbstractActivator;
 import perturbation.PerturbationLocation;
 
 import java.util.Random;
@@ -8,18 +7,18 @@ import java.util.Random;
 /**
  * Created by spirals on 23/03/16.
  */
-public class RandomActivator extends AbstractActivator {
+public class RandomEnactor extends AbstractEnactor {
 
     protected float epsilon;
     protected Random rnd;
 
-    public RandomActivator(float epsilon) {
+    public RandomEnactor(float epsilon) {
         super();
         this.epsilon = epsilon;
-        this.rnd = new java.util.Random(System.currentTimeMillis());
+        this.rnd = new java.util.Random();
     }
 
-    public RandomActivator(float epsilon, int seed) {
+    public RandomEnactor(float epsilon, int seed) {
         super();
         this.epsilon = epsilon;
         this.rnd = new java.util.Random(seed);

@@ -1,16 +1,12 @@
 package perturbation.perturbator;
 
-import perturbation.PerturbatorInterface;
-
 /**
  * Created by spirals on 22/03/16.
  */
-public class AddOnePerturbatorImpl implements PerturbatorInterface {
+public class AddOnePerturbatorImpl extends PerturbatorDecorator {
 
-
-    @Override
-    public boolean pboolean(boolean value) {
-        return !value;
+    public AddOnePerturbatorImpl(Perturbator innerPerturbator) {
+        super(innerPerturbator);
     }
 
     @Override
@@ -50,6 +46,6 @@ public class AddOnePerturbatorImpl implements PerturbatorInterface {
 
     @Override
     public String toString() {
-        return "+1";
+        return "+1_" + super.toString();
     }
 }

@@ -3,29 +3,33 @@ package perturbation.perturbator;
 /**
  * Created by spirals on 22/03/16.
  */
-public class RndNegPerturbatorImpl extends RndPerturbatorImpl {
+public class RndNegPerturbatorImpl extends PerturbatorDecorator {
+
+    public RndNegPerturbatorImpl(Perturbator innerPerturbator) {
+        super(new RndPerturbator());
+    }
 
     @Override
     public byte pbyte(byte value) {
-        byte perturbation = (byte) (new java.util.Random().nextInt());
+        byte perturbation = super.pbyte(value);
         return perturbation <= 0 ? perturbation : (byte)(-1 * perturbation);
     }
 
     @Override
     public short pshort(short value) {
-        short perturbation = (short) (new java.util.Random().nextInt());
+        short perturbation = super.pshort(value);
         return perturbation <= 0 ? perturbation : (short)(-1 * perturbation);
     }
 
     @Override
     public int pint(int value) {
-        int perturbation = (new java.util.Random().nextInt());
+        int perturbation = super.pint(value);
         return perturbation <= 0 ? perturbation : -1 * perturbation;
     }
 
     @Override
     public long plong(long value) {
-        long perturbation = new java.util.Random().nextLong();
+        long perturbation = super.plong(value);
         return perturbation <= 0 ? perturbation : -1 * perturbation;
     }
 
@@ -36,13 +40,13 @@ public class RndNegPerturbatorImpl extends RndPerturbatorImpl {
 
     @Override
     public float pfloat(float value) {
-        float perturbation = new java.util.Random().nextFloat();
+        float perturbation = super.pfloat(value);
         return perturbation <= 0 ? perturbation : -1 * perturbation;
     }
 
     @Override
     public double pdouble(double value) {
-        double perturbation = new java.util.Random().nextFloat();
+        double perturbation = super.pdouble(value);
         return perturbation <= 0 ? perturbation : -1 * perturbation;
     }
 

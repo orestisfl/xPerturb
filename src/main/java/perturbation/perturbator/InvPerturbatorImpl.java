@@ -1,11 +1,9 @@
 package perturbation.perturbator;
 
-import perturbation.PerturbatorInterface;
-
 /**
  * Created by spirals on 21/03/16.
  */
-public class InvPerturbatorImpl implements PerturbatorInterface {
+public class InvPerturbatorImpl implements Perturbator {
 
     @Override
     public boolean pboolean(boolean value) {

@@ -1,21 +1,16 @@
-package perturbation.activator;
+package perturbation.enactor;
 
 import perturbation.PerturbationLocation;
 
 /**
  * Created by spirals on 23/03/16.
  */
-public class NTimeLocationRandomActivator extends RandomActivator {
+public class NTimeLocationEnactor extends AbstractEnactor {
 
-    private int n;
+    private int n = 1;
 
-    public NTimeLocationRandomActivator(float epsilon, int n) {
-        super(epsilon);
-        this.n = n;
-    }
-
-    public NTimeLocationRandomActivator(float epsilon, int seed, int n) {
-        super(epsilon, seed);
+    public NTimeLocationEnactor(int n) {
+        super();
         this.n = n;
     }
 
@@ -30,7 +25,7 @@ public class NTimeLocationRandomActivator extends RandomActivator {
 
     @Override
     public boolean shouldBeActivated(PerturbationLocation location) {
-        if (this.locations.contains(location) && super.shouldBeActivated(location)) {
+        if (this.locations.contains(location)) {
             this.locations.remove(location);
             return true;
         } else
@@ -39,6 +34,6 @@ public class NTimeLocationRandomActivator extends RandomActivator {
 
     @Override
     public String toString() {
-        return n+"_TimeLocation_"+super.toString();
+        return n+"_TimeLocation";
     }
 }
