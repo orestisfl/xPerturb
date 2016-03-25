@@ -7,7 +7,17 @@ import perturbation.PerturbationLocation;
  */
 public class NTimeEnactor extends EnactorDecorator {
 
-    private int n = 1;
+    private int n;
+
+    public NTimeEnactor() {
+        super(new LocationEnactor());
+        this.n = 1;
+    }
+
+    public NTimeEnactor(Enactor decoratedEnactor) {
+        super(decoratedEnactor);
+        this.n = 1;
+    }
 
     public NTimeEnactor(Enactor decoratedEnactor, int n) {
         super(decoratedEnactor);
@@ -26,15 +36,15 @@ public class NTimeEnactor extends EnactorDecorator {
 
     @Override
     public boolean shouldBeActivated(PerturbationLocation location) {
-        if (this.locations.contains(location)) {
+        if (super.shouldBeActivated(location) && this.locations.contains(location)) {
             this.locations.remove(location);
-            return super.shouldBeActivated(location);
+            return true;
         } else
             return false;
     }
 
     @Override
     public String toString() {
-        return n+"_TimeLocation_"+super.toString();
+        return n+":Time_"+super.toString();
     }
 }

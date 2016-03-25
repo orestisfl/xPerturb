@@ -5,7 +5,7 @@ import perturbation.PerturbationLocation;
 /**
  * Created by spirals on 23/03/16.
  */
-public class LocationEnactor extends AbstractEnactor {
+public class LocationEnactor extends Enactor {
 
     @Override
     public boolean shouldBeActivated(PerturbationLocation location) {
