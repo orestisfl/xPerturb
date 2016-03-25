@@ -5,8 +5,8 @@ package perturbation.perturbator;
  */
 public class RndNegPerturbatorImpl extends PerturbatorDecorator {
 
-    public RndNegPerturbatorImpl(Perturbator innerPerturbator) {
-        super(new RndPerturbator());
+    public RndNegPerturbatorImpl() {
+        super(new RndPerturbatorImpl());
     }
 
     @Override
