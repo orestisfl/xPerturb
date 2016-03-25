@@ -8,11 +8,11 @@ import java.util.List;
 /**
  * Created by spirals on 23/03/16.
  */
-public abstract class AbstractEnactor {
+public abstract class Enactor {
 
     protected List<PerturbationLocation> locations;
 
-    public AbstractEnactor() {
+    public Enactor() {
         this.locations = new ArrayList<PerturbationLocation>();
     }
 
