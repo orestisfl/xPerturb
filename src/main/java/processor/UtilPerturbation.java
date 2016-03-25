@@ -36,7 +36,7 @@ public class UtilPerturbation {
 
     public static final String PACKAGE_NAME_PERTURBATION = "perturbation";
 
-    public static final String QUALIFIED_NAME_PERTURBATOR = PACKAGE_NAME_PERTURBATION+".Perturbator";
+    public static final String QUALIFIED_NAME_PERTURBATOR = PACKAGE_NAME_PERTURBATION+".Perturbation";
 
     public static final String QUALIFIED_NAME_LOCATION = PACKAGE_NAME_PERTURBATION+".PerturbationLocation";
 
