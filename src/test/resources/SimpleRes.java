@@ -1,7 +1,7 @@
 public class SimpleRes {
 
     public char _pChar() {
-        char c = '0';
+        char c = '1';
         return c;
     }
 
@@ -11,32 +11,32 @@ public class SimpleRes {
     }
 
     public int _pInt() {
-        int i = 0;
+        int i = 1;
         return i;
     }
 
     public byte _pByte() {
-        byte b = 0;
+        byte b = 1;
         return b;
     }
 
     public short _pShort() {
-        short s = 0;
+        short s = 1;
         return s;
     }
 
     public long _pLong() {
-        long l = 0;
+        long l = 1;
         return l;
     }
 
     public float _pFloat() {
-        float f = 0;
+        float f = 1;
         return f;
     }
 
     public double _pDouble() {
-        double d = 0;
+        double d = 1;
         return d;
     }
 }
