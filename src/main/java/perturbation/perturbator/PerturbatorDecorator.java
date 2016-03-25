@@ -5,54 +5,54 @@ package perturbation.perturbator;
  */
 public class PerturbatorDecorator implements Perturbator {
 
-    protected Perturbator innerPerturbator;
+    protected Perturbator decoratedPerturbator;
 
-    public PerturbatorDecorator(Perturbator innerPerturbator) {
-        this.innerPerturbator = innerPerturbator;
+    public PerturbatorDecorator(Perturbator decoratedPerturbator) {
+        this.decoratedPerturbator = decoratedPerturbator;
     }
 
     @Override
     public boolean pboolean(boolean value) {
-        return this.innerPerturbator.pboolean(value);
+        return this.decoratedPerturbator.pboolean(value);
     }
 
     @Override
     public byte pbyte(byte value) {
-        return this.innerPerturbator.pbyte(value);
+        return this.decoratedPerturbator.pbyte(value);
     }
 
     @Override
     public short pshort(short value) {
-        return this.innerPerturbator.pshort(value);
+        return this.decoratedPerturbator.pshort(value);
     }
 
     @Override
     public int pint(int value) {
-        return this.innerPerturbator.pint(value);
+        return this.decoratedPerturbator.pint(value);
     }
 
     @Override
     public long plong(long value) {
-        return this.innerPerturbator.plong(value);
+        return this.decoratedPerturbator.plong(value);
     }
 
     @Override
     public char pchar(char value) {
-        return this.innerPerturbator.pchar(value);
+        return this.decoratedPerturbator.pchar(value);
     }
 
     @Override
     public float pfloat(float value) {
-        return this.innerPerturbator.pfloat(value);
+        return this.decoratedPerturbator.pfloat(value);
     }
 
     @Override
     public double pdouble(double value) {
-        return this.innerPerturbator.pdouble(value);
+        return this.decoratedPerturbator.pdouble(value);
     }
 
     @Override
     public String toString() {
-        return this.innerPerturbator.toString();
+        return this.decoratedPerturbator.toString();
     }
 }

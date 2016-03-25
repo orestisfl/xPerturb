@@ -1,15 +1,15 @@
 package perturbation;
 
 
-import perturbation.enactor.AbstractEnactor;
-import perturbation.enactor.NTimeLocationEnactor;
+import perturbation.enactor.Enactor;
+import perturbation.enactor.LocationEnactor;
 import perturbation.perturbator.InvPerturbatorImpl;
 
 public class Perturbation {
 
     private static perturbation.perturbator.Perturbator pertubator = new InvPerturbatorImpl();
 
-    private static AbstractEnactor enactor = new NTimeLocationEnactor(1);
+    private static Enactor enactor = new LocationEnactor();
 
     /*
         Setting method
@@ -18,7 +18,7 @@ public class Perturbation {
         pertubator = p;
     }
 
-    public static void setEnactor(AbstractEnactor a) {
+    public static void setEnactor(Enactor a) {
         enactor = a;
     }
 

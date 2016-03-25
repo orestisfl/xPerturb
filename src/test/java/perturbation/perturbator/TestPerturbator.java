@@ -58,7 +58,7 @@ public class TestPerturbator {
         intMethodOfClassUnderTest = classUnderTest.getMethod("_pInt");
 
         //Setting Enactor Location
-        classPerturbator.getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.AbstractEnactor")).invoke(
+        classPerturbator.getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor")).invoke(
                 objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.enactor.LocationEnactor").newInstance()
         );
 
