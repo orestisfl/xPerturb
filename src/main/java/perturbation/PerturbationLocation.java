@@ -15,6 +15,16 @@ public class PerturbationLocation {
 
     private final String locationInCode;
 
+    public String replacement;
+
+    public int numberOfSuccess = 0;
+
+    public int numberOfFailure = 0;
+
+    public int numberOfCall = 0;
+
+    public int numberOfActivation = 0;
+
     public int getLocationIndex(){
         return locationIndex;
     }
@@ -22,8 +32,6 @@ public class PerturbationLocation {
     public String getLocationInCode() {
         return locationInCode;
     }
-
-    public String replacement;
 
     private PerturbationLocation() {
         locationInCode = "";

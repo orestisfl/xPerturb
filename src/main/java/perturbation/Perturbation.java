@@ -41,11 +41,11 @@ public class Perturbation {
     /*
        Perturbation Methods
      */
-
-
     public static boolean pboolean(PerturbationLocation perturbationLocation, boolean value) {
+        perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
             boolean perturbation = pertubator.pboolean(value);
+            perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
         } else
@@ -53,8 +53,10 @@ public class Perturbation {
     }
 
     public static byte pbyte(PerturbationLocation perturbationLocation, byte value) {
+        perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
             byte perturbation = pertubator.pbyte(value);
+            perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
         } else
@@ -62,8 +64,10 @@ public class Perturbation {
     }
 
     public static short pshort(PerturbationLocation perturbationLocation, short value) {
+        perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
             short perturbation = pertubator.pshort(value);
+            perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
         } else
@@ -71,8 +75,10 @@ public class Perturbation {
     }
 
     public static int pint(PerturbationLocation perturbationLocation, int value) {
+        perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
             int perturbation = pertubator.pint(value);
+            perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
         } else
@@ -80,8 +86,10 @@ public class Perturbation {
     }
 
     public static long plong(PerturbationLocation perturbationLocation, long value) {
+        perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
             long perturbation = pertubator.plong(value);
+            perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
         } else
@@ -89,8 +97,10 @@ public class Perturbation {
     }
 
     public static char pchar(PerturbationLocation perturbationLocation, char value) {
+        perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
             char perturbation = pertubator.pchar(value);
+            perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
         } else
@@ -98,8 +108,10 @@ public class Perturbation {
     }
 
     public static float pfloat(PerturbationLocation perturbationLocation, float value) {
+        perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
             float perturbation = pertubator.pfloat(value);
+            perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
         } else
@@ -107,8 +119,10 @@ public class Perturbation {
     }
 
     public static double pdouble(PerturbationLocation perturbationLocation, double value) {
+        perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
             double perturbation = pertubator.pdouble(value);
+            perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
         } else
