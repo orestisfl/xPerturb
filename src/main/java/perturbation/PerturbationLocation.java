@@ -25,6 +25,14 @@ public class PerturbationLocation {
 
     public int numberOfActivation = 0;
 
+    public void reset() {
+        this.numberOfFailure = 0;
+        this.numberOfActivation = 0;
+        this.numberOfCall = 0;
+        this.numberOfSuccess = 0;
+        this.replacement = null;
+    }
+
     public int getLocationIndex(){
         return locationIndex;
     }
@@ -46,42 +54,6 @@ public class PerturbationLocation {
     @Override
     public String toString() {
         return locationIndex+"\t"+locationInCode+"\t"+replacement;
-    }
-
-    public static List<List<PerturbationLocation>> buildSubList(Class clazz, int k) {
-        List<PerturbationLocation> locations = PerturbationLocation.getLocationFromClass(clazz);
-        List<List<PerturbationLocation>> subLists = new ArrayList<List<PerturbationLocation>>();
-        LinkedList<String> indices = comb(k, locations.size());
-        for (String indice : indices) {
-            List<PerturbationLocation> currentSubList = new ArrayList<PerturbationLocation>();
-            String [] loc = indice.split(" ");
-            for (int i = 0 ; i < k ; i++) {
-                currentSubList.add(locations.get(Integer.parseInt(loc[i])));
-            }
-            subLists.add(currentSubList);
-        }
-        return subLists;
-    }
-
-    private static String bitprint(int u) {
-        String s = "";
-        for (int n = 0; u > 0; ++n, u >>= 1)
-            if ((u & 1) > 0) s += n + " ";
-        return s;
-    }
-
-    private static int bitcount(int u) {
-        int n;
-        for (n = 0; u > 0; ++n, u &= (u - 1));
-        return n;
-    }
-
-    private static LinkedList<String> comb(int c, int n) {
-        LinkedList<String> s = new LinkedList<String>();
-        for (int u = 0; u < 1 << n; u++)
-            if (bitcount(u) == c) s.push(bitprint(u));
-        Collections.sort(s);
-        return s;
     }
 
     public static List<PerturbationLocation> getLocationFromClass(Class clazz) {
