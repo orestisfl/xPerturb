@@ -27,6 +27,7 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 /**
  * Created by spirals on 09/03/16.
@@ -81,6 +82,16 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
 
         //An object on which we call a method can not be perturb
         if (candidate.isParentInitialized()) {
+
+            if (candidate.getParent(new TypeFilter<CtField>(CtField.class)) != null) {
+                if (candidate.getParent(new TypeFilter<CtField>(CtField.class)).getModifiers().contains(ModifierKind.FINAL))
+                return false;
+            }
+
+            if (candidate.getParent(new TypeFilter<CtConstructor>(CtConstructor.class)) != null) {
+                return false;
+            }
+
             CtElement candidateParent = candidate.getParent();
 
             //@TODO

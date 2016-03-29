@@ -5,8 +5,10 @@ import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
+import spoon.reflect.code.CtReturn;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtField;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.NameFilter;
 import spoon.support.reflect.code.CtInvocationImpl;
 import util.Util;
@@ -33,13 +35,12 @@ public class TestProcessInnerClass {
 
         CtClass innerClassNotStatic = (CtClass) abstractPerturbed.getNestedType("notStaticInnerClass");
 
-        assertEquals(1, innerClassNotStatic.getFields().size());
+        assertEquals(1, innerClassNotStatic.getMethods().size());
 
-        CtField fieldOfInnerClassNotStatic = innerClassNotStatic.getField("value");
+        CtMethod methodOfInnerClassStatic = innerClassNotStatic.getMethod("value");
+        Assert.assertTrue(((CtReturn)methodOfInnerClassStatic.getBody().getLastStatement()).getReturnedExpression() instanceof CtInvocation);
 
-        Assert.assertTrue(fieldOfInnerClassNotStatic.getDefaultExpression() instanceof CtInvocation);
-
-        CtInvocation invokationPerturbation = ((CtInvocationImpl) fieldOfInnerClassNotStatic.getDefaultExpression());
+        CtInvocation invokationPerturbation = ((CtInvocationImpl) ((CtReturn)methodOfInnerClassStatic.getBody().getLastStatement()).getReturnedExpression());
         Assert.assertEquals(perturbator.getReference(),invokationPerturbation.getExecutable().getDeclaringType());
         Assert.assertTrue(innerClassNotStatic.getAnonymousExecutables().isEmpty());
         Assert.assertEquals(0, ((CtLiteral)invokationPerturbation.getArguments().get(1)).getValue());
@@ -65,13 +66,13 @@ public class TestProcessInnerClass {
 
         CtClass innerClassStatic = (CtClass) abstractPerturbed.getNestedType("staticInnerClass");
 
-        Assert.assertEquals(2, innerClassStatic.getFields().size());
+        Assert.assertEquals(1, innerClassStatic.getFields().size());
         Assert.assertEquals(1, innerClassStatic.getAnonymousExecutables().size());
 
-        CtField fieldOfInnerClassStatic = innerClassStatic.getField("value");
-        Assert.assertTrue(fieldOfInnerClassStatic.getDefaultExpression() instanceof CtInvocation);
+        CtMethod methodOfInnerClassStatic = innerClassStatic.getMethod("value");
+        Assert.assertTrue(((CtReturn)methodOfInnerClassStatic.getBody().getLastStatement()).getReturnedExpression() instanceof CtInvocation);
 
-        CtInvocation invokationPerturbation = ((CtInvocationImpl) fieldOfInnerClassStatic.getDefaultExpression());
+        CtInvocation invokationPerturbation = ((CtInvocation) ((CtReturn)methodOfInnerClassStatic.getBody().getLastStatement()).getReturnedExpression());
         Assert.assertEquals(perturbator.getReference(), invokationPerturbation.getExecutable().getDeclaringType());
         Assert.assertEquals(0, ((CtLiteral)invokationPerturbation.getArguments().get(1)).getValue());
 
