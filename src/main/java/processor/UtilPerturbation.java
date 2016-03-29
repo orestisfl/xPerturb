@@ -36,7 +36,7 @@ public class UtilPerturbation {
 
     public static final String PACKAGE_NAME_PERTURBATION = "perturbation";
 
-    public static final String QUALIFIED_NAME_PERTURBATOR = PACKAGE_NAME_PERTURBATION+".Perturbation";
+    public static final String QUALIFIED_NAME_PERTURBATOR = PACKAGE_NAME_PERTURBATION+".PerturbationEngine";
 
     public static final String QUALIFIED_NAME_LOCATION = PACKAGE_NAME_PERTURBATION+".PerturbationLocation";
 
@@ -81,6 +81,9 @@ public class UtilPerturbation {
         if (perturbator == null)
             perturbator = (CtClass) factory.Class().get(QUALIFIED_NAME_PERTURBATOR);
 
+        //For the moment, we take 2 case, but it will need refractor
+        String typeOfPerturbation = methodName.endsWith("boolean")?"Boolean":"Numerical";
+
         CtTypeReference<?> classReference = factory.Type().createReference(perturbator);
         CtExecutableReference execRef = factory.Core().createExecutableReference();
         execRef.setDeclaringType(classReference);
@@ -92,7 +95,7 @@ public class UtilPerturbation {
         typeAccess.setAccessedType(classReference);
 
         CtExpression[] args = new CtExpression[2];
-        args[0] = addFieldLocationToClass(factory, argument);
+        args[0] = addFieldLocationToClass(factory, argument, typeOfPerturbation);
         args[1] = argument;
 
         currentLocation++;
@@ -100,7 +103,7 @@ public class UtilPerturbation {
         return factory.Code().createInvocation(typeAccess, execRef, args);
     }
 
-    private static CtFieldRead addFieldLocationToClass(Factory factory, CtExpression argument) {
+    private static CtFieldRead addFieldLocationToClass(Factory factory, CtExpression argument, String type) {
 
         CtClass clazz = argument.getParent(new TypeFilter<CtClass>(CtClass.class) {
             @Override
@@ -128,7 +131,7 @@ public class UtilPerturbation {
 
         String constructor = argument.getPosition().getCompilationUnit().getFile().getName() + ":" + argument.getPosition().getLine();
         CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get(QUALIFIED_NAME_LOCATION).getReference(),
-                factory.Code().createLiteral(constructor), factory.Code().createLiteral(currentLocation));
+                factory.Code().createLiteral(constructor), factory.Code().createLiteral(currentLocation), factory.Code().createLiteral(type));
 
         CtFieldWrite writeField = factory.Core().createFieldWrite();
         writeField.setVariable(fieldLocation.getReference());

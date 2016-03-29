@@ -1,6 +1,6 @@
 package perturbation.log;
 
-import perturbation.Perturbation;
+import perturbation.PerturbationEngine;
 import perturbation.PerturbationLocation;
 
 import java.io.FileWriter;
@@ -26,15 +26,16 @@ public class Logger {
     }
 
     public static void logHeaderLatex() {
-        String str = Perturbation.print().replaceAll("_", "\\_")+"\\\\\n";
-        str += "\\begin{tabular}{c|c|c|c|l}\\\\\n";
-        str += "Index & Location & \\#Call & \\#Activation & \\%Success\\\\\n";
+        String str = PerturbationEngine.print().replaceAll("_", "\\_")+"\\\\\n";
+        str += "\\begin{tabular}{c|c|c|c|c|l}\\\\\n";
+        str += "Index & Location & Type & \\#Call & \\#Activation & \\%Success\\\\\n";
         str += "\\hline\n";
         writeToFile(str, "log/LogLocations");
     }
 
     public static void logOnePerturbationLocationLatex(PerturbationLocation location) {
         String str = location.getLocationIndex() + "&" + location.getLocationInCode() + "&";
+        str += location.getType() + "&";
         str += location.numberOfCall + "&" + location.numberOfActivation + "&";
         double perc = ((double)location.numberOfSuccess / (double)(location.numberOfSuccess + location.numberOfFailure)) * 100;
         int numberOfDash = (int)perc / 5;

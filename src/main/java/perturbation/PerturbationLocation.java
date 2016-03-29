@@ -2,14 +2,14 @@ package perturbation;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by spirals on 08/03/16.
  */
 public class PerturbationLocation {
+
+    private final String locationType;
 
     private final int locationIndex;
 
@@ -34,26 +34,32 @@ public class PerturbationLocation {
     }
 
     public int getLocationIndex(){
-        return locationIndex;
+        return this.locationIndex;
     }
 
     public String getLocationInCode() {
-        return locationInCode;
+        return this.locationInCode;
+    }
+
+    public String getType() {
+        return this.locationType;
     }
 
     private PerturbationLocation() {
-        locationInCode = "";
-        locationIndex = -1;
+        this.locationInCode = "";
+        this.locationIndex = -1;
+        this.locationType = "";
     }
 
-    public PerturbationLocation(String location, int index) {
-        locationInCode = location;
-        locationIndex = index;
+    public PerturbationLocation(String location, int index, String type) {
+        this.locationInCode = location;
+        this.locationIndex = index;
+        this.locationType = type;
     }
 
     @Override
     public String toString() {
-        return locationIndex+"\t"+locationInCode+"\t"+replacement;
+        return locationIndex+"\t"+locationInCode+"\t"+locationType+"\t"+replacement;
     }
 
     public static List<PerturbationLocation> getLocationFromClass(Class clazz) {
