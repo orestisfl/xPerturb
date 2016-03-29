@@ -1,6 +1,5 @@
 package perturbation.log;
 
-import perturbation.PerturbationEngine;
 import perturbation.PerturbationLocation;
 
 import java.io.FileWriter;
@@ -26,8 +25,7 @@ public class Logger {
     }
 
     public static void logHeaderLatex() {
-        String str = PerturbationEngine.print().replaceAll("_", "\\_")+"\\\\\n";
-        str += "\\begin{tabular}{c|c|c|c|c|l}\\\\\n";
+        String str = "\\begin{tabular}{c|c|c|c|c|l}\\\\\n";
         str += "Index & Location & Type & \\#Call & \\#Activation & \\%Success\\\\\n";
         str += "\\hline\n";
         writeToFile(str, "log/LogLocations");

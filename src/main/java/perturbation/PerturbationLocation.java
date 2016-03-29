@@ -1,5 +1,8 @@
 package perturbation;
 
+import perturbation.perturbator.InvPerturbatorImpl;
+import perturbation.perturbator.Perturbator;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,23 +18,9 @@ public class PerturbationLocation {
 
     private final String locationInCode;
 
+    private Perturbator perturbator;
+
     public String replacement;
-
-    public int numberOfSuccess = 0;
-
-    public int numberOfFailure = 0;
-
-    public int numberOfCall = 0;
-
-    public int numberOfActivation = 0;
-
-    public void reset() {
-        this.numberOfFailure = 0;
-        this.numberOfActivation = 0;
-        this.numberOfCall = 0;
-        this.numberOfSuccess = 0;
-        this.replacement = null;
-    }
 
     public int getLocationIndex(){
         return this.locationIndex;
@@ -55,6 +44,15 @@ public class PerturbationLocation {
         this.locationInCode = location;
         this.locationIndex = index;
         this.locationType = type;
+        this.perturbator = new InvPerturbatorImpl();
+    }
+
+    public Perturbator getPerturbator() {
+        return this.perturbator;
+    }
+
+    public void setPerturbator(Perturbator pertubator) {
+        this.perturbator = pertubator;
     }
 
     @Override
@@ -83,6 +81,24 @@ public class PerturbationLocation {
     @Override
     public boolean equals(Object that) {
         return that instanceof PerturbationLocation && (perturbation.PerturbationLocation.this.locationIndex) == ((PerturbationLocation)that).locationIndex;
+    }
+
+
+    @Deprecated
+    public int numberOfSuccess = 0;
+    @Deprecated
+    public int numberOfFailure = 0;
+    @Deprecated
+    public int numberOfCall = 0;
+    @Deprecated
+    public int numberOfActivation = 0;
+    @Deprecated
+    public void reset() {
+        this.numberOfFailure = 0;
+        this.numberOfActivation = 0;
+        this.numberOfCall = 0;
+        this.numberOfSuccess = 0;
+        this.replacement = null;
     }
 
 }

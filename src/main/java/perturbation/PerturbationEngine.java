@@ -3,20 +3,14 @@ package perturbation;
 
 import perturbation.enactor.Enactor;
 import perturbation.enactor.LocationEnactor;
-import perturbation.perturbator.InvPerturbatorImpl;
 
 public class PerturbationEngine {
-
-    private static perturbation.perturbator.Perturbator pertubator = new InvPerturbatorImpl();
 
     private static Enactor enactor = new LocationEnactor();
 
     /*
         Setting method
      */
-    public static void setPerturbator(perturbation.perturbator.Perturbator p) {
-        pertubator = p;
-    }
 
     public static void setEnactor(Enactor a) {
         enactor = a;
@@ -44,7 +38,7 @@ public class PerturbationEngine {
     public static boolean pboolean(PerturbationLocation perturbationLocation, boolean value) {
         perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
-            boolean perturbation = pertubator.pboolean(value);
+            boolean perturbation = perturbationLocation.getPerturbator().pboolean(value);
             perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -55,7 +49,7 @@ public class PerturbationEngine {
     public static byte pbyte(PerturbationLocation perturbationLocation, byte value) {
         perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
-            byte perturbation = pertubator.pbyte(value);
+            byte perturbation = perturbationLocation.getPerturbator().pbyte(value);
             perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -66,7 +60,7 @@ public class PerturbationEngine {
     public static short pshort(PerturbationLocation perturbationLocation, short value) {
         perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
-            short perturbation = pertubator.pshort(value);
+            short perturbation = perturbationLocation.getPerturbator().pshort(value);
             perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -77,7 +71,7 @@ public class PerturbationEngine {
     public static int pint(PerturbationLocation perturbationLocation, int value) {
         perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
-            int perturbation = pertubator.pint(value);
+            int perturbation = perturbationLocation.getPerturbator().pint(value);
             perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -88,7 +82,7 @@ public class PerturbationEngine {
     public static long plong(PerturbationLocation perturbationLocation, long value) {
         perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
-            long perturbation = pertubator.plong(value);
+            long perturbation = perturbationLocation.getPerturbator().plong(value);
             perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -99,7 +93,7 @@ public class PerturbationEngine {
     public static char pchar(PerturbationLocation perturbationLocation, char value) {
         perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
-            char perturbation = pertubator.pchar(value);
+            char perturbation = perturbationLocation.getPerturbator().pchar(value);
             perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -110,7 +104,7 @@ public class PerturbationEngine {
     public static float pfloat(PerturbationLocation perturbationLocation, float value) {
         perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
-            float perturbation = pertubator.pfloat(value);
+            float perturbation = perturbationLocation.getPerturbator().pfloat(value);
             perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
@@ -121,16 +115,12 @@ public class PerturbationEngine {
     public static double pdouble(PerturbationLocation perturbationLocation, double value) {
         perturbationLocation.numberOfCall++;
         if (enactor.shouldBeActivated(perturbationLocation)) {
-            double perturbation = pertubator.pdouble(value);
+            double perturbation = perturbationLocation.getPerturbator().pdouble(value);
             perturbationLocation.numberOfActivation++;
             perturbationLocation.replacement = value + "->" + perturbation;
             return perturbation;
         } else
             return value;
-    }
-
-    public static String print() {
-        return pertubator.toString()+"/"+ enactor.toString();
     }
 
 }

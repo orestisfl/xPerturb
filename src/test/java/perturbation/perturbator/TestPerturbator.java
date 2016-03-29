@@ -24,9 +24,14 @@ public class TestPerturbator {
     private static URLClassLoader classLoaderWithoutOldFile;
     private static CtClass simpleResWithPerturbation;
     private static Class<?> classPerturbator;
+
     private static Object objectPerturbator;
     private static Method addLocationToPerturb;
     private static Method setPerturbator;
+
+    private static Class<?> classPerturbationLocation;
+    private static Object objectPerturbationLocation0;
+    private static Object objectPerturbationLocation10;
 
     private static Class<?> classUnderTest;
     private static Object objectUnderTest;
@@ -50,7 +55,9 @@ public class TestPerturbator {
         classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
         objectPerturbator = classPerturbator.newInstance();
         addLocationToPerturb = classPerturbator.getMethod("add", classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation"));
-        setPerturbator = classPerturbator.getMethod("setPerturbator", classLoaderWithoutOldFile.loadClass("perturbation.perturbator.Perturbator"));
+
+        classPerturbationLocation = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation");
+        setPerturbator = classPerturbationLocation.getMethod("setPerturbator", classLoaderWithoutOldFile.loadClass("perturbation.perturbator.Perturbator"));
 
         classUnderTest = classLoaderWithoutOldFile.loadClass(simpleResWithPerturbation.getQualifiedName());
         objectUnderTest = classUnderTest.newInstance();
@@ -61,6 +68,9 @@ public class TestPerturbator {
         classPerturbator.getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor")).invoke(
                 objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.enactor.LocationEnactor").newInstance()
         );
+
+        objectPerturbationLocation0 = classUnderTest.getFields()[0].get(null);
+        objectPerturbationLocation10 = classUnderTest.getFields()[10].get(null);
 
         addLocationToPerturb.invoke(objectPerturbator, classUnderTest.getFields()[0].get(null));
         addLocationToPerturb.invoke(objectPerturbator, classUnderTest.getFields()[10].get(null));
@@ -83,7 +93,8 @@ public class TestPerturbator {
                 classLoaderWithoutOldFile.loadClass(decoratedPerturbator).newInstance()
         );
 
-        setPerturbator.invoke(objectPerturbator, perturbatorObject);
+        setPerturbator.invoke(objectPerturbationLocation0, perturbatorObject);
+        setPerturbator.invoke(objectPerturbationLocation10, perturbatorObject);
     }
 
     @Test
@@ -94,7 +105,8 @@ public class TestPerturbator {
         if (launcher == null)
             initialisation();
 
-        setPerturbator.invoke(objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.perturbator.InvPerturbatorImpl").newInstance());
+        setPerturbator.invoke(objectPerturbationLocation0, classLoaderWithoutOldFile.loadClass("perturbation.perturbator.InvPerturbatorImpl").newInstance());
+        setPerturbator.invoke(objectPerturbationLocation10, classLoaderWithoutOldFile.loadClass("perturbation.perturbator.InvPerturbatorImpl").newInstance());
 
         assertEquals(false, booleanMethodOfClassUnderTest.invoke(objectUnderTest));
         assertEquals(-1, intMethodOfClassUnderTest.invoke(objectUnderTest));
@@ -134,7 +146,7 @@ public class TestPerturbator {
     @Test
     public void testZeroPerturbator() throws Exception {
 
-        //test the perturbator 0 with all other boolean perturbator
+        //test the perturbator 0
 
         if (launcher == null)
             initialisation();
@@ -154,7 +166,7 @@ public class TestPerturbator {
         if (launcher == null)
             initialisation();
 
-        setPerturbator.invoke(objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.perturbator.RndPerturbatorImpl").newInstance());
+        setPerturbator.invoke(objectPerturbationLocation10, classLoaderWithoutOldFile.loadClass("perturbation.perturbator.RndPerturbatorImpl").newInstance());
 
 
 //        assertEquals(false, booleanMethodOfClassUnderTest.invoke(objectUnderTest));
@@ -170,7 +182,7 @@ public class TestPerturbator {
         if (launcher == null)
             initialisation();
 
-        setPerturbator.invoke(objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.perturbator.RndPosPerturbatorImpl").newInstance());
+        setPerturbator.invoke(objectPerturbationLocation10, classLoaderWithoutOldFile.loadClass("perturbation.perturbator.RndPosPerturbatorImpl").newInstance());
 
 //        assertEquals(false, booleanMethodOfClassUnderTest.invoke(objectUnderTest));
         assertTrue(0 < (Integer) intMethodOfClassUnderTest.invoke(objectUnderTest));
@@ -185,7 +197,7 @@ public class TestPerturbator {
         if (launcher == null)
             initialisation();
 
-        setPerturbator.invoke(objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.perturbator.RndNegPerturbatorImpl").newInstance());
+        setPerturbator.invoke(objectPerturbationLocation10, classLoaderWithoutOldFile.loadClass("perturbation.perturbator.RndNegPerturbatorImpl").newInstance());
 
 //        assertEquals(false, booleanMethodOfClassUnderTest.invoke(objectUnderTest));
         assertTrue(0 > (Integer) intMethodOfClassUnderTest.invoke(objectUnderTest));
