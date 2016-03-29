@@ -26,12 +26,12 @@ public class TestPerturbator {
     private static Class<?> classPerturbator;
     private static Object objectPerturbator;
     private static Method addLocationToPerturb;
+    private static Method setPerturbator;
 
     private static Class<?> classUnderTest;
     private static Object objectUnderTest;
     private static Method booleanMethodOfClassUnderTest;
     private static Method intMethodOfClassUnderTest;
-    private static Method setPerturbator;
 
 
     private static void initialisation() throws Exception {
@@ -75,15 +75,15 @@ public class TestPerturbator {
      * @throws Exception
      */
     private static void setPerturbatorWithDecoratedPerturbator(String perturbator, String decoratedPerturbator) throws Exception {
-        Constructor constructorOfAddOnePerturbator = classLoaderWithoutOldFile.loadClass(perturbator).getConstructor(
+        Constructor constructorOfDecoratorPerturbator = classLoaderWithoutOldFile.loadClass(perturbator).getConstructor(
                 classLoaderWithoutOldFile.loadClass("perturbation.perturbator.Perturbator")
         );
 
-        Object addOnePerturbator = constructorOfAddOnePerturbator.newInstance(
+        Object perturbatorObject = constructorOfDecoratorPerturbator.newInstance(
                 classLoaderWithoutOldFile.loadClass(decoratedPerturbator).newInstance()
         );
 
-        setPerturbator.invoke(objectPerturbator, addOnePerturbator);
+        setPerturbator.invoke(objectPerturbator, perturbatorObject);
     }
 
     @Test
