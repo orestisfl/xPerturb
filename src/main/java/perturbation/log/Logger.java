@@ -1,13 +1,13 @@
 package perturbation.log;
 
+import perturbation.Perturbation;
 import perturbation.PerturbationLocation;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 /**
- * Created by beyni on 28/03/16.
+ * Created by spirals on 28/03/16.
  */
 public class Logger {
 
@@ -26,7 +26,8 @@ public class Logger {
     }
 
     public static void logHeaderLatex() {
-        String str = "\\begin{tabular}{c|c|c|c|l}\\\\\n";
+        String str = Perturbation.print().replaceAll("_", "\\_")+"\\\\\n";
+        str += "\\begin{tabular}{c|c|c|c|l}\\\\\n";
         str += "Index & Location & \\#Call & \\#Activation & \\%Success\\\\\n";
         str += "\\hline\n";
         writeToFile(str, "log/LogLocations");
