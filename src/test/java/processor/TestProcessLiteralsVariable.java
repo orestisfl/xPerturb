@@ -34,7 +34,7 @@ public class TestProcessLiteralsVariable {
 
         CtClass simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
 
-        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbation")).get(0);
+        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
 
         Set<CtMethod> methods = simpleResWithPerturbation.getAllMethods();
 

@@ -34,7 +34,7 @@ public class TestProcessImplicitCast {
 
         CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("CastRes")).get(0);
 
-        CtClass p = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbation")).get(0);
+        CtClass p = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
 
 
         Set<CtMethod> methods = c.getAllMethods();

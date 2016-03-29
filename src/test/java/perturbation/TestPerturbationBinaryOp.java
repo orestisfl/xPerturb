@@ -28,7 +28,7 @@ public class TestPerturbationBinaryOp {
         Util.addPathToClassPath(launcher.getModelBuilder().getBinaryOutputDirectory().toURL());
         URLClassLoader classLoaderWithoutOldFile = Util.removeOldFileFromClassPath((URLClassLoader) ClassLoader.getSystemClassLoader());
 
-        Class<?> classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.Perturbation");
+        Class<?> classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
         Object objectPerturbator = classPerturbator.newInstance();
         Method addLocationToPerturb = classPerturbator.getMethod("add",  classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation"));
         Method clearLocationToPerturb = classPerturbator.getMethod("reset");

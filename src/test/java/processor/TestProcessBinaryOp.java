@@ -28,7 +28,7 @@ public class TestProcessBinaryOp {
         launcher.run();
 
         CtClass binOpWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("BinOpRes")).get(0);
-        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbation")).get(0);
+        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
 
         List<CtBinaryOperator> binaryOperators = binOpWithPerturbation.getElements(new TypeFilter<>(CtBinaryOperator.class));
 

@@ -29,7 +29,7 @@ public class TestProcessArray {
 
         CtClass arrayResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("ArrayRes")).get(0);
 
-        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbation")).get(0);
+        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
 
         //All of the invokation should be perturbation calls or the initialiazer or the super() call
         List<CtInvocation> invokationsOfPerturbations = arrayResWithPerturbation.getElements(new TypeFilter<>(CtInvocation.class));

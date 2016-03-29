@@ -45,8 +45,8 @@ public class TestEnactor {
         Util.addPathToClassPath(launcher.getModelBuilder().getBinaryOutputDirectory().toURL());
         classLoaderWithoutOldFile = Util.removeOldFileFromClassPath((URLClassLoader) ClassLoader.getSystemClassLoader());
 
-        //Perturbation
-        classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.Perturbation");
+        //PerturbationEngine
+        classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
         objectPerturbator = classPerturbator.newInstance();
         addLocationToPerturb = classPerturbator.getMethod("add", classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation"));
         removeLocationToPerturb = classPerturbator.getMethod("remove", classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation"));

@@ -5,7 +5,7 @@ import perturbation.enactor.Enactor;
 import perturbation.enactor.LocationEnactor;
 import perturbation.perturbator.InvPerturbatorImpl;
 
-public class Perturbation {
+public class PerturbationEngine {
 
     private static perturbation.perturbator.Perturbator pertubator = new InvPerturbatorImpl();
 
@@ -39,7 +39,7 @@ public class Perturbation {
     }
 
     /*
-       Perturbation Methods
+       PerturbationEngine Methods
      */
     public static boolean pboolean(PerturbationLocation perturbationLocation, boolean value) {
         perturbationLocation.numberOfCall++;

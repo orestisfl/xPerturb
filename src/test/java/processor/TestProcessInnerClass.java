@@ -31,7 +31,7 @@ public class TestProcessInnerClass {
 
         CtClass abstractPerturbed = (CtClass) launcherSpoon.getFactory().Package().getRootPackage().getElements(new NameFilter("AbstractRes")).get(0);
 
-        CtClass perturbator = (CtClass) launcherSpoon.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbation")).get(0);
+        CtClass perturbator = (CtClass) launcherSpoon.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
 
         CtClass innerClassNotStatic = (CtClass) abstractPerturbed.getNestedType("notStaticInnerClass");
 
@@ -62,7 +62,7 @@ public class TestProcessInnerClass {
 
         CtClass abstractPerturbed = (CtClass) launcherSpoon.getFactory().Package().getRootPackage().getElements(new NameFilter("AbstractRes")).get(0);
 
-        CtClass perturbator = (CtClass) launcherSpoon.getFactory().Package().getRootPackage().getElements(new NameFilter("Perturbation")).get(0);
+        CtClass perturbator = (CtClass) launcherSpoon.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
 
         CtClass innerClassStatic = (CtClass) abstractPerturbed.getNestedType("staticInnerClass");
 
