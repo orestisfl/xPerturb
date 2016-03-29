@@ -121,15 +121,21 @@ public class TestEnactor {
         int cptPerturb = 0;
         int cptNotPerturb = 0;
 
-        for (int i = 0 ; i < 10000 ; i++) {
+        int numberOfOccurences = 10000;
+        double e = 0.05;
+        double zScore = 1.960;//95% confidence
+        double nZero = (Math.pow(zScore, 2)  * 0.25) / (Math.pow(e, 2));
+
+        int numberOfOccurrencesToBeAnalyzed = (int)Math.round(nZero / (1+(nZero-1)/numberOfOccurences));
+
+        for (int i = 0 ; i < numberOfOccurrencesToBeAnalyzed ; i++) {
             if ((Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest))
                 cptNotPerturb++;
             else
                 cptPerturb++;
         }
 
-        //5% of error is allowed, because it's random
-        assertTrue(10000*0.05 >= Math.abs(cptNotPerturb - cptPerturb));
+        assertTrue(numberOfOccurences*e >= Math.abs(cptNotPerturb - cptPerturb));
 
         removeLocationToPerturb.invoke(objectPerturbator, classUnderTest.getFields()[0].get(null));
     }
