@@ -30,6 +30,7 @@ public class NTimeEnactor extends EnactorDecorator {
      */
     @Override
     public void addLocation(PerturbationLocation location) {
+        super.addLocation(location);
         for (int i = 0 ; i < n ; i++)
             this.locations.add(location);
     }
