@@ -41,14 +41,19 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
 
         expr.setParent(ctExpression.getParent());
 
-        String type = ""+ (ctExpression.getTypeCasts().isEmpty()?ctExpression.getType().getSimpleName().toLowerCase():ctExpression.getTypeCasts().get(0)).toString().toLowerCase();
+        CtTypeReference originalTypeReference = ctExpression.getTypeCasts().isEmpty()?ctExpression.getType():(CtTypeReference) ctExpression.getTypeCasts().get(0);
 
-        if (type.equals("integer"))
-            type = "int";
+        String perturbedTypeReference = getTypeReferenceFromTypeOfOriginalExpression(originalTypeReference);
 
-        ctExpression.replace(UtilPerturbation.createStaticCallOfPerturbationFunction(getFactory(),
-                "p" + type , expr));
+        ctExpression.replace(UtilPerturbation.createStaticCallOfPerturbationFunction(getFactory(), perturbedTypeReference, originalTypeReference, expr));
 
+    }
+
+    public String getTypeReferenceFromTypeOfOriginalExpression(CtTypeReference originalType) {
+        switch (originalType.getSimpleName().toLowerCase()) {
+            case "boolean": return "Boolean";
+            default: return "Numerical";
+        }
     }
 
     @Override

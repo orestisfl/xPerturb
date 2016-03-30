@@ -1,6 +1,6 @@
 package processor;
 
-import perturbation.PerturbationLocation;
+import perturbation.location.PerturbationLocationImpl;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtConstructorCall;
@@ -38,7 +38,7 @@ public class UtilPerturbation {
 
     public static final String QUALIFIED_NAME_PERTURBATOR = PACKAGE_NAME_PERTURBATION+".PerturbationEngine";
 
-    public static final String QUALIFIED_NAME_LOCATION = PACKAGE_NAME_PERTURBATION+".PerturbationLocation";
+    public static final String QUALIFIED_NAME_LOCATION = PACKAGE_NAME_PERTURBATION+".location.PerturbationLocationImpl";
 
     private static final String INIT_METHOD_NAME = "initPerturbationLocation";
 
@@ -71,23 +71,22 @@ public class UtilPerturbation {
 
     private static int currentLocation = 0;
 
+
+
     public static boolean checkIsNotInPerturbatorPackage(CtElement candidate) {
         CtPackage parent =  candidate.getParent(CtPackage.class);
         return parent.getQualifiedName().startsWith(PACKAGE_NAME_PERTURBATION);
     }
 
-    public static CtInvocation createStaticCallOfPerturbationFunction(Factory factory, String methodName, CtExpression argument) {
+    public static CtInvocation createStaticCallOfPerturbationFunction(Factory factory, String perturbedType, CtTypeReference originalType, CtExpression argument) {
 
         if (perturbator == null)
             perturbator = (CtClass) factory.Class().get(QUALIFIED_NAME_PERTURBATOR);
 
-        //For the moment, we take 2 case, but it will need refractor
-        String typeOfPerturbation = methodName.endsWith("boolean")?"Boolean":"Numerical";
-
         CtTypeReference<?> classReference = factory.Type().createReference(perturbator);
         CtExecutableReference execRef = factory.Core().createExecutableReference();
         execRef.setDeclaringType(classReference);
-        execRef.setSimpleName(methodName);
+        execRef.setSimpleName("p"+originalType);
         execRef.setStatic(true);
 
         CtTypeAccess typeAccess = factory.Core().createTypeAccess();
@@ -95,15 +94,16 @@ public class UtilPerturbation {
         typeAccess.setAccessedType(classReference);
 
         CtExpression[] args = new CtExpression[2];
-        args[0] = addFieldLocationToClass(factory, argument, typeOfPerturbation);
+        args[0] = addFieldLocationToClass(factory, argument, perturbedType);
         args[1] = argument;
 
         currentLocation++;
 
         return factory.Code().createInvocation(typeAccess, execRef, args);
+
     }
 
-    private static CtFieldRead addFieldLocationToClass(Factory factory, CtExpression argument, String type) {
+    private static CtFieldRead addFieldLocationToClass(Factory factory, CtExpression argument, String typeOfPerturbation) {
 
         CtClass clazz = argument.getParent(new TypeFilter<CtClass>(CtClass.class) {
             @Override
@@ -122,16 +122,16 @@ public class UtilPerturbation {
 
         CtField fieldLocation = factory.Core().createField();
         fieldLocation.setSimpleName(fieldName);
-        fieldLocation.setType(factory.Type().createReference(PerturbationLocation.class));
+        fieldLocation.setType(factory.Type().createReference(PerturbationLocationImpl.class));
         fieldLocation.addModifier(ModifierKind.PUBLIC);
         fieldLocation.addModifier(ModifierKind.STATIC);
         fieldLocation.setParent(clazz);
 
         listOfFieldByClass.get(clazz).add(fieldLocation);
 
-        String constructor = argument.getPosition().getCompilationUnit().getFile().getName() + ":" + argument.getPosition().getLine();
+        String position = argument.getPosition().getCompilationUnit().getFile().getName() + ":" + argument.getPosition().getLine();
         CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get(QUALIFIED_NAME_LOCATION).getReference(),
-                factory.Code().createLiteral(constructor), factory.Code().createLiteral(currentLocation), factory.Code().createLiteral(type));
+                factory.Code().createLiteral(position), factory.Code().createLiteral(currentLocation), factory.Code().createLiteral(typeOfPerturbation));
 
         CtFieldWrite writeField = factory.Core().createFieldWrite();
         writeField.setVariable(fieldLocation.getReference());
