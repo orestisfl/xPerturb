@@ -1,6 +1,6 @@
 package perturbation.log;
 
-import perturbation.PerturbationLocation;
+import perturbation.location.PerturbationLocationImpl;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class Logger {
         writeToFile(str, "log/LogLocations");
     }
 
-    public static void logOnePerturbationLocationLatex(PerturbationLocation location) {
+    public static void logOnePerturbationLocationLatex(PerturbationLocationImpl location) {
         String str = location.getLocationIndex() + "&" + location.getLocationInCode() + "&";
         str += location.getType() + "&";
         str += location.numberOfCall + "&" + location.numberOfActivation + "&";
