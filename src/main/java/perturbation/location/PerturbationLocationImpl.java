@@ -1,4 +1,4 @@
-package perturbation;
+package perturbation.location;
 
 import perturbation.perturbator.InvPerturbatorImpl;
 import perturbation.perturbator.Perturbator;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by spirals on 08/03/16.
  */
-public class PerturbationLocation {
+public class PerturbationLocationImpl implements PerturbationLocation {
 
     private final String locationType;
 
@@ -18,29 +18,44 @@ public class PerturbationLocation {
 
     private final String locationInCode;
 
+    private boolean mustBeEnact = false;
+
     private Perturbator perturbator;
 
     public String replacement;
 
+    @Override
     public int getLocationIndex(){
         return this.locationIndex;
     }
 
+    @Override
     public String getLocationInCode() {
         return this.locationInCode;
     }
 
+    @Override
     public String getType() {
         return this.locationType;
     }
 
-    private PerturbationLocation() {
+    @Override
+    public boolean mustBeEnact() {
+        return mustBeEnact;
+    }
+
+    @Override
+    public void setEnaction(boolean enaction) {
+        this.mustBeEnact = enaction;
+    }
+
+    private PerturbationLocationImpl() {
         this.locationInCode = "";
         this.locationIndex = -1;
         this.locationType = "";
     }
 
-    public PerturbationLocation(String location, int index, String type) {
+    public PerturbationLocationImpl(String location, int index, String type) {
         this.locationInCode = location;
         this.locationIndex = index;
         this.locationType = type;
@@ -80,7 +95,7 @@ public class PerturbationLocation {
 
     @Override
     public boolean equals(Object that) {
-        return that instanceof PerturbationLocation && (perturbation.PerturbationLocation.this.locationIndex) == ((PerturbationLocation)that).locationIndex;
+        return that instanceof PerturbationLocationImpl && (PerturbationLocationImpl.this.locationIndex) == ((PerturbationLocationImpl)that).locationIndex;
     }
 
 

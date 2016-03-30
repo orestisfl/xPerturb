@@ -1,43 +1,43 @@
 package perturbation.enactor;
 
-import perturbation.PerturbationLocation;
+import perturbation.location.PerturbationLocationImpl;
 
 import java.util.Random;
 
 /**
  * Created by spirals on 23/03/16.
  */
-public class RandomEnactor extends EnactorDecorator {
+public class RandomEnactorImpl extends EnactorDecorator {
 
     protected float epsilon;
     protected Random rnd;
 
-    public RandomEnactor() {
-        super(new LocationEnactor());
+    public RandomEnactorImpl() {
+        super(new LocationEnactorImpl());
         this.epsilon = 0.05f;
         this.rnd = new java.util.Random();
     }
 
-    public RandomEnactor(float epsilon) {
-        super(new LocationEnactor());
+    public RandomEnactorImpl(float epsilon) {
+        super(new LocationEnactorImpl());
         this.epsilon = epsilon;
         this.rnd = new java.util.Random();
     }
 
-    public RandomEnactor(Enactor decoratedEnactor, float epsilon) {
+    public RandomEnactorImpl(Enactor decoratedEnactor, float epsilon) {
         super(decoratedEnactor);
         this.epsilon = epsilon;
         this.rnd = new java.util.Random();
     }
 
-    public RandomEnactor(Enactor decoratedEnactor, float epsilon, int seed) {
+    public RandomEnactorImpl(Enactor decoratedEnactor, float epsilon, int seed) {
         super(decoratedEnactor);
         this.epsilon = epsilon;
         this.rnd = new java.util.Random(seed);
     }
 
     @Override
-    public boolean shouldBeActivated(PerturbationLocation location) {
+    public boolean shouldBeActivated(PerturbationLocationImpl location) {
         return rnd.nextFloat() < this.epsilon && super.shouldBeActivated(location);
     }
 
