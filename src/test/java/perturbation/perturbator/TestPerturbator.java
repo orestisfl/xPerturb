@@ -54,9 +54,9 @@ public class TestPerturbator {
         //PerturbationEngine
         classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
         objectPerturbator = classPerturbator.newInstance();
-        addLocationToPerturb = classPerturbator.getMethod("add", classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation"));
+        addLocationToPerturb = classPerturbator.getMethod("addLocationToPerturb", classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation"));
 
-        classPerturbationLocation = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation");
+        classPerturbationLocation = classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation");
         setPerturbator = classPerturbationLocation.getMethod("setPerturbator", classLoaderWithoutOldFile.loadClass("perturbation.perturbator.Perturbator"));
 
         classUnderTest = classLoaderWithoutOldFile.loadClass(simpleResWithPerturbation.getQualifiedName());
@@ -66,7 +66,7 @@ public class TestPerturbator {
 
         //Setting Enactor Location
         classPerturbator.getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor")).invoke(
-                objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.enactor.LocationEnactor").newInstance()
+                objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.enactor.LocationEnactorImpl").newInstance()
         );
 
         objectPerturbationLocation0 = classUnderTest.getFields()[0].get(null);
@@ -116,7 +116,7 @@ public class TestPerturbator {
     @Test
     public void testAddOnePerturbator() throws Exception {
 
-        //test the perturbator +1 with all other boolean perturbator
+        //test the perturbator +1 with all other booleans perturbator
 
         if (launcher == null)
             initialisation();
@@ -131,7 +131,7 @@ public class TestPerturbator {
     @Test
     public void testMinusOnePerturbator() throws Exception {
 
-        //test the perturbator -1 with all other boolean perturbator
+        //test the perturbator -1 with all other booleans perturbator
 
         if (launcher == null)
             initialisation();

@@ -41,7 +41,7 @@ public class TestProcessLiteralsVariable {
         for (CtMethod m : methods) {
             List<CtLiteral> elems = m.getElements(new TypeFilter(CtLiteral.class));
             for (CtLiteral elem : elems) {
-                if (elem.getParent() instanceof CtConstructorCall && ((CtConstructorCall) elem.getParent()).getExecutable().getType().getSimpleName().equals("PerturbationLocation"))
+                if (elem.getParent() instanceof CtConstructorCall && ((CtConstructorCall) elem.getParent()).getExecutable().getType().getSimpleName().equals("PerturbationLocationImpl"))
                     continue;// we skip lit introduce by the perturbation
                 //parent is invokation
                 assertTrue(elem.getParent() instanceof CtInvocation);

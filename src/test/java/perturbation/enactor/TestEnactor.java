@@ -48,8 +48,8 @@ public class TestEnactor {
         //PerturbationEngine
         classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
         objectPerturbator = classPerturbator.newInstance();
-        addLocationToPerturb = classPerturbator.getMethod("add", classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation"));
-        removeLocationToPerturb = classPerturbator.getMethod("remove", classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation"));
+        addLocationToPerturb = classPerturbator.getMethod("addLocationToPerturb", classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation"));
+        removeLocationToPerturb = classPerturbator.getMethod("removeLocationToPerturb", classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation"));
         setEnactor = classPerturbator.getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor"));
 
         classUnderTest = classLoaderWithoutOldFile.loadClass(simpleResWithPerturbation.getQualifiedName());
@@ -62,15 +62,15 @@ public class TestEnactor {
     @Test
     public void testLocationEnactor() throws Exception {
 
-        //test the configuration of the LocationEnactor which is enact the perturbtion if the PerturbationLocation is in his list.
+        //test the configuration of the LocationEnactorImpl which is enact the perturbtion if the PerturbationLocationImpl is in his list.
 
         if (launcher == null)
             initialisation();
 
         //Setting Enactor Location
-        setEnactor.invoke(objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.enactor.LocationEnactor").newInstance());
+        setEnactor.invoke(objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.enactor.LocationEnactorImpl").newInstance());
 
-        //shoudln't be perturb because the list of PerturbationLocation is empty
+        //shoudln't be perturb because the list of PerturbationLocationImpl is empty
         assertEquals(true, (Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
 
         addLocationToPerturb.invoke(objectPerturbator, classUnderTest.getFields()[0].get(null));
@@ -87,9 +87,9 @@ public class TestEnactor {
             initialisation();
 
         //test the always Enactor which always enact perturbation
-        setEnactor.invoke(objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.enactor.AlwaysEnactor").newInstance());
+        setEnactor.invoke(objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.enactor.AlwaysEnactorImpl").newInstance());
 
-        //perturb while no PerturbationLocation has been added to the list : 2 perturbations in a row : !!(true) == true
+        //perturb while no PerturbationLocationImpl has been added to the list : 2 perturbations in a row : !!(true) == true
         assertEquals(true,(Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
 
         addLocationToPerturb.invoke(objectPerturbator, classUnderTest.getFields()[0].get(null));
@@ -105,12 +105,12 @@ public class TestEnactor {
         //test the Random Enactor which means that is enact the perturbation with a probability epsilon
 
         //Setting Enactor NTime with Location as decorated Enactor
-        Constructor constructorOfRandomEnactor = classLoaderWithoutOldFile.loadClass("perturbation.enactor.RandomEnactor").getConstructor(
+        Constructor constructorOfRandomEnactor = classLoaderWithoutOldFile.loadClass("perturbation.enactor.RandomEnactorImpl").getConstructor(
                 classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor"), float.class
         );
 
         Object OneForTwoPerturbationEnactor = constructorOfRandomEnactor.newInstance(
-                classLoaderWithoutOldFile.loadClass("perturbation.enactor.LocationEnactor").newInstance(), 0.5f
+                classLoaderWithoutOldFile.loadClass("perturbation.enactor.LocationEnactorImpl").newInstance(), 0.5f
         );
 
         setEnactor.invoke(objectPerturbator, OneForTwoPerturbationEnactor);
@@ -149,13 +149,9 @@ public class TestEnactor {
         //test the NTime Enactor which means that is enact n time the perturbation at the given location
 
         //Setting Enactor NTime with Location as decorated Enactor
-        Constructor constructorOfNTimeEnactor = classLoaderWithoutOldFile.loadClass("perturbation.enactor.NTimeEnactor").getConstructor(
-                classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor"), int.class
-        );
+        Constructor constructorOfNTimeEnactor = classLoaderWithoutOldFile.loadClass("perturbation.enactor.NTimeEnactorImpl").getConstructor(int.class);
 
-        Object FiveTimeEnactorWithLocationEnactorDecorated = constructorOfNTimeEnactor.newInstance(
-                classLoaderWithoutOldFile.loadClass("perturbation.enactor.LocationEnactor").newInstance(), 5
-        );
+        Object FiveTimeEnactorWithLocationEnactorDecorated = constructorOfNTimeEnactor.newInstance(5);
 
         setEnactor.invoke(objectPerturbator, FiveTimeEnactorWithLocationEnactorDecorated);
 

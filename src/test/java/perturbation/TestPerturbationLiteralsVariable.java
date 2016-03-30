@@ -38,10 +38,8 @@ public class TestPerturbationLiteralsVariable {
         //PerturbationEngine
         Class<?> classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
         Object objectPerturbator = classPerturbator.newInstance();
-        Method addLocationToPerturb = classPerturbator.getMethod("add",  classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation"));
-        Method clearLocationToPerturb = classPerturbator.getMethod("reset");
-
-        assertEquals(0, classPerturbator.getMethod("numberOfPerturbationSetOn").invoke(objectPerturbator));
+        Method addLocationToPerturb = classPerturbator.getMethod("addLocationToPerturb",  classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation"));
+        Method removeLocationToPerturb = classPerturbator.getMethod("removeLocationToPerturb",  classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation"));
 
         Class<?> classUnderTest = classLoaderWithoutOldFile.loadClass(simpleResWithPerturbation.getQualifiedName());
         Object objectUnderTest = classUnderTest.newInstance();
@@ -63,7 +61,6 @@ public class TestPerturbationLiteralsVariable {
                 Object instanceField = fields[f].get(objectUnderTest);
                 addLocationToPerturb.invoke(objectPerturbator, instanceField);//Activated the right location
                 perturbation = false;
-                assertEquals(1, classPerturbator.getMethod("numberOfPerturbationSetOn").invoke(objectPerturbator));
                 for (int m = 0; m < methods.length; m++) {
                     if (methods[m].getName().startsWith("_p")) {
                         if (!methods[m].invoke(objectUnderTest).equals(returnWithoutPerturbation.get(methods[m]))) {
@@ -76,7 +73,7 @@ public class TestPerturbationLiteralsVariable {
                     }
                 }
                 assertTrue(perturbation);//One perturbation is activated
-                clearLocationToPerturb.invoke(objectPerturbator);//clean location of perturbation
+                removeLocationToPerturb.invoke(objectPerturbator, instanceField);//clean location of perturbation
             }
         }
     }

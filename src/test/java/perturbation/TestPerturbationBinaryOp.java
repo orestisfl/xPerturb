@@ -30,8 +30,8 @@ public class TestPerturbationBinaryOp {
 
         Class<?> classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
         Object objectPerturbator = classPerturbator.newInstance();
-        Method addLocationToPerturb = classPerturbator.getMethod("add",  classLoaderWithoutOldFile.loadClass("perturbation.PerturbationLocation"));
-        Method clearLocationToPerturb = classPerturbator.getMethod("reset");
+        Method addLocationToPerturb = classPerturbator.getMethod("addLocationToPerturb",  classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation"));
+        Method removeLocationToPerturb = classPerturbator.getMethod("removeLocationToPerturb",  classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation"));
 
         Class<?> classUnderTest = classLoaderWithoutOldFile.loadClass("BinOpRes");
         Object objectUnderTest = classUnderTest.newInstance();
@@ -55,7 +55,7 @@ public class TestPerturbationBinaryOp {
                     addLocationToPerturb.invoke(objectPerturbator, fieldsOfBinaryOp[i].get(objectUnderTest));
                     assertNotEquals(2, classUnderTest.getMethod("plus", int.class, int.class).invoke(objectUnderTest, 1, 1));
                 }
-                clearLocationToPerturb.invoke(objectPerturbator);
+                removeLocationToPerturb.invoke(objectPerturbator, fieldsOfBinaryOp[i].get(objectUnderTest));
             }
         }
 

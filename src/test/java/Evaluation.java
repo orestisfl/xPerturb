@@ -1,3 +1,4 @@
+import org.apache.log4j.Level;
 import org.junit.Test;
 import spoon.Launcher;
 import util.Util;
@@ -8,8 +9,22 @@ import util.Util;
 public class Evaluation {
 
     @Test
+    public void processSortLibrary() {
+        Launcher l = Util.createSpoonWithPerturbationProcessors();
+
+        l.addInputResource("../sort/src/");
+
+        l.setSourceOutputDirectory("../Spooned/sort/src/");
+        l.setBinaryOutputDirectory("../Spooned/sort/bin/");
+
+        l.run();
+    }
+
+    @Test
     public void processBitcoinJ() {
         Launcher l = Util.createSpoonWithPerturbationProcessors();
+
+        l.getEnvironment().setLevel(Level.ALL.toString());
 
         final String M2_REPO = "/home/spirals/.m2/repository/";
 
@@ -52,7 +67,11 @@ public class Evaluation {
     public void processSample() {
         Launcher l = Util.createSpoonWithPerturbationProcessors();
 
-        l.addInputResource("resources/Test.java");
+        l.addInputResource("resources/Main.java");
+
+        l.setSourceOutputDirectory("../Spooned/Test/src/");
+        l.setBinaryOutputDirectory("../Spooned/Test/bin/");
+
 
         l.run();
     }
