@@ -71,8 +71,6 @@ public class UtilPerturbation {
 
     private static int currentLocation = 0;
 
-
-
     public static boolean checkIsNotInPerturbatorPackage(CtElement candidate) {
         CtPackage parent =  candidate.getParent(CtPackage.class);
         return parent.getQualifiedName().startsWith(PACKAGE_NAME_PERTURBATION);
@@ -86,7 +84,12 @@ public class UtilPerturbation {
         CtTypeReference<?> classReference = factory.Type().createReference(perturbator);
         CtExecutableReference execRef = factory.Core().createExecutableReference();
         execRef.setDeclaringType(classReference);
-        execRef.setSimpleName("p"+originalType);
+
+        if (originalType.getSimpleName().equals("Integer"))
+            execRef.setSimpleName("pint");
+        else
+            execRef.setSimpleName("p"+originalType.getSimpleName());
+
         execRef.setStatic(true);
 
         CtTypeAccess typeAccess = factory.Core().createTypeAccess();
