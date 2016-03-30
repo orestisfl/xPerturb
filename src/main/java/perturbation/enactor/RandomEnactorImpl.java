@@ -1,6 +1,6 @@
 package perturbation.enactor;
 
-import perturbation.location.PerturbationLocationImpl;
+import perturbation.location.PerturbationLocation;
 
 import java.util.Random;
 
@@ -37,7 +37,7 @@ public class RandomEnactorImpl extends EnactorDecorator {
     }
 
     @Override
-    public boolean shouldBeActivated(PerturbationLocationImpl location) {
+    public boolean shouldBeActivated(PerturbationLocation location) {
         return rnd.nextFloat() < this.epsilon && super.shouldBeActivated(location);
     }
 

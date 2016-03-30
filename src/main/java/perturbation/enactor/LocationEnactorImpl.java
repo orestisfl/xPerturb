@@ -1,6 +1,6 @@
 package perturbation.enactor;
 
-import perturbation.location.PerturbationLocationImpl;
+import perturbation.location.PerturbationLocation;
 
 /**
  * Created by spirals on 23/03/16.
@@ -8,7 +8,7 @@ import perturbation.location.PerturbationLocationImpl;
 public class LocationEnactorImpl implements Enactor {
 
     @Override
-    public boolean shouldBeActivated(PerturbationLocationImpl location) {
+    public boolean shouldBeActivated(PerturbationLocation location) {
         return location.mustBeEnact();
     }
 

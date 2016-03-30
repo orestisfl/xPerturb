@@ -1,12 +1,12 @@
 package perturbation.enactor;
 
-import perturbation.location.PerturbationLocationImpl;
+import perturbation.location.PerturbationLocation;
 
 /**
  * Created by spirals on 23/03/16.
  */
 public interface  Enactor {
 
-    boolean shouldBeActivated(PerturbationLocationImpl location);
+    boolean shouldBeActivated(PerturbationLocation location);
 
 }
