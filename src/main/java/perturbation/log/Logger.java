@@ -1,11 +1,16 @@
 package perturbation.log;
 
+import perturbation.location.PerturbationLocation;
+
 /**
  * Created by spirals on 28/03/16.
  */
-public class Logger {
+public interface Logger {
 
-    public static int numberOfCalls = 0;
-    public static int numberOfEnaction = 0;
+    void logOn(PerturbationLocation location);
+
+    void logCall(PerturbationLocation location);
+
+    void logEnaction(PerturbationLocation location);
 
 }
