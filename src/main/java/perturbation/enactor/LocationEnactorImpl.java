@@ -13,7 +13,7 @@ public class LocationEnactorImpl implements Enactor {
     }
 
     public String toString() {
-        return "location";
+        return "LOCA";
     }
 
 }

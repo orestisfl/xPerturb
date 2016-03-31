@@ -11,20 +11,6 @@ public class LoggerImpl implements Logger {
     private int numberOfEnactions = 0;
     private PerturbationLocation location;
 
-    public int getNumberOfCalls() {
-        return this.numberOfCalls;
-    }
-
-    public int getNumberOfEnactions() {
-        return this.numberOfEnactions;
-    }
-
-    public void reset() {
-        this.location = null;
-        this.numberOfCalls = 0;
-        this.numberOfEnactions = 0;
-    }
-
     @Override
     public void logOn(PerturbationLocation location) {
         this.location = location;
@@ -41,4 +27,22 @@ public class LoggerImpl implements Logger {
         if (location.equals(this.location))
             this.numberOfEnactions++;
     }
+
+    @Override
+    public int getCalls() {
+        return this.numberOfCalls;
+    }
+
+    @Override
+    public int getEnactions() {
+        return this.numberOfEnactions;
+    }
+
+    @Override
+    public void reset() {
+        this.location = null;
+        this.numberOfCalls = 0;
+        this.numberOfEnactions = 0;
+    }
+
 }

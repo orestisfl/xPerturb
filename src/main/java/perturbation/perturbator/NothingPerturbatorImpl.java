@@ -43,4 +43,9 @@ public class NothingPerturbatorImpl implements Perturbator {
     public double pdouble(double value) {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "NTHN";
+    }
 }

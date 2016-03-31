@@ -52,7 +52,7 @@ public class RndNegPerturbatorImpl extends PerturbatorDecorator {
 
     @Override
     public String toString() {
-        return "Rnd-";
+        return "RNDN";
     }
 
 }

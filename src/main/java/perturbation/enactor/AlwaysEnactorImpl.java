@@ -14,7 +14,7 @@ public class AlwaysEnactorImpl implements Enactor {
 
     @Override
     public String toString() {
-        return "always";
+        return "ALWA";
     }
 
 }

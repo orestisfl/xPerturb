@@ -46,6 +46,6 @@ public class ZeroPerturbatorImpl extends PerturbatorDecorator {
 
     @Override
     public String toString() {
-        return "0_" + super.toString();
+        return "ZERO";
     }
 }

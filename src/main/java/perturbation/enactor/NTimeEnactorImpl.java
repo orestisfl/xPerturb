@@ -35,6 +35,6 @@ public class NTimeEnactorImpl extends LocationEnactorImpl {
 
     @Override
     public String toString() {
-        return n+":Time_"+super.toString();
+        return "NTIM";
     }
 }

@@ -46,6 +46,6 @@ public class MinusOnePerturbatorImpl extends PerturbatorDecorator {
 
     @Override
     public String toString() {
-        return "-1_" + super.toString();
+        return "MONE";
     }
 }

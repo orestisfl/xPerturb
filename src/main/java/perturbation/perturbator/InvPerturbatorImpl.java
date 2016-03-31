@@ -47,6 +47,6 @@ public class InvPerturbatorImpl implements Perturbator {
 
     @Override
     public String toString() {
-        return "!";
+        return "INVP";
     }
 }

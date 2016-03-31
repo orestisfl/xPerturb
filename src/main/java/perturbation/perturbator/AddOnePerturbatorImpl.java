@@ -46,6 +46,6 @@ public class AddOnePerturbatorImpl extends PerturbatorDecorator {
 
     @Override
     public String toString() {
-        return "+1_" + super.toString();
+        return "PONE";
     }
 }

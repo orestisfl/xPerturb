@@ -43,6 +43,6 @@ public class RandomEnactorImpl extends EnactorDecorator {
 
     @Override
     public String toString() {
-        return "random:"+this.epsilon + "_" + super.toString();
+        return "RAND";
     }
 }

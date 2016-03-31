@@ -13,4 +13,10 @@ public interface Logger {
 
     void logEnaction(PerturbationLocation location);
 
+    int getCalls();
+
+    int getEnactions();
+
+    void reset();
+
 }
