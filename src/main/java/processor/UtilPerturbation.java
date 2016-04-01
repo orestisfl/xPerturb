@@ -1,6 +1,6 @@
 package processor;
 
-import perturbation.location.PerturbationLocationImpl;
+import perturbation.location.PerturbationLocation;
 import spoon.reflect.code.CtAssignment;
 import spoon.reflect.code.CtBlock;
 import spoon.reflect.code.CtConstructorCall;
@@ -38,7 +38,8 @@ public class UtilPerturbation {
 
     public static final String QUALIFIED_NAME_PERTURBATOR = PACKAGE_NAME_PERTURBATION+".PerturbationEngine";
 
-    public static final String QUALIFIED_NAME_LOCATION = PACKAGE_NAME_PERTURBATION+".location.PerturbationLocationImpl";
+    public static final String QUALIFIED_NAME_LOCATION = PACKAGE_NAME_PERTURBATION+".location.PerturbationLocation";
+    public static final String QUALIFIED_NAME_LOCATION_IMPL = PACKAGE_NAME_PERTURBATION+".location.PerturbationLocationImpl";
 
     private static final String INIT_METHOD_NAME = "initPerturbationLocation";
 
@@ -125,7 +126,7 @@ public class UtilPerturbation {
 
         CtField fieldLocation = factory.Core().createField();
         fieldLocation.setSimpleName(fieldName);
-        fieldLocation.setType(factory.Type().createReference(PerturbationLocationImpl.class));
+        fieldLocation.setType(factory.Type().createReference(PerturbationLocation.class));
         fieldLocation.addModifier(ModifierKind.PUBLIC);
         fieldLocation.addModifier(ModifierKind.STATIC);
         fieldLocation.setParent(clazz);
@@ -133,7 +134,7 @@ public class UtilPerturbation {
         listOfFieldByClass.get(clazz).add(fieldLocation);
 
         String position = argument.getPosition().getCompilationUnit().getFile().getName() + ":" + argument.getPosition().getLine();
-        CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get(QUALIFIED_NAME_LOCATION).getReference(),
+        CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get(QUALIFIED_NAME_LOCATION_IMPL).getReference(),
                 factory.Code().createLiteral(position), factory.Code().createLiteral(currentLocation), factory.Code().createLiteral(typeOfPerturbation));
 
         CtFieldWrite writeField = factory.Core().createFieldWrite();
@@ -197,6 +198,7 @@ public class UtilPerturbation {
     }
 
     public static void addAllFieldsAndMethods(Factory factory) {
+
         CtClass perturbator = (CtClass) factory.Class().get(QUALIFIED_NAME_PERTURBATOR);
 
         CtField nbPerturbation = factory.Core().createField();
