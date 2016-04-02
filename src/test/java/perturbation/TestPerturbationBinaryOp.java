@@ -29,9 +29,12 @@ public class TestPerturbationBinaryOp {
         URLClassLoader classLoaderWithoutOldFile = Util.removeOldFileFromClassPath((URLClassLoader) ClassLoader.getSystemClassLoader());
 
         Class<?> classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
-        Object objectPerturbator = classPerturbator.newInstance();
-        Method addLocationToPerturb = classPerturbator.getMethod("addLocationToPerturb",  classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation"));
-        Method removeLocationToPerturb = classPerturbator.getMethod("removeLocationToPerturb",  classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation"));
+
+        Class<?> classPerturbationLocation = classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation");
+        Method setEnactor = classPerturbationLocation.getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor"));
+
+        Class<?> classAlwaysEnactorImpl = classLoaderWithoutOldFile.loadClass("perturbation.enactor.AlwaysEnactorImpl");
+        Class<?> classNeverEnactorImpl = classLoaderWithoutOldFile.loadClass("perturbation.enactor.NeverEnactorImpl");
 
         Class<?> classUnderTest = classLoaderWithoutOldFile.loadClass("BinOpRes");
         Object objectUnderTest = classUnderTest.newInstance();
@@ -49,13 +52,13 @@ public class TestPerturbationBinaryOp {
                 Class instanceField = fieldsOfBinaryOp[i].get(objectUnderTest).getClass();
                 String locationInCode = ((String)instanceField.getMethod("getLocationInCode").invoke(fieldsOfBinaryOp[i].get(objectUnderTest)));
                 if (locationInCode.endsWith(":4")) {
-                    addLocationToPerturb.invoke(objectPerturbator, fieldsOfBinaryOp[i].get(objectUnderTest));
+                    setEnactor.invoke(fieldsOfBinaryOp[i].get(objectUnderTest), classAlwaysEnactorImpl.newInstance());
                     assertNotEquals(true, classUnderTest.getMethod("and", boolean.class, boolean.class).invoke(objectUnderTest, true, true));
                 } else if (locationInCode.endsWith(":12")) {
-                    addLocationToPerturb.invoke(objectPerturbator, fieldsOfBinaryOp[i].get(objectUnderTest));
+                    setEnactor.invoke(fieldsOfBinaryOp[i].get(objectUnderTest), classAlwaysEnactorImpl.newInstance());
                     assertNotEquals(2, classUnderTest.getMethod("plus", int.class, int.class).invoke(objectUnderTest, 1, 1));
                 }
-                removeLocationToPerturb.invoke(objectPerturbator, fieldsOfBinaryOp[i].get(objectUnderTest));
+                setEnactor.invoke(fieldsOfBinaryOp[i].get(objectUnderTest), classNeverEnactorImpl.newInstance());
             }
         }
 

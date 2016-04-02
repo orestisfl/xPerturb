@@ -8,7 +8,7 @@ import perturbation.location.PerturbationLocation;
 public class AlwaysEnactorImpl implements Enactor {
 
     @Override
-    public boolean shouldBeActivated(PerturbationLocation location) {
+    public boolean shouldBeActivated() {
         return true;
     }
 
