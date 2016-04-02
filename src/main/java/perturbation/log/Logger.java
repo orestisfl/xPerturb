@@ -9,13 +9,15 @@ public interface Logger {
 
     void logOn(PerturbationLocation location);
 
+    void remove(PerturbationLocation locatio);
+
     void logCall(PerturbationLocation location);
 
     void logEnaction(PerturbationLocation location);
 
-    int getCalls();
+    int getCalls(PerturbationLocation location);
 
-    int getEnactions();
+    int getEnactions(PerturbationLocation location);
 
     void reset();
 
