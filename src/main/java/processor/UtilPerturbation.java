@@ -38,7 +38,9 @@ public class UtilPerturbation {
 
     public static final String QUALIFIED_NAME_PERTURBATOR = PACKAGE_NAME_PERTURBATION+".PerturbationEngine";
 
-    public static final String QUALIFIED_NAME_LOCATION = PACKAGE_NAME_PERTURBATION+".location.PerturbationLocationImpl";
+    public static final String QUALIFIED_NAME_LOCATION = PACKAGE_NAME_PERTURBATION+".location.PerturbationLocation";
+
+    public static final String QUALIFIED_NAME_LOCATION_IMPL = PACKAGE_NAME_PERTURBATION+".location.PerturbationLocationImpl";
 
     private static final String INIT_METHOD_NAME = "initPerturbationLocation";
 
@@ -133,7 +135,7 @@ public class UtilPerturbation {
         listOfFieldByClass.get(clazz).add(fieldLocation);
 
         String position = argument.getPosition().getCompilationUnit().getFile().getName() + ":" + argument.getPosition().getLine();
-        CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get(QUALIFIED_NAME_LOCATION).getReference(),
+        CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get(QUALIFIED_NAME_LOCATION_IMPL).getReference(),
                 factory.Code().createLiteral(position), factory.Code().createLiteral(currentLocation), factory.Code().createLiteral(typeOfPerturbation));
 
         CtFieldWrite writeField = factory.Core().createFieldWrite();
