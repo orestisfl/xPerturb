@@ -2,9 +2,7 @@ package perturbation.log;
 
 import perturbation.location.PerturbationLocation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,6 +44,11 @@ public class LoggerImpl implements Logger {
     @Override
     public int getEnactions(PerturbationLocation location) {
         return this.numberOfEnactionsPerLocation.get(location);
+    }
+
+    @Override
+    public boolean isLogging(PerturbationLocation location) {
+        return this.numberOfCallsPerLocation.containsKey(location);
     }
 
     @Override

@@ -19,6 +19,8 @@ public interface Logger {
 
     int getEnactions(PerturbationLocation location);
 
+    boolean isLogging(PerturbationLocation location);
+
     void reset();
 
 }
