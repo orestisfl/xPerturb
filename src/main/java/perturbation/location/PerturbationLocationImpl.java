@@ -1,6 +1,9 @@
 package perturbation.location;
 
+import perturbation.enactor.Enactor;
+import perturbation.enactor.NeverEnactorImpl;
 import perturbation.perturbator.InvPerturbatorImpl;
+import perturbation.perturbator.NothingPerturbatorImpl;
 import perturbation.perturbator.Perturbator;
 
 /**
@@ -16,7 +19,9 @@ public class PerturbationLocationImpl implements PerturbationLocation {
 
     private boolean mustBeEnact = false;
 
-    private Perturbator perturbator;
+    private Perturbator perturbator = new NothingPerturbatorImpl();
+
+    private Enactor enactor = new NeverEnactorImpl();
 
     @Override
     public int getLocationIndex(){
@@ -31,16 +36,6 @@ public class PerturbationLocationImpl implements PerturbationLocation {
     @Override
     public String getType() {
         return this.locationType;
-    }
-
-    @Override
-    public boolean mustBeEnact() {
-        return mustBeEnact;
-    }
-
-    @Override
-    public void setEnaction(boolean enaction) {
-        this.mustBeEnact = enaction;
     }
 
     private PerturbationLocationImpl() {
@@ -62,6 +57,16 @@ public class PerturbationLocationImpl implements PerturbationLocation {
 
     public void setPerturbator(Perturbator pertubator) {
         this.perturbator = pertubator;
+    }
+
+    @Override
+    public Enactor getEnactor() {
+        return this.enactor;
+    }
+
+    @Override
+    public void setEnactor(Enactor enactor) {
+        this.enactor = enactor;
     }
 
     @Override

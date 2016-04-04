@@ -7,6 +7,6 @@ import perturbation.location.PerturbationLocation;
  */
 public interface  Enactor {
 
-    boolean shouldBeActivated(PerturbationLocation location);
+    boolean shouldBeActivated();
 
 }

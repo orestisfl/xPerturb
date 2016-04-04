@@ -25,8 +25,6 @@ public class TestPerturbator {
     private static CtClass simpleResWithPerturbation;
     private static Class<?> classPerturbator;
 
-    private static Object objectPerturbator;
-    private static Method addLocationToPerturb;
     private static Method setPerturbator;
 
     private static Class<?> classPerturbationLocation;
@@ -53,8 +51,6 @@ public class TestPerturbator {
 
         //PerturbationEngine
         classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
-        objectPerturbator = classPerturbator.newInstance();
-        addLocationToPerturb = classPerturbator.getMethod("addLocationToPerturb", classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation"));
 
         classPerturbationLocation = classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation");
         setPerturbator = classPerturbationLocation.getMethod("setPerturbator", classLoaderWithoutOldFile.loadClass("perturbation.perturbator.Perturbator"));
@@ -64,16 +60,17 @@ public class TestPerturbator {
         booleanMethodOfClassUnderTest = classUnderTest.getMethod("_pBoolean");
         intMethodOfClassUnderTest = classUnderTest.getMethod("_pInt");
 
-        //Setting Enactor Location
-        classPerturbator.getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor")).invoke(
-                objectPerturbator, classLoaderWithoutOldFile.loadClass("perturbation.enactor.LocationEnactorImpl").newInstance()
-        );
-
         objectPerturbationLocation0 = classUnderTest.getFields()[0].get(null);
         objectPerturbationLocation10 = classUnderTest.getFields()[10].get(null);
 
-        addLocationToPerturb.invoke(objectPerturbator, classUnderTest.getFields()[0].get(null));
-        addLocationToPerturb.invoke(objectPerturbator, classUnderTest.getFields()[10].get(null));
+        classUnderTest.getFields()[0].get(null).getClass().getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor")).invoke(
+                classUnderTest.getFields()[0].get(null), classLoaderWithoutOldFile.loadClass("perturbation.enactor.AlwaysEnactorImpl").newInstance()
+        );
+
+        classUnderTest.getFields()[10].get(null).getClass().getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor")).invoke(
+                classUnderTest.getFields()[10].get(null), classLoaderWithoutOldFile.loadClass("perturbation.enactor.AlwaysEnactorImpl").newInstance()
+        );
+
     }
 
     /**

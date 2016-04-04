@@ -15,8 +15,8 @@ public class EnactorDecorator implements Enactor {
     }
 
     @Override
-    public boolean shouldBeActivated(PerturbationLocation location) {
-        return this.decoratedEnactor.shouldBeActivated(location);
+    public boolean shouldBeActivated() {
+        return this.decoratedEnactor.shouldBeActivated();
     }
 
     @Override

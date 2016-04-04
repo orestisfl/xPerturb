@@ -39,6 +39,7 @@ public class UtilPerturbation {
     public static final String QUALIFIED_NAME_PERTURBATOR = PACKAGE_NAME_PERTURBATION+".PerturbationEngine";
 
     public static final String QUALIFIED_NAME_LOCATION = PACKAGE_NAME_PERTURBATION+".location.PerturbationLocation";
+
     public static final String QUALIFIED_NAME_LOCATION_IMPL = PACKAGE_NAME_PERTURBATION+".location.PerturbationLocationImpl";
 
     private static final String INIT_METHOD_NAME = "initPerturbationLocation";

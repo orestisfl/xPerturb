@@ -2,47 +2,59 @@ package perturbation.log;
 
 import perturbation.location.PerturbationLocation;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by spirals on 31/03/16.
  */
 public class LoggerImpl implements Logger {
 
-    private int numberOfCalls = 0;
-    private int numberOfEnactions = 0;
-    private PerturbationLocation location;
+    private Map<PerturbationLocation, Integer> numberOfCallsPerLocation = new HashMap<PerturbationLocation, Integer>();
+    private Map<PerturbationLocation, Integer> numberOfEnactionsPerLocation = new HashMap<PerturbationLocation, Integer>();
 
     @Override
     public void logOn(PerturbationLocation location) {
-        this.location = location;
+        this.numberOfCallsPerLocation.put(location, 0);
+        this.numberOfEnactionsPerLocation.put(location, 0);
+    }
+
+    @Override
+    public void remove(PerturbationLocation location) {
+        this.numberOfCallsPerLocation.remove(location);
     }
 
     @Override
     public void logCall(PerturbationLocation location) {
-        if (location.equals(this.location))
-            this.numberOfCalls++;
+        if (this.numberOfCallsPerLocation.containsKey(location))
+            this.numberOfCallsPerLocation.put(location, this.numberOfCallsPerLocation.get(location) + 1);
     }
 
     @Override
     public void logEnaction(PerturbationLocation location) {
-        if (location.equals(this.location))
-            this.numberOfEnactions++;
+        if (numberOfEnactionsPerLocation.containsKey(location))
+            this.numberOfEnactionsPerLocation.put(location, this.numberOfEnactionsPerLocation.get(location) + 1);
     }
 
     @Override
-    public int getCalls() {
-        return this.numberOfCalls;
+    public int getCalls(PerturbationLocation location) {
+        return this.numberOfCallsPerLocation.get(location);
     }
 
     @Override
-    public int getEnactions() {
-        return this.numberOfEnactions;
+    public int getEnactions(PerturbationLocation location) {
+        return this.numberOfEnactionsPerLocation.get(location);
+    }
+
+    @Override
+    public boolean isLogging(PerturbationLocation location) {
+        return this.numberOfCallsPerLocation.containsKey(location);
     }
 
     @Override
     public void reset() {
-        this.location = null;
-        this.numberOfCalls = 0;
-        this.numberOfEnactions = 0;
+        this.numberOfCallsPerLocation.clear();
+        this.numberOfEnactionsPerLocation.clear();
     }
 
 }

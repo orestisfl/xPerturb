@@ -1,5 +1,6 @@
 package perturbation.location;
 
+import perturbation.enactor.Enactor;
 import perturbation.perturbator.Perturbator;
 
 import java.lang.reflect.Field;
@@ -17,13 +18,13 @@ public interface PerturbationLocation {
 
     String getType();
 
-    boolean mustBeEnact();
-
-    void setEnaction(boolean enaction);
-
     Perturbator getPerturbator();
 
-    void setPerturbator(Perturbator pertubator) ;
+    void setPerturbator(Perturbator pertubator);
+
+    Enactor getEnactor();
+
+    void setEnactor(Enactor enactor);
 
     static List<PerturbationLocation> getLocationFromClass(Class clazz) {
 
