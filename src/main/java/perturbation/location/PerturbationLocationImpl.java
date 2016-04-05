@@ -17,8 +17,6 @@ public class PerturbationLocationImpl implements PerturbationLocation {
 
     private final String locationInCode;
 
-    private boolean mustBeEnact = false;
-
     private Perturbator perturbator = new NothingPerturbatorImpl();
 
     private Enactor enactor = new NeverEnactorImpl();
