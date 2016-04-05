@@ -9,6 +9,7 @@ import spoon.reflect.code.CtCase;
 import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtFieldWrite;
+import spoon.reflect.code.CtFor;
 import spoon.reflect.code.CtIf;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
@@ -105,6 +106,11 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
                     return false;
                 if (candidateParent instanceof CtIf && ((CtIf) candidateParent).getCondition() != candidate)
                     return false;
+                if (candidateParent instanceof CtFor && ( ((CtFor) candidateParent).getExpression() != candidate ||
+                        ((CtFor) candidateParent).getForInit() != candidate ||
+                        ((CtFor) candidateParent).getForUpdate() != candidate))
+                    return false;
+
             }
 
             if (candidateParent instanceof CtInvocation) {
