@@ -45,18 +45,18 @@ public class UtilPerturbation {
     private static final String INIT_METHOD_NAME = "initPerturbationLocation";
 
     static {
-//        perturbableTypes.add("char");
-//
-//        perturbableTypes.add("byte");
-//        perturbableTypes.add("short");
+        perturbableTypes.add("char");
+
+        perturbableTypes.add("byte");
+        perturbableTypes.add("short");
         perturbableTypes.add("int");
         perturbableTypes.add("Integer");
-//        perturbableTypes.add("long");
-//
-//        perturbableTypes.add("boolean");
-//
-//        perturbableTypes.add("float");
-//        perturbableTypes.add("double");
+        perturbableTypes.add("long");
+
+        perturbableTypes.add("boolean");
+
+        perturbableTypes.add("float");
+        perturbableTypes.add("double");
     }
 
     private UtilPerturbation() {
