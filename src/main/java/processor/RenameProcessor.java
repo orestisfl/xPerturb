@@ -21,6 +21,8 @@ public class RenameProcessor extends AbstractProcessor<CtClass> {
             if (((CtFieldAccess) field).getVariable().isStatic() &&
                     ((CtTypeAccessImpl)((CtFieldAccess) field).getTarget()).getAccessedType().getSimpleName().equals(oldName))
                 ((CtFieldAccess)field).setTarget(typeInstrumented);
+            if (((CtFieldAccess) field).getTarget() instanceof CtThisAccess)
+                ((CtFieldAccess) field).setTarget(typeInstrumented);
         }
 
         for (Object method : ctClass.getElements(new TypeFilter(CtInvocation.class)))
