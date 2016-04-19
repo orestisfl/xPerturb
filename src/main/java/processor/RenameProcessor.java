@@ -17,18 +17,23 @@ public class RenameProcessor extends AbstractProcessor<CtClass> {
         String oldName = ctClass.getSimpleName();
         ctClass.setSimpleName(ctClass.getSimpleName()+"Instr");
         CtTypeAccess typeInstrumented = getFactory().Code().createTypeAccess(ctClass.getReference());
+        CtThisAccess thisInstrumented = getFactory().Code().createThisAccess(ctClass.getReference());
         for (Object field :  ctClass.getElements(new TypeFilter(CtFieldAccess.class))) {
             if (((CtFieldAccess) field).getVariable().isStatic() &&
                     ((CtTypeAccessImpl)((CtFieldAccess) field).getTarget()).getAccessedType().getSimpleName().equals(oldName))
                 ((CtFieldAccess)field).setTarget(typeInstrumented);
             if (((CtFieldAccess) field).getTarget() instanceof CtThisAccess)
-                ((CtFieldAccess) field).setTarget(typeInstrumented);
+                ((CtFieldAccess) field).setTarget(thisInstrumented);
         }
 
-        for (Object method : ctClass.getElements(new TypeFilter(CtInvocation.class)))
+
+
+        for (Object method : ctClass.getElements(new TypeFilter(CtInvocation.class))) {
             if (((CtInvocation) method).getExecutable().isStatic() &&
-                ((CtInvocation) method).getExecutable().getDeclaringType().getSimpleName().equals(oldName)) {
-            ((CtInvocation) method).setTarget(typeInstrumented);
+                    ((CtInvocation) method).getExecutable().getDeclaringType().getSimpleName().equals(oldName))
+                ((CtInvocation) method).setTarget(typeInstrumented);
+            if (((CtInvocation) method).getTarget() instanceof CtThisAccess)
+                   ((CtInvocation) method).setTarget(thisInstrumented);
         }
 
     }
