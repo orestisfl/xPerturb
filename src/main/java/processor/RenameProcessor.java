@@ -26,11 +26,10 @@ public class RenameProcessor extends AbstractProcessor<CtClass> {
                 ((CtFieldAccess) field).setTarget(thisInstrumented);
         }
 
-
-
         for (Object method : ctClass.getElements(new TypeFilter(CtInvocation.class))) {
-            if (((CtInvocation) method).getExecutable().isStatic() &&
-                    ((CtInvocation) method).getExecutable().getDeclaringType().getSimpleName().equals(oldName))
+            if (((CtInvocation)method).getExecutable().getDeclaringType() == null)
+                continue;
+            if (((CtInvocation) method).getExecutable().isStatic() && ((CtInvocation) method).getExecutable().getDeclaringType().getSimpleName().equals(oldName))
                 ((CtInvocation) method).setTarget(typeInstrumented);
             if (((CtInvocation) method).getTarget() instanceof CtThisAccess)
                    ((CtInvocation) method).setTarget(thisInstrumented);
