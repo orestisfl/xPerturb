@@ -26,22 +26,4 @@ public interface PerturbationLocation {
 
     void setEnactor(Enactor enactor);
 
-    static List<PerturbationLocation> getLocationFromClass(Class clazz) {
-
-        Field[] fields = clazz.getFields();
-
-        List<PerturbationLocation> locations = new ArrayList<PerturbationLocation>();
-
-        for (int i = 0 ; i < fields.length ; i++) {
-            if (fields[i].getName().startsWith("__L"))
-                try {
-                    locations.add((PerturbationLocation) fields[i].get(null));
-                } catch (IllegalAccessException e) {//won't occurs any way
-                    e.printStackTrace();
-                }
-        }
-
-        return locations;
-    }
-
 }
