@@ -119,8 +119,9 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
 
             if (candidateParent instanceof CtInvocation) {
                 CtExpression target = ((CtInvocation) candidateParent).getTarget();
+                System.out.println(candidate);
                 if (target != null && target.equals(candidate) ||
-                        ((CtInvocation) candidateParent).getExecutable().getDeclaringType().equals(perturbatorReference)) {
+                        perturbatorReference.equals(((CtInvocation) candidateParent).getExecutable().getDeclaringType())) {
                     return false;
                 }
             }
