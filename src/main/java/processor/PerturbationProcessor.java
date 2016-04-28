@@ -47,8 +47,8 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
 
         String perturbedTypeReference = getTypeReferenceFromTypeOfOriginalExpression(originalTypeReference);
 
-        ctExpression.replace(UtilPerturbation.createStaticCallOfPerturbationFunction(getFactory(), perturbedTypeReference, originalTypeReference, expr));
-
+        CtInvocation staticCallOfPerturbationFunction = UtilPerturbation.createStaticCallOfPerturbationFunction(getFactory(), perturbedTypeReference, originalTypeReference, expr);
+        ctExpression.replace(staticCallOfPerturbationFunction);
     }
 
     public String getTypeReferenceFromTypeOfOriginalExpression(CtTypeReference originalType) {
