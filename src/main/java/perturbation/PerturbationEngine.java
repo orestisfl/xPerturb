@@ -4,91 +4,120 @@ import perturbation.location.PerturbationLocation;
 import perturbation.log.Logger;
 import perturbation.log.LoggerImpl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class PerturbationEngine {
 
-    public static Logger logger = new LoggerImpl();
+    public static Map<String, Logger> loggers = new HashMap<String, Logger>();
 
     /*
        PerturbationEngine Methods
      */
     public static boolean pboolean(PerturbationLocation perturbationLocation, boolean value) {
-        logger.logCall(perturbationLocation);
         if (perturbationLocation.getEnactor().shouldBeActivated()) {
-            logger.logEnaction(perturbationLocation);
+            notifyEnactionOn(perturbationLocation);
             boolean perturbation = perturbationLocation.getPerturbator().pboolean(value);
             return perturbation;
-        } else
+        }  else {
+            notifyCallOn(perturbationLocation);
             return value;
+        }
     }
 
     public static byte pbyte(PerturbationLocation perturbationLocation, byte value) {
-        logger.logCall(perturbationLocation);
         if (perturbationLocation.getEnactor().shouldBeActivated()) {
-            logger.logEnaction(perturbationLocation);
+            notifyEnactionOn(perturbationLocation);
             byte perturbation = perturbationLocation.getPerturbator().pbyte(value);
             return perturbation;
-        } else
+        }  else {
+            notifyCallOn(perturbationLocation);
             return value;
+        }
     }
 
     public static short pshort(PerturbationLocation perturbationLocation, short value) {
-        logger.logCall(perturbationLocation);
         if (perturbationLocation.getEnactor().shouldBeActivated()) {
-            logger.logEnaction(perturbationLocation);
+            notifyEnactionOn(perturbationLocation);
             short perturbation = perturbationLocation.getPerturbator().pshort(value);
             return perturbation;
-        } else
+        }  else {
+            notifyCallOn(perturbationLocation);
             return value;
+        }
     }
 
     public static int pint(PerturbationLocation perturbationLocation, int value) {
-        logger.logCall(perturbationLocation);
         if (perturbationLocation.getEnactor().shouldBeActivated()) {
-            logger.logEnaction(perturbationLocation);
+            notifyEnactionOn(perturbationLocation);
             int perturbation = perturbationLocation.getPerturbator().pint(value);
             return perturbation;
-        } else
+        }  else {
+            notifyCallOn(perturbationLocation);
             return value;
+        }
     }
 
     public static long plong(PerturbationLocation perturbationLocation, long value) {
-        logger.logCall(perturbationLocation);
         if (perturbationLocation.getEnactor().shouldBeActivated()) {
-            logger.logEnaction(perturbationLocation);
+            notifyEnactionOn(perturbationLocation);
             long perturbation = perturbationLocation.getPerturbator().plong(value);
             return perturbation;
-        } else
+        }  else {
+            notifyCallOn(perturbationLocation);
             return value;
+        }
     }
 
     public static char pchar(PerturbationLocation perturbationLocation, char value) {
-        logger.logCall(perturbationLocation);
         if (perturbationLocation.getEnactor().shouldBeActivated()) {
-            logger.logEnaction(perturbationLocation);
+            notifyEnactionOn(perturbationLocation);
             char perturbation = perturbationLocation.getPerturbator().pchar(value);
             return perturbation;
-        } else
+        }  else {
+            notifyCallOn(perturbationLocation);
             return value;
+        }
     }
 
     public static float pfloat(PerturbationLocation perturbationLocation, float value) {
-        logger.logCall(perturbationLocation);
         if (perturbationLocation.getEnactor().shouldBeActivated()) {
-            logger.logEnaction(perturbationLocation);
+            notifyEnactionOn(perturbationLocation);
             float perturbation = perturbationLocation.getPerturbator().pfloat(value);
             return perturbation;
-        } else
+        } else {
+            notifyCallOn(perturbationLocation);
             return value;
+        }
     }
 
     public static double pdouble(PerturbationLocation perturbationLocation, double value) {
-        logger.logCall(perturbationLocation);
         if (perturbationLocation.getEnactor().shouldBeActivated()) {
-            logger.logEnaction(perturbationLocation);
+            notifyEnactionOn(perturbationLocation);
             double perturbation = perturbationLocation.getPerturbator().pdouble(value);
             return perturbation;
-        } else
+        } else {
+            notifyCallOn(perturbationLocation);
             return value;
+        }
+    }
+
+    /*
+     * Logging Management
+     */
+    private static void notifyCallOn(PerturbationLocation location) {
+        for (Logger logger : loggers.values()) {
+            logger.logCall(location);
+        }
+    }
+
+    private static void notifyEnactionOn(PerturbationLocation location) {
+        for (Logger logger : loggers.values()) {
+            logger.logCall(location);
+            logger.logEnaction(location);
+        }
     }
 
 }
