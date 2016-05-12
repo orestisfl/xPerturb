@@ -11,13 +11,7 @@ import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.code.CtTypeAccess;
 import spoon.reflect.cu.SourcePosition;
-import spoon.reflect.declaration.CtAnonymousExecutable;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtElement;
-import spoon.reflect.declaration.CtField;
-import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtPackage;
-import spoon.reflect.declaration.ModifierKind;
+import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtTypeReference;
@@ -31,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class UtilPerturbation {
+
+    private static UtilPerturbation instance = null;
 
     public static List<String> perturbableTypes = new ArrayList<>();
 
@@ -61,21 +57,31 @@ public class UtilPerturbation {
 
     private UtilPerturbation() {
         perturbator = null;
+        methodsByClass  = new HashMap<>();
+        listOfFieldByClass = new HashMap<>();
+        staticBlockByClass = new HashMap<>();
+        currentLocation = 0;
     }
 
     private static CtClass perturbator = null;
 
-    private static Map<CtClass, List<CtMethod>> methodsByClass = new HashMap<>();
+    private Map<String, List<CtMethod>> methodsByClass;
 
-    private static Map<CtClass, List<CtField>>  listOfFieldByClass = new HashMap<>();
+    private Map<String, List<CtField>>  listOfFieldByClass;
 
-    private static Map<CtClass, CtAnonymousExecutable>  staticBlockByClass = new HashMap<>();
+    private Map<String, CtAnonymousExecutable>  staticBlockByClass;
 
-    private static int currentLocation = 0;
+    private int currentLocation;
 
     public static boolean checkIsNotInPerturbatorPackage(CtElement candidate) {
         CtPackage parent =  candidate.getParent(CtPackage.class);
         return parent.getQualifiedName().startsWith(PACKAGE_NAME_PERTURBATION);
+    }
+
+    private static UtilPerturbation getInstance() {
+        if (instance == null)
+            instance = new UtilPerturbation();
+        return instance;
     }
 
     public static CtInvocation createStaticCallOfPerturbationFunction(Factory factory, String perturbedType, CtTypeReference originalType, CtExpression argument) {
@@ -102,7 +108,7 @@ public class UtilPerturbation {
         args[0] = addFieldLocationToClass(factory, argument, perturbedType);
         args[1] = argument;
 
-        currentLocation++;
+        getInstance().currentLocation++;
 
         return factory.Code().createInvocation(typeAccess, execRef, args);
 
@@ -110,20 +116,33 @@ public class UtilPerturbation {
 
     private static CtFieldRead addFieldLocationToClass(Factory factory, CtExpression argument, String typeOfPerturbation) {
 
+        // find the top level class or the static class
         CtClass clazz = argument.getParent(new TypeFilter<CtClass>(CtClass.class) {
             @Override
             public boolean matches(CtClass element) {
-                return element.getParent(CtClass.class) != null ? element.getModifiers().contains(ModifierKind.STATIC) : super.matches(element);
+                if (element.isTopLevel()) {
+                    return true;
+                }
+                if (element.getModifiers().contains(ModifierKind.STATIC)) {
+                    return true;
+                }
+                CtElement parent = element.getParent();
+                if (parent instanceof CtInterface || parent instanceof CtAnnotationType) {
+                    return true;
+                }
+                return false;
             }
         });
 
+        String currentKey = clazz.getQualifiedName();
 
-        if (!listOfFieldByClass.containsKey(clazz)) {
-            listOfFieldByClass.put(clazz, new ArrayList<>());
-            methodsByClass.put(clazz, new ArrayList<>());
+
+        if (!getInstance().listOfFieldByClass.containsKey(currentKey)) {
+            getInstance().listOfFieldByClass.put(currentKey, new ArrayList<>());
+            getInstance().methodsByClass.put(currentKey, new ArrayList<>());
         }
 
-        String fieldName = "__L" + currentLocation;
+        String fieldName = "__L" + getInstance().currentLocation;
 
         CtField fieldLocation = factory.Core().createField();
         fieldLocation.setSimpleName(fieldName);
@@ -132,11 +151,11 @@ public class UtilPerturbation {
         fieldLocation.addModifier(ModifierKind.STATIC);
         fieldLocation.setParent(clazz);
 
-        listOfFieldByClass.get(clazz).add(fieldLocation);
+        getInstance().listOfFieldByClass.get(currentKey).add(fieldLocation);
 
         String position = argument.getPosition().getCompilationUnit().getFile().getName() + ":" + argument.getPosition().getLine();
         CtConstructorCall constructorCall = factory.Code().createConstructorCall(factory.Type().get(QUALIFIED_NAME_LOCATION_IMPL).getReference(),
-                factory.Code().createLiteral(position), factory.Code().createLiteral(currentLocation), factory.Code().createLiteral(typeOfPerturbation));
+                factory.Code().createLiteral(position), factory.Code().createLiteral(getInstance().currentLocation), factory.Code().createLiteral(typeOfPerturbation));
 
         CtFieldWrite writeField = factory.Core().createFieldWrite();
         writeField.setVariable(fieldLocation.getReference());
@@ -146,9 +165,9 @@ public class UtilPerturbation {
         assignmentField.setAssignment(constructorCall);
 
         //Methods
-        if (!methodsByClass.get(clazz).isEmpty()) {
-            if (methodsByClass.get(clazz).get(methodsByClass.get(clazz).size()-1).getBody().getStatements().size() < 1000) {
-                methodsByClass.get(clazz).get(methodsByClass.get(clazz).size()-1).getBody().insertEnd(assignmentField);
+        if (!getInstance().methodsByClass.get(currentKey).isEmpty()) {
+            if (getInstance().methodsByClass.get(currentKey).get(getInstance().methodsByClass.get(currentKey).size()-1).getBody().getStatements().size() < 1000) {
+                getInstance().methodsByClass.get(currentKey).get(getInstance().methodsByClass.get(currentKey).size()-1).getBody().insertEnd(assignmentField);
             } else
                 addInitMethodTo(clazz, factory, assignmentField);
         } else
@@ -165,8 +184,10 @@ public class UtilPerturbation {
 
         CtTypeReference typeReference = clazz.getReference();
 
+        String currentKey = clazz.getQualifiedName();
+
         CtMethod initMethod = factory.Core().createMethod();
-        initMethod.setSimpleName(INIT_METHOD_NAME+(methodsByClass.get(clazz).size()));
+        initMethod.setSimpleName(INIT_METHOD_NAME+(getInstance().methodsByClass.get(currentKey).size()));
 
         Set<ModifierKind> modifierKinds = new HashSet<ModifierKind>();
         modifierKinds.add(ModifierKind.PRIVATE);
@@ -175,7 +196,7 @@ public class UtilPerturbation {
         initMethod.setType(factory.Type().VOID_PRIMITIVE);
         initMethod.setBody(factory.Code().createCtBlock(firstStatement));
 
-        methodsByClass.get(clazz).add(initMethod);
+        getInstance().methodsByClass.get(currentKey).add(initMethod);
 
         CtTypeAccess typeAccess = factory.Core().createTypeAccess();
         typeAccess.setType(typeReference);
@@ -183,17 +204,17 @@ public class UtilPerturbation {
 
         CtExecutableReference execRef = factory.Core().createExecutableReference();
         execRef.setDeclaringType(clazz.getReference());
-        execRef.setSimpleName(INIT_METHOD_NAME+(methodsByClass.get(clazz).size()-1));
+        execRef.setSimpleName(INIT_METHOD_NAME+(getInstance().methodsByClass.get(currentKey).size()-1));
         execRef.setStatic(true);
 
-        if (staticBlockByClass.containsKey(clazz)) {
-            staticBlockByClass.get(clazz).getBody().insertEnd(factory.Code().createInvocation(typeAccess, execRef));
+        if (getInstance().staticBlockByClass.containsKey(currentKey)) {
+            getInstance().staticBlockByClass.get(currentKey).getBody().insertEnd(factory.Code().createInvocation(typeAccess, execRef));
         } else {
             CtBlock initBlock = factory.Code().createCtBlock(factory.Code().createInvocation(typeAccess, execRef));
             CtAnonymousExecutable staticBlock = factory.Core().createAnonymousExecutable();
             staticBlock.addModifier(ModifierKind.STATIC);
             staticBlock.setBody(initBlock);
-            staticBlockByClass.put(clazz, staticBlock);
+            getInstance().staticBlockByClass.put(currentKey, staticBlock);
         }
 
     }
@@ -204,7 +225,7 @@ public class UtilPerturbation {
 
         CtField nbPerturbation = factory.Core().createField();
         nbPerturbation.setSimpleName("nbPerturbation");
-        nbPerturbation.setAssignment(factory.Code().createLiteral(currentLocation));
+        nbPerturbation.setAssignment(factory.Code().createLiteral(getInstance().currentLocation));
         nbPerturbation.setType(factory.Type().createReference(int.class));
         nbPerturbation.addModifier(ModifierKind.PUBLIC);
         nbPerturbation.addModifier(ModifierKind.STATIC);
@@ -214,14 +235,17 @@ public class UtilPerturbation {
         perturbator.addField(nbPerturbation);
 
         //maps have the sames key
-        for(CtClass clazz : listOfFieldByClass.keySet()) {
+        for(String currentKey : getInstance().listOfFieldByClass.keySet()) {
             //Add all fields at top of the current class
-            for (CtField field : listOfFieldByClass.get(clazz)) {
+            CtClass clazz = (CtClass)factory.Type().get(currentKey);
+            if (clazz == null)
+                System.out.println(clazz);
+            for (CtField field : getInstance().listOfFieldByClass.get(currentKey)) {
                 clazz.addFieldAtTop(field);
             }
 
             //Add Methods
-            List<CtMethod> methods = methodsByClass.get(clazz);
+            List<CtMethod> methods = getInstance().methodsByClass.get(currentKey);
             for (CtMethod method : methods) {
                 clazz.addMethod(method);
             }
@@ -235,11 +259,14 @@ public class UtilPerturbation {
             //Put the static block in first statement
             SourcePosition position = factory.Core().createSourcePosition(clazz.getPosition().getCompilationUnit(),-1,-1,1,new int[0]);
 
-            staticBlockByClass.get(clazz).setPosition(position);
+            getInstance().staticBlockByClass.get(currentKey).setPosition(position);
 
-            anonymousExecutables.add(staticBlockByClass.get(clazz));
+            anonymousExecutables.add(getInstance().staticBlockByClass.get(currentKey));
             clazz.setAnonymousExecutables(anonymousExecutables);
+
+
         }
+        instance = null;
     }
 
 }

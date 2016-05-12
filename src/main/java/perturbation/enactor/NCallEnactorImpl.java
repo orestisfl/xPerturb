@@ -15,12 +15,16 @@ public class NCallEnactorImpl implements Enactor{
     public NCallEnactorImpl(int n ,PerturbationLocation location) {
         this.n = n;
         this.location = location;
-        PerturbationEngine.logger.logOn(location);
+        location.setEnactor(this);
+        PerturbationEngine.loggers.put("NCallEnactor", new LoggerImpl());
+        PerturbationEngine.loggers.get("NCallEnactor").logOn(location);
     }
 
     @Override
     public boolean shouldBeActivated() {
-        return PerturbationEngine.logger.isLogging(location) && (PerturbationEngine.logger.getCalls(location)) == (n);
+        boolean active =  PerturbationEngine.loggers.get("NCallEnactor").isLogging(location) &&
+                PerturbationEngine.loggers.get("NCallEnactor").getCalls(location) == this.n;
+        return active;
     }
 
 }

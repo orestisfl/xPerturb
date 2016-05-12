@@ -1,7 +1,6 @@
 package perturbation.enactor;
 
 import org.junit.Test;
-import perturbation.location.PerturbationLocation;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.visitor.filter.NameFilter;
@@ -23,9 +22,9 @@ public class TestEnactor {
 
     private static URLClassLoader classLoaderWithoutOldFile;
     private static CtClass simpleResWithPerturbation;
-    private static Class<?> classPerturbator;
-    private static Object objectPerturbator;
+    private static Class<?> classPerturbatorEngine;
 
+    private static Object objectPerturbator;
     private static Method setEnactor;
     private static Class<?> classAlwaysEnactor;
     private static Class<?> classNeverEnactor;
@@ -36,6 +35,9 @@ public class TestEnactor {
     private static Object objectUnderTest;
     private static Method booleanMethodOfClassUnderTest;
 
+    private static Method setPerturbator;
+    private static Object invPerturbator;
+    private static Object nothingPerturbator;
 
     private static void initialisation() throws Exception {
         launcher = Util.createSpoonWithPerturbationProcessors();
@@ -50,8 +52,8 @@ public class TestEnactor {
         classLoaderWithoutOldFile = Util.removeOldFileFromClassPath((URLClassLoader) ClassLoader.getSystemClassLoader());
 
         //PerturbationEngine
-        classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
-        objectPerturbator = classPerturbator.newInstance();
+        classPerturbatorEngine = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
+        objectPerturbator = classPerturbatorEngine.newInstance();
 
         classPerturbationLocation = classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation");
         setEnactor = classPerturbationLocation.getMethod("setEnactor",classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor"));
@@ -62,6 +64,9 @@ public class TestEnactor {
         objectUnderTest = classUnderTest.newInstance();
         booleanMethodOfClassUnderTest = classUnderTest.getMethod("_pBoolean");
 
+        setPerturbator = classPerturbationLocation.getMethod("setPerturbator",classLoaderWithoutOldFile.loadClass("perturbation.perturbator.Perturbator"));
+        invPerturbator =classLoaderWithoutOldFile.loadClass("perturbation.perturbator.InvPerturbatorImpl").newInstance();
+        nothingPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.perturbator.NothingPerturbatorImpl").newInstance();
     }
 
     @Test
@@ -70,6 +75,7 @@ public class TestEnactor {
             initialisation();
 
         //test the always Enactor which enact at each call
+        setPerturbator.invoke(classUnderTest.getFields()[0].get(null), invPerturbator);
 
         assertEquals(true,(Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
 
@@ -77,6 +83,7 @@ public class TestEnactor {
 
         assertEquals(false,(Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
 
+        setPerturbator.invoke(classUnderTest.getFields()[0].get(null), nothingPerturbator);
         setEnactor.invoke(classUnderTest.getFields()[0].get(null), classNeverEnactor.newInstance());
     }
 
@@ -86,6 +93,7 @@ public class TestEnactor {
             initialisation();
 
         //test the Random Enactor which means that is enact the perturbation with a probability epsilon
+        setPerturbator.invoke(classUnderTest.getFields()[0].get(null), invPerturbator);
 
         //Setting Enactor NTime with Location as decorated Enactor
         Constructor constructorOfRandomEnactor = classLoaderWithoutOldFile.loadClass("perturbation.enactor.RandomEnactorImpl").
@@ -114,6 +122,8 @@ public class TestEnactor {
 
         assertTrue(numberOfOccurences*e >= Math.abs(cptNotPerturb - cptPerturb));
 
+
+        setPerturbator.invoke(classUnderTest.getFields()[0].get(null), nothingPerturbator);
         setEnactor.invoke(classUnderTest.getFields()[0].get(null), classNeverEnactor.newInstance());
     }
 
@@ -124,6 +134,7 @@ public class TestEnactor {
             initialisation();
 
         //test the NTime Enactor which means that is enact n time the perturbation at the given location
+        setPerturbator.invoke(classUnderTest.getFields()[0].get(null), invPerturbator);
 
         //Setting Enactor NTime with Location as decorated Enactor
         Constructor constructorOfNTimeEnactor = classLoaderWithoutOldFile.loadClass("perturbation.enactor.NTimeEnactorImpl").getConstructor(int.class);
@@ -141,5 +152,34 @@ public class TestEnactor {
         assertEquals(true, (Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
 
         setEnactor.invoke(classUnderTest.getFields()[0].get(null), classNeverEnactor.newInstance());
+        setPerturbator.invoke(classUnderTest.getFields()[0].get(null), nothingPerturbator);
+    }
+
+    @Test
+    public void testNCallEnactor() throws Exception {
+
+        if (launcher == null)
+            initialisation();
+
+        //test the NCallEnactor which it perturb at the n-th call of the perturbation points
+        setPerturbator.invoke(classUnderTest.getFields()[0].get(null), invPerturbator);
+
+        //Setting Enactor NCall
+        Constructor constructorNCallEnactor = classLoaderWithoutOldFile.loadClass("perturbation.enactor.NCallEnactorImpl").getConstructor(int.class, classPerturbationLocation);
+        Object location = classUnderTest.getFields()[0].get(null);
+        Object FiveThCallEnactor = constructorNCallEnactor.newInstance(5,location);
+
+        //0 - 4 call no perturbation
+        assertEquals(true, (Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
+        assertEquals(true, (Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
+        assertEquals(true, (Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
+        assertEquals(true, (Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
+        assertEquals(true, (Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
+
+        //the 5th call is perturbed
+        assertEquals(false, (Boolean)booleanMethodOfClassUnderTest.invoke(objectUnderTest));
+
+        setEnactor.invoke(classUnderTest.getFields()[0].get(null), classNeverEnactor.newInstance());
+        setPerturbator.invoke(classUnderTest.getFields()[0].get(null), nothingPerturbator);
     }
 }

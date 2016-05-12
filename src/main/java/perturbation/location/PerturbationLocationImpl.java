@@ -88,6 +88,7 @@ public class PerturbationLocationImpl implements PerturbationLocation {
         List<PerturbationLocation> locations = new ArrayList<PerturbationLocation>();
 
         for (int i = 0 ; i < fields.length ; i++) {
+            fields[i].setAccessible(true);
             if (fields[i].getName().startsWith("__L"))
                 try {
                     locations.add((PerturbationLocation) fields[i].get(null));
