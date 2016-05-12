@@ -14,11 +14,9 @@ public class CountProcessor extends AbstractProcessor<CtClass> {
 
     @Override
     public void process(CtClass ctClass) {
-
-        countLine += ctClass.getPosition().getLine();
-
+        if (ctClass.isTopLevel())
+            countLine += ctClass.getPosition().getEndLine();
         countClass++;
-
     }
 
     @Override
