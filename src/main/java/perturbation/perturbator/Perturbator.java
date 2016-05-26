@@ -1,5 +1,7 @@
 package perturbation.perturbator;
 
+import java.math.BigInteger;
+
 /**
  * Created by spirals on 25/03/16.
  */
@@ -16,6 +18,8 @@ public interface Perturbator {
 
     float pfloat(float value);
     double pdouble(double value);
+
+    BigInteger pBigInteger(BigInteger value);
 
     @Override
     String toString();

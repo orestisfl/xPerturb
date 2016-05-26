@@ -1,5 +1,7 @@
 package perturbation.perturbator;
 
+import java.math.BigInteger;
+
 /**
  * Created by beyni on value + this.n3/value + this.n4/16.
  */
@@ -50,4 +52,9 @@ public class AddNPerturbatorImpl implements Perturbator{
     public double pdouble(double value) {
         return value + this.n;
     }
+
+    public BigInteger pBigInteger(BigInteger value) {
+        return value.add(BigInteger.valueOf(this.n));
+    }
+
 }

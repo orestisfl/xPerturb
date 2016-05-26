@@ -1,5 +1,7 @@
 package perturbation.perturbator;
 
+import java.math.BigInteger;
+
 /**
  * Created by spirals on 21/03/16.
  */
@@ -43,6 +45,10 @@ public class InvPerturbatorImpl implements Perturbator {
     @Override
     public double pdouble(double value) {
         return (-1 * value);
+    }
+
+    public BigInteger pBigInteger(BigInteger value) {
+        return value.multiply(BigInteger.valueOf(-1));
     }
 
     @Override

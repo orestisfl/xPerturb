@@ -1,5 +1,7 @@
 package perturbation.perturbator;
 
+import java.math.BigInteger;
+
 /**
  * Created by spirals on 30/03/16.
  */
@@ -41,6 +43,10 @@ public class NothingPerturbatorImpl implements Perturbator {
 
     @Override
     public double pdouble(double value) {
+        return value;
+    }
+
+    public BigInteger pBigInteger(BigInteger value) {
         return value;
     }
 

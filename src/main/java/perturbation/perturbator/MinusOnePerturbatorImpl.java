@@ -1,5 +1,7 @@
 package perturbation.perturbator;
 
+import java.math.BigInteger;
+
 /**
  * Created by spirals on 22/03/16.
  */
@@ -42,6 +44,10 @@ public class MinusOnePerturbatorImpl extends PerturbatorDecorator {
     @Override
     public double pdouble(double value) {
         return value - 1;
+    }
+
+    public BigInteger pBigInteger(BigInteger value) {
+        return value.subtract(BigInteger.ONE);
     }
 
     @Override

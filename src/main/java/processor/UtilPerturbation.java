@@ -53,6 +53,8 @@ public class UtilPerturbation {
 
         perturbableTypes.add("float");
         perturbableTypes.add("double");
+
+        perturbableTypes.add("BigInteger");
     }
 
     private UtilPerturbation() {
@@ -221,7 +223,7 @@ public class UtilPerturbation {
 
     public static void addAllFieldsAndMethods(Factory factory) {
 
-        CtClass perturbator = (CtClass) factory.Class().get(QUALIFIED_NAME_PERTURBATOR);
+        /*CtClass perturbator = (CtClass) factory.Class().get(QUALIFIED_NAME_PERTURBATOR);
 
         CtField nbPerturbation = factory.Core().createField();
         nbPerturbation.setSimpleName("nbPerturbation");
@@ -232,7 +234,7 @@ public class UtilPerturbation {
         nbPerturbation.addModifier(ModifierKind.FINAL);
         nbPerturbation.setParent(perturbator);
 
-        perturbator.addField(nbPerturbation);
+        perturbator.addField(nbPerturbation);*/
 
         //maps have the sames key
         for(String currentKey : getInstance().listOfFieldByClass.keySet()) {

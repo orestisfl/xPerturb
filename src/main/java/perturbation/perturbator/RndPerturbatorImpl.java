@@ -1,5 +1,7 @@
 package perturbation.perturbator;
 
+import java.math.BigInteger;
+
 /**
  * Created by spirals on 09/03/16.
  * All of the methods will return a pseudo random (from java.util.Random()) of the appropriate type
@@ -45,6 +47,11 @@ public class RndPerturbatorImpl implements Perturbator {
     @Override
     public double pdouble(double value) {
         return (double)(new java.util.Random().nextFloat());
+    }
+
+    @Override
+    public BigInteger pBigInteger(BigInteger value) {
+        return BigInteger.valueOf(new java.util.Random().nextLong());
     }
 
     @Override
