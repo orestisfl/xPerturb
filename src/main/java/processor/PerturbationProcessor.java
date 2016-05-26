@@ -31,6 +31,8 @@ import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
+import java.math.BigInteger;
+
 /**
  * Created by spirals on 09/03/16.
  */
@@ -43,7 +45,7 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
 
         expr.setParent(ctExpression.getParent());
 
-        CtTypeReference originalTypeReference = ctExpression.getTypeCasts().isEmpty()?ctExpression.getType():(CtTypeReference) ctExpression.getTypeCasts().get(0);
+        CtTypeReference originalTypeReference = ctExpression.getTypeCasts().isEmpty() ? ctExpression.getType() : (CtTypeReference) ctExpression.getTypeCasts().get(0);
 
         String perturbedTypeReference = getTypeReferenceFromTypeOfOriginalExpression(originalTypeReference);
 
@@ -53,8 +55,10 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
 
     public String getTypeReferenceFromTypeOfOriginalExpression(CtTypeReference originalType) {
         switch (originalType.getSimpleName().toLowerCase()) {
-            case "boolean": return "Boolean";
-            default: return "Numerical";
+            case "boolean":
+                return "Boolean";
+            default:
+                return "Numerical";
         }
     }
 
@@ -70,7 +74,7 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
         }
 
         if (candidate instanceof CtUnaryOperator) {
-            return false;
+            return true;
         }
 
         //Left-Hand of an assignment can not be perturbed
@@ -90,12 +94,16 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
         //An object on which we call a method can not be perturb
         if (candidate.isParentInitialized()) {
 
+            if (candidate.getType() != null &&
+                    candidate.getType().equals(getFactory().Type().createReference(getFactory().Class().get(BigInteger.class))))
+                return true;
+
             if (candidate.getParent(new TypeFilter<CtAnonymousExecutable>(CtAnonymousExecutable.class)) != null)
                 return false;
 
             if (candidate.getParent(new TypeFilter<CtField>(CtField.class)) != null) {
                 if (candidate.getParent(new TypeFilter<CtField>(CtField.class)).getModifiers().contains(ModifierKind.FINAL))
-                return false;
+                    return false;
             }
 
             if (candidate.getParent(new TypeFilter<CtConstructor>(CtConstructor.class)) != null) {
@@ -110,7 +118,7 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
                     return false;
                 if (candidateParent instanceof CtIf && ((CtIf) candidateParent).getCondition() != candidate)
                     return false;
-                if (candidateParent instanceof CtFor && ( ((CtFor) candidateParent).getExpression() != candidate ||
+                if (candidateParent instanceof CtFor && (((CtFor) candidateParent).getExpression() != candidate ||
                         ((CtFor) candidateParent).getForInit() != candidate ||
                         ((CtFor) candidateParent).getForUpdate() != candidate))
                     return false;

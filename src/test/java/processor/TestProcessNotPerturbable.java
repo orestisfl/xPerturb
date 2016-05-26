@@ -55,21 +55,7 @@ public class TestProcessNotPerturbable {
         }
     }
 
-    @Test
-    public void testNoPerturbationUnary() throws Exception {
 
-        Launcher launcher = Util.createSpoonWithPerturbationProcessors();
-
-        launcher.addInputResource("src/test/resources/NotPerturbableRes.java");
-        launcher.run();
-
-        CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("NotPerturbableRes")).get(0);
-
-        List<CtUnaryOperator> unaryOperatorList = c.getElements(new TypeFilter<>(CtUnaryOperator.class));
-        for (CtUnaryOperator aUnaryOperator : unaryOperatorList) {
-            assertFalse(aUnaryOperator.getParent() instanceof CtInvocation);
-        }
-    }
 
     @Test
     public void testNoPerturbationWhileTrue() throws Exception {
