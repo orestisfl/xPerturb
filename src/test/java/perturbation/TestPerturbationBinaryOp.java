@@ -61,9 +61,5 @@ public class TestPerturbationBinaryOp {
                 setEnactor.invoke(fieldsOfBinaryOp[i].get(objectUnderTest), classNeverEnactorImpl.newInstance());
             }
         }
-
-
-
-
     }
 }
