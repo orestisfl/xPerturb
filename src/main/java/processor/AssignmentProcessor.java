@@ -2,6 +2,7 @@ package processor;
 
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.CtAssignment;
+import spoon.reflect.reference.CtTypeReference;
 
 public class AssignmentProcessor extends AbstractProcessor<CtAssignment> {
 
@@ -22,8 +23,12 @@ public class AssignmentProcessor extends AbstractProcessor<CtAssignment> {
             return false;
         }
 
-        if (!candidate.getAssigned().getType().getSimpleName().equals(candidate.getAssignment().getType().getSimpleName()) &&
-        candidate.getAssignment().getTypeCasts().isEmpty()) {
+        CtTypeReference typeAssigned = candidate.getAssigned().getType();
+        CtTypeReference typeAssignment = candidate.getAssignment().getType();
+        if (typeAssigned != null
+                && typeAssignment != null
+                && !typeAssigned.getSimpleName().equals(typeAssignment.getSimpleName())
+                && candidate.getAssignment().getTypeCasts().isEmpty()) {
             return true;
         }
 
