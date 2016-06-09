@@ -2,6 +2,7 @@ package util;
 
 import processor.AssignmentProcessor;
 import processor.PerturbationProcessor;
+import processor.UtilPerturbation;
 import processor.VariableCaster;
 import spoon.Launcher;
 
@@ -16,6 +17,23 @@ public class Util {
 
     public static Launcher createSpoonWithPerturbationProcessors() {
         Launcher launcher = new Launcher();
+
+        //TODO
+
+//        UtilPerturbation.perturbableTypes.add("char");
+//
+//        UtilPerturbation.perturbableTypes.add("byte");
+//        UtilPerturbation.perturbableTypes.add("short");
+//        UtilPerturbation.perturbableTypes.add("int");
+//        UtilPerturbation.perturbableTypes.add("Integer");
+//        UtilPerturbation.perturbableTypes.add("long");
+//        UtilPerturbation.perturbableTypes.add("BigInteger");
+//
+//        UtilPerturbation.perturbableTypes.add("boolean");
+//
+//        UtilPerturbation.perturbableTypes.add("float");
+//        UtilPerturbation.perturbableTypes.add("double");
+
 
 //        launcher.getEnvironment().setLevel(Level.ALL.toString());
 

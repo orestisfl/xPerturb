@@ -40,6 +40,8 @@ public class UtilPerturbation {
 
     private static final String INIT_METHOD_NAME = "initPerturbationLocation";
 
+    //TODO remove this static initialization to pass throught command line type we want to perturb.
+
     static {
         perturbableTypes.add("char");
 
@@ -48,13 +50,13 @@ public class UtilPerturbation {
         perturbableTypes.add("int");
         perturbableTypes.add("Integer");
         perturbableTypes.add("long");
+        perturbableTypes.add("BigInteger");
 
         perturbableTypes.add("boolean");
 
         perturbableTypes.add("float");
         perturbableTypes.add("double");
 
-        perturbableTypes.add("BigInteger");
     }
 
     private UtilPerturbation() {
