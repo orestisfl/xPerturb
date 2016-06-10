@@ -41,7 +41,7 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
     @Override
     public void process(CtExpression ctExpression) {
 
-        CtExpression expr = getFactory().Core().clone(ctExpression);
+        CtExpression expr = ctExpression.clone();
 
         expr.setParent(ctExpression.getParent());
 
@@ -73,22 +73,25 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
             return false;
         }
 
-        if (candidate instanceof CtUnaryOperator) {
+        if (candidate instanceof CtUnaryOperator && UtilPerturbation.perturbableTypes.contains(candidate.getType().getSimpleName())) {
             return true;
         }
 
         //Left-Hand of an assignment can not be perturbed
-        if (candidate instanceof CtVariableWrite || candidate instanceof CtAssignment
-                || candidate instanceof CtFieldWrite || candidate instanceof CtArrayWrite) {
+        if (candidate instanceof CtVariableWrite
+                || candidate instanceof CtAssignment
+                || candidate instanceof CtFieldWrite
+                || candidate instanceof CtArrayWrite) {
             return false;
         }
 
-        if (candidate.getParent(CtConstructor.class) != null) {
-            if (candidate.getParent(CtConstructor.class).getParent() instanceof CtEnum)
+        CtConstructor parentConstructor = candidate.getParent(CtConstructor.class);
+        if (parentConstructor != null) {
+            if (parentConstructor.getParent() instanceof CtEnum)
                 return false;
         }
 
-        CtType perturbatorClass = getFactory().Type().get(UtilPerturbation.QUALIFIED_NAME_PERTURBATOR);
+        CtClass perturbatorClass = getFactory().Class().get(UtilPerturbation.QUALIFIED_NAME_PERTURBATOR);
         CtTypeReference perturbatorReference = perturbatorClass.getReference();
 
         //An object on which we call a method can not be perturb
@@ -98,15 +101,16 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
                     candidate.getType().equals(getFactory().Type().createReference(getFactory().Class().get(BigInteger.class))))
                 return true;
 
-            if (candidate.getParent(new TypeFilter<CtAnonymousExecutable>(CtAnonymousExecutable.class)) != null)
+            if (candidate.getParent(CtAnonymousExecutable.class) != null)
                 return false;
 
-            if (candidate.getParent(new TypeFilter<CtField>(CtField.class)) != null) {
-                if (candidate.getParent(new TypeFilter<CtField>(CtField.class)).getModifiers().contains(ModifierKind.FINAL))
+            CtField parentField = candidate.getParent(CtField.class);
+            if (parentField != null) {
+                if (parentField.getModifiers().contains(ModifierKind.FINAL))
                     return false;
             }
 
-            if (candidate.getParent(new TypeFilter<CtConstructor>(CtConstructor.class)) != null) {
+            if (parentConstructor != null) {
                 return false;
             }
 

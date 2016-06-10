@@ -28,7 +28,7 @@ public class UtilPerturbation {
 
     private static UtilPerturbation instance = null;
 
-    public static List<String> perturbableTypes = new ArrayList<>();
+    public static final List<String> perturbableTypes = new ArrayList<>();
 
     public static final String PACKAGE_NAME_PERTURBATION = "perturbation";
 
@@ -139,7 +139,6 @@ public class UtilPerturbation {
         });
 
         String currentKey = clazz.getQualifiedName();
-
 
         if (!getInstance().listOfFieldByClass.containsKey(currentKey)) {
             getInstance().listOfFieldByClass.put(currentKey, new ArrayList<>());

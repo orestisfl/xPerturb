@@ -34,6 +34,6 @@ public class RenameProcessor extends AbstractProcessor<CtClass> {
 
     @Override
     public boolean isToBeProcessed(CtClass candidate) {
-        return !(UtilPerturbation.checkIsNotInPerturbatorPackage(candidate));
+        return !(UtilPerturbation.checkIsNotInPerturbatorPackage(candidate)) && candidate.isTopLevel();
     }
 }
