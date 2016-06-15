@@ -12,10 +12,19 @@ import java.util.List;
  */
 public interface PerturbationLocation {
 
+    /**
+     * @return the unique index of this location
+     */
     int getLocationIndex();
 
+    /**
+     * @return a string caracterizing the source position (in the original code) of this location
+     */
     String getLocationInCode();
 
+    /**
+     * @return as string the type of the location : Numerical for instance.
+     */
     String getType();
 
     Perturbator getPerturbator();
