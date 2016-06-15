@@ -82,22 +82,20 @@ public class PerturbationLocationImpl implements PerturbationLocation {
     }
 
     public static List<PerturbationLocation> getLocationFromClass(Class clazz) {
-
-        Field[] fields = clazz.getFields();
-
         List<PerturbationLocation> locations = new ArrayList<PerturbationLocation>();
+        try {
+            Field[] fields = clazz.getFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                if (field.getName().startsWith("__L"))
+                    try {
+                        locations.add(((PerturbationLocation) (field.get(null))));
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
 
-        for (int i = 0 ; i < fields.length ; i++) {
-            fields[i].setAccessible(true);
-            if (fields[i].getName().startsWith("__L"))
-                try {
-                    locations.add((PerturbationLocation) fields[i].get(null));
-                } catch (IllegalAccessException e) {//won't occurs any way
-                    e.printStackTrace();
-                }
-        }
-
+            }
+        } catch (NoClassDefFoundError e) {}
         return locations;
     }
-
 }
