@@ -73,6 +73,10 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
             return false;
         }
 
+        CtCase ctCaseParent = candidate.getParent(CtCase.class);
+        if (ctCaseParent != null)
+            return false;
+
         if (candidate instanceof CtUnaryOperator && UtilPerturbation.perturbableTypes.contains(candidate.getType().getSimpleName())) {
             return true;
         }
@@ -138,8 +142,7 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
             }
 
             //Unperturbable case because of java
-            if (candidateParent instanceof CtCase || candidateParent.getParent() instanceof CtCase ||
-                    (candidateParent instanceof CtField && ((CtField) candidateParent).hasModifier(ModifierKind.FINAL)) ||
+            if ((candidateParent instanceof CtField && ((CtField) candidateParent).hasModifier(ModifierKind.FINAL)) ||
                     candidateParent instanceof CtWhile && (candidate instanceof CtLiteral && ((CtLiteral) candidate).getValue().equals(true))) {
                 return false;
             }
