@@ -9,6 +9,8 @@ public class NotPerturbableRes {
                 return false;
             case 1:
                 return false;
+            case -1:
+                return false;
             default:
                 return true;
         }

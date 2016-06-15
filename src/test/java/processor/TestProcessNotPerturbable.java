@@ -49,7 +49,7 @@ public class TestProcessNotPerturbable {
 
         List<CtSwitch> aSwitch = c.getElements(new TypeFilter<>(CtSwitch.class));
         List<CtCase> aCases = aSwitch.get(0).getCases();
-        assertEquals(3, aCases.size());
+        assertEquals(4, aCases.size());
         for (CtCase aCase : aCases) {
             assertFalse(aCase.getCaseExpression() instanceof CtInvocation);
         }
