@@ -1,19 +1,14 @@
 package main;
 
+import org.omg.PortableServer.ServantRetentionPolicy;
 import processor.*;
 
-import spoon.processing.AbstractProcessor;
 import spoon.Launcher;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by bdanglot on 08/06/16.
  */
 public class Main {
-
-    private static List<AbstractProcessor> processors = new ArrayList<>();
 
     private static int getIndexOfOption(String opt, String[] args) {
         for (int i = 0; i < args.length; i++) {
@@ -27,13 +22,14 @@ public class Main {
 
         int index;
         if ((index = getIndexOfOption("-type", args)) != -1) {
+            UtilPerturbation.perturbableTypes.clear();
             String[] types = args[index + 1].split(":");
             for (int i = 0; i < types.length; i++) {
-                if (types[i].equals("Integer")) {
+                if (types[i].equals("IntNum")) {
                     UtilPerturbation.perturbableTypes.add("byte");
                     UtilPerturbation.perturbableTypes.add("short");
                     UtilPerturbation.perturbableTypes.add("int");
-//                    UtilPerturbation.perturbableTypes.add("Integer");
+                    UtilPerturbation.perturbableTypes.add("Integer");
                     UtilPerturbation.perturbableTypes.add("BigInteger");
                     UtilPerturbation.perturbableTypes.add("long");
                 } else {
@@ -44,14 +40,10 @@ public class Main {
 
         System.out.println(UtilPerturbation.perturbableTypes);
 
-        if ((index = getIndexOfOption("-r", args)) != -1)
-            processors.add(new RenameProcessor());
-
-        processors.add(new AssignmentProcessor());
-        processors.add(new VariableCaster());
-        processors.add(new PerturbationProcessor());
-
-        index = getIndexOfOption("-spoon", args);
+        if ( (index = getIndexOfOption("-spoon", args)) ==-1 ) {
+            System.err.println("Error : you must provide args for spoon after the -spoon flags");
+            System.exit(-1);
+        }
 
         String [] spoonArgs = new String[args.length - index -1];
         System.arraycopy(args, index+1, spoonArgs, 0, args.length-index-1);
@@ -66,8 +58,13 @@ public class Main {
         Launcher spoon = new Launcher();
 
         spoon.setArgs(spoonArgs);
-        for (AbstractProcessor processor : processors)
-            spoon.addProcessor(processor);
+
+        spoon.addProcessor(new AssignmentProcessor());
+        spoon.addProcessor(new VariableCaster());
+        spoon.addProcessor(new PerturbationProcessor());
+
+        if (getIndexOfOption("-r", args) != -1)
+            spoon.addProcessor(new RenameProcessor());
 
         spoon.run();
     }

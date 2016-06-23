@@ -43,8 +43,8 @@
                             </descriptorRefs>
                             <archive>
                                 <manifest>
-                                    <!--<mainClass>main.Main</mainClass>-->
-                                    <mainClass>spoon.Launcher</mainClass>
+                                    <mainClass>main.Main</mainClass>
+                                    <!--<mainClass>spoon.Launcher</mainClass>-->
                                 </manifest>
                             </archive>
                         </configuration>

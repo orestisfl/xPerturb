@@ -40,8 +40,9 @@ public class UtilPerturbation {
 
     private static final String INIT_METHOD_NAME = "initPerturbationLocation";
 
-    //TODO remove this static initialization to pass throught command line type we want to perturb.
-
+    /**
+     * Supported type by default
+     */
     static {
         perturbableTypes.add("char");
 
@@ -56,7 +57,6 @@ public class UtilPerturbation {
 
         perturbableTypes.add("float");
         perturbableTypes.add("double");
-
     }
 
     private UtilPerturbation() {
@@ -223,20 +223,6 @@ public class UtilPerturbation {
     }
 
     public static void addAllFieldsAndMethods(Factory factory) {
-
-        /*CtClass perturbator = (CtClass) factory.Class().get(QUALIFIED_NAME_PERTURBATOR);
-
-        CtField nbPerturbation = factory.Core().createField();
-        nbPerturbation.setSimpleName("nbPerturbation");
-        nbPerturbation.setAssignment(factory.Code().createLiteral(getInstance().currentLocation));
-        nbPerturbation.setType(factory.Type().createReference(int.class));
-        nbPerturbation.addModifier(ModifierKind.PUBLIC);
-        nbPerturbation.addModifier(ModifierKind.STATIC);
-        nbPerturbation.addModifier(ModifierKind.FINAL);
-        nbPerturbation.setParent(perturbator);
-
-        perturbator.addField(nbPerturbation);*/
-
         //maps have the sames key
         for(String currentKey : getInstance().listOfFieldByClass.keySet()) {
             //Add all fields at top of the current class

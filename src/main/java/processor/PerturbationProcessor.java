@@ -120,7 +120,6 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
 
             CtElement candidateParent = candidate.getParent();
 
-            //@TODO
             if (candidate instanceof CtInvocation) {
                 if (candidateParent instanceof CtBlock)
                     return false;
