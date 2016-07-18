@@ -25,11 +25,9 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtEnum;
 import spoon.reflect.declaration.CtEnumValue;
 import spoon.reflect.declaration.CtField;
-import spoon.reflect.declaration.CtType;
 import spoon.reflect.declaration.ModifierKind;
 import spoon.reflect.reference.CtArrayTypeReference;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.math.BigInteger;
 
@@ -44,6 +42,8 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
         CtExpression expr = ctExpression.clone();
 
         expr.setParent(ctExpression.getParent());
+
+        expr.setTypeCasts(ctExpression.getTypeCasts());
 
         CtTypeReference originalTypeReference = ctExpression.getTypeCasts().isEmpty() ? ctExpression.getType() : (CtTypeReference) ctExpression.getTypeCasts().get(0);
 
