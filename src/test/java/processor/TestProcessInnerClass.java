@@ -3,6 +3,7 @@ package processor;
 import org.junit.Assert;
 import org.junit.Test;
 import spoon.Launcher;
+import spoon.reflect.code.CtFieldAccess;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.code.CtReturn;
@@ -45,10 +46,9 @@ public class TestProcessInnerClass {
         Assert.assertTrue(innerClassNotStatic.getAnonymousExecutables().isEmpty());
         Assert.assertEquals(0, ((CtLiteral)invokationPerturbation.getArguments().get(1)).getValue());
 
-        String nameOfPerturbationLocationInNotStaticInnerClass = invokationPerturbation.getArguments().get(0).toString();
+        String nameOfPerturbationLocationInNotStaticInnerClass = ((CtFieldAccess)invokationPerturbation.getArguments().get(0)).getVariable().getSimpleName();
         CtField perturbationLocation = abstractPerturbed.getField(nameOfPerturbationLocationInNotStaticInnerClass);
         Assert.assertTrue(perturbationLocation != null);
-
     }
 
     @Test
@@ -66,6 +66,8 @@ public class TestProcessInnerClass {
 
         CtClass innerClassStatic = (CtClass) abstractPerturbed.getNestedType("staticInnerClass");
 
+        CtClass notStaticInnerClass = (CtClass) abstractPerturbed.getNestedType("notStaticInnerClass");
+
         Assert.assertEquals(1, innerClassStatic.getFields().size());
         Assert.assertEquals(1, innerClassStatic.getAnonymousExecutables().size());
 
@@ -75,10 +77,5 @@ public class TestProcessInnerClass {
         CtInvocation invokationPerturbation = ((CtInvocation) ((CtReturn)methodOfInnerClassStatic.getBody().getLastStatement()).getReturnedExpression());
         Assert.assertEquals(perturbator.getReference(), invokationPerturbation.getExecutable().getDeclaringType());
         Assert.assertEquals(0, ((CtLiteral)invokationPerturbation.getArguments().get(1)).getValue());
-
-        String nameOfPerturbationLocationInNotStaticInnerClass = invokationPerturbation.getArguments().get(0).toString();
-        CtField perturbationLocation = innerClassStatic.getField(nameOfPerturbationLocationInNotStaticInnerClass);
-        Assert.assertTrue(perturbationLocation != null);
-
     }
 }
