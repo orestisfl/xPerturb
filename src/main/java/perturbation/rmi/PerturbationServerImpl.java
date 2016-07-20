@@ -42,18 +42,20 @@ public class PerturbationServerImpl implements PerturbationServer {
 	}
 
 	private static List<PerturbationLocation> getAllLocations(String project, String packagePath) {
-		final List<PerturbationLocation> locations = new ArrayList<>();
-		List<Class> classes = iterateFolders(new ArrayList<>(), project, packagePath);
-		classes.stream().forEach(clazz -> {
-					PerturbationLocationImpl.getLocationFromClass(clazz).forEach(location -> {
-						locations.add(location);
-						location.setPerturbator(new AddOnePerturbatorImpl(new InvPerturbatorImpl()));
-					});
-				}
-		);
+		final List<PerturbationLocation> locations = new ArrayList<PerturbationLocation>();
+		List<Class> classes = iterateFolders(new ArrayList<Class>(), project, packagePath);
+		for (int i = 0; i < classes.size(); i++) {
+			Class clazz = classes.get(i);
+			List<PerturbationLocation> locationFromClass = PerturbationLocationImpl.getLocationFromClass(clazz);
+			for (int j = 0; j < locationFromClass.size(); j++) {
+				PerturbationLocation location = locationFromClass.get(j);
+				locations.add(location);
+				location.setPerturbator(new AddOnePerturbatorImpl(new InvPerturbatorImpl()));
+			}
+		}
+
 		return locations;
 	}
-
 	private static List<Class> iterateFolders(List<Class> classes, String path, String currentPackage) {
 		File root = new File(path);
 		assert root.listFiles() != null;
@@ -91,7 +93,7 @@ public class PerturbationServerImpl implements PerturbationServer {
 	}
 
 
-	public static void startServer(String project, String packagePath) {
+	public static void startServer(final String project, final String packagePath) {
 		Thread thread = new Thread(new Runnable() {
 			Registry registry;
 
