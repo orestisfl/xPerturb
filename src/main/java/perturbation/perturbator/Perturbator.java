@@ -1,11 +1,12 @@
 package perturbation.perturbator;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /**
  * Created by spirals on 25/03/16.
  */
-public interface Perturbator {
+public interface Perturbator extends Serializable {
 
     boolean pboolean(boolean value);
 
