@@ -121,9 +121,9 @@ public class UtilPerturbation {
     private static CtFieldRead addFieldLocationToClass(Factory factory, CtExpression argument, String typeOfPerturbation) {
 
         // find the top level class or the static class
-        CtClass clazz = argument.getParent(new TypeFilter<CtClass>(CtClass.class) {
+        CtType clazz = argument.getParent(new TypeFilter<CtType>(CtType.class) {
             @Override
-            public boolean matches(CtClass element) {
+            public boolean matches(CtType element) {
                 if (element.isTopLevel()) {
                     return true;
                 }
@@ -183,7 +183,7 @@ public class UtilPerturbation {
         return readFieldLocation;
     }
 
-    private static void addInitMethodTo(CtClass clazz, Factory factory, CtStatement firstStatement) {
+    private static void addInitMethodTo(CtType clazz, Factory factory, CtStatement firstStatement) {
 
         CtTypeReference typeReference = clazz.getReference();
 
@@ -226,7 +226,10 @@ public class UtilPerturbation {
         //maps have the sames key
         for(String currentKey : getInstance().listOfFieldByClass.keySet()) {
             //Add all fields at top of the current class
-            CtClass clazz = (CtClass)factory.Type().get(currentKey);
+            CtType clazz = factory.Type().get(currentKey);
+            if (!(clazz instanceof CtClass)) {
+                return;
+            }
             if (clazz == null)
                 System.out.println(clazz);
             for (CtField field : getInstance().listOfFieldByClass.get(currentKey)) {
@@ -240,7 +243,7 @@ public class UtilPerturbation {
             }
             //Add static block init
             List<CtAnonymousExecutable> anonymousExecutables = new ArrayList<CtAnonymousExecutable>();
-            List<CtAnonymousExecutable> existingExecutables = clazz.getAnonymousExecutables();
+            List<CtAnonymousExecutable> existingExecutables = ((CtClass) clazz).getAnonymousExecutables();
             for (CtAnonymousExecutable existing : existingExecutables) {
                 anonymousExecutables.add(existing);
             }
@@ -251,7 +254,7 @@ public class UtilPerturbation {
             getInstance().staticBlockByClass.get(currentKey).setPosition(position);
 
             anonymousExecutables.add(getInstance().staticBlockByClass.get(currentKey));
-            clazz.setAnonymousExecutables(anonymousExecutables);
+            ((CtClass) clazz).setAnonymousExecutables(anonymousExecutables);
 
 
         }

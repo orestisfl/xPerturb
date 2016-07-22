@@ -3,14 +3,12 @@ package perturbation.location;
 import perturbation.enactor.Enactor;
 import perturbation.perturbator.Perturbator;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
 /**
  * Created by spirals on 30/03/16.
  */
-public interface PerturbationLocation {
+public interface PerturbationLocation extends Serializable {
 
     /**
      * @return the unique index of this location

@@ -70,6 +70,9 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
             return false;
         }
 
+        if (candidate.getParent(CtAnnotation.class) != null)
+            return false;
+
         if (candidate.getType() == null) {
             return false;
         }
@@ -178,7 +181,7 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
         CtExpression brother = parent.getLeftHandOperand().equals(candidate) ? parent.getRightHandOperand() : parent.getLeftHandOperand();
         if (brother.getType() == null) {
             if (brother instanceof CtInvocation &&
-                    ((CtInvocation) brother).getTarget().equals(p))
+					p.equals(((CtInvocation) brother).getTarget()))
                 return true;
             else
                 return UtilPerturbation.perturbableTypes.contains(candidate.getType().getSimpleName());
