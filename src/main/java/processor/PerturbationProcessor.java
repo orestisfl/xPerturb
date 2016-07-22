@@ -18,6 +18,7 @@ import spoon.reflect.code.CtUnaryOperator;
 import spoon.reflect.code.CtVariableWrite;
 import spoon.reflect.code.CtWhile;
 import spoon.reflect.code.UnaryOperatorKind;
+import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtAnonymousExecutable;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
@@ -72,6 +73,9 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
         if (candidate.getType() == null) {
             return false;
         }
+
+        if (candidate.getParent(CtAnnotation.class) != null)
+            return false;
 
         CtCase ctCaseParent = candidate.getParent(CtCase.class);
         if (ctCaseParent != null)
