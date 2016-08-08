@@ -1,72 +1,98 @@
 package main;
 
-import org.omg.PortableServer.ServantRetentionPolicy;
-import processor.*;
-
+import processor.AssignmentProcessor;
+import processor.PerturbationProcessor;
+import processor.RenameProcessor;
+import processor.UtilPerturbation;
+import processor.VariableCaster;
 import spoon.Launcher;
+
+import java.util.logging.Level;
 
 /**
  * Created by bdanglot on 08/06/16.
  */
 public class Main {
 
-    private static int getIndexOfOption(String opt, String[] args) {
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals(opt))
-                return i;
-        }
-        return -1;
-    }
+	private static final String PATH_TO_PERTURBATION = "src/main/java/perturbation/";
 
-    private static String[] parseArgs(String[] args) {
+	private static int getIndexOfOption(String opt, String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals(opt))
+				return i;
+		}
+		return -1;
+	}
 
-        int index;
-        if ((index = getIndexOfOption("-type", args)) != -1) {
-            UtilPerturbation.perturbableTypes.clear();
-            String[] types = args[index + 1].split(":");
-            for (int i = 0; i < types.length; i++) {
-                if (types[i].equals("IntNum")) {
-                    UtilPerturbation.perturbableTypes.add("byte");
-                    UtilPerturbation.perturbableTypes.add("short");
-                    UtilPerturbation.perturbableTypes.add("int");
-                    UtilPerturbation.perturbableTypes.add("Integer");
-                    UtilPerturbation.perturbableTypes.add("BigInteger");
-                    UtilPerturbation.perturbableTypes.add("long");
-                } else {
-                    UtilPerturbation.perturbableTypes.add(types[i]);
-                }
-            }
-        }
+	private static void usage() {
+		System.out.println("usage : ");
+		System.out.println("\tjava -jar target/jPerturb-0.0.1-SNAPSHOT-jar-with-dependencies.jar (-type <types>) (-r) -i <i> (-o <o>) (-x)");
+		System.out.println("options : ");
+		System.out.println("\t-type <types>: every primitive type, separated by \":\" (all primitive type will be processed by default)");
+		System.out.println("\tspecial token: IntNum it will process all integer expression (from byte to long, with java.util.BigInteger)");
+		System.out.println("\tflag -r: will rename classes by adding \"Instr\" as suffix");
+		System.out.println("\t-i <i>: path to classes to be perturbed");
+		System.out.println("\t-o <o>: path to output (default is the same as <i>)");
+		System.out.println("\tflag -x: no classpath mode of spoon");
+		System.out.println("Example:");
+		System.out.println("\tjava -jar target/jPerturb-0.0.1-SNAPSHOT-jar-with-dependencies.jar -type IntNum:boolean -i src/test/resources/ -o target/trash/");
+		System.exit(0);
+	}
 
-        System.out.println(UtilPerturbation.perturbableTypes);
+	public static void main(String[] args) {
 
-        if ( (index = getIndexOfOption("-spoon", args)) ==-1 ) {
-            System.err.println("Error : you must provide args for spoon after the -spoon flags");
-            System.exit(-1);
-        }
+		if (getIndexOfOption("-help", args) != -1 || getIndexOfOption("-h", args) != -1)
+			usage();
 
-        String [] spoonArgs = new String[args.length - index -1];
-        System.arraycopy(args, index+1, spoonArgs, 0, args.length-index-1);
-        return spoonArgs;
-    }
+		int index;
+		if ((index = getIndexOfOption("-type", args)) != -1) {
+			UtilPerturbation.perturbableTypes.clear();
+			String[] types = args[index + 1].split(":");
+			for (int i = 0; i < types.length; i++) {
+				if (types[i].equals("IntNum")) {
+					UtilPerturbation.perturbableTypes.add("byte");
+					UtilPerturbation.perturbableTypes.add("short");
+					UtilPerturbation.perturbableTypes.add("int");
+					UtilPerturbation.perturbableTypes.add("Integer");
+					UtilPerturbation.perturbableTypes.add("BigInteger");
+					UtilPerturbation.perturbableTypes.add("long");
+				} else {
+					UtilPerturbation.perturbableTypes.add(types[i]);
+				}
+			}
+		}
 
+		System.out.println(UtilPerturbation.perturbableTypes);
 
-    public static void main(String[] args) {
+		String input = "";
+		if ((index = getIndexOfOption("-i", args)) == -1) {
+			System.err.println("Error: no input provided");
+			System.exit(-1);
+		} else
+			input = args[index+1];
 
-        String [] spoonArgs = parseArgs(args);
+		Launcher spoon = new Launcher();
 
-        Launcher spoon = new Launcher();
+		spoon.addProcessor(new AssignmentProcessor());
+		spoon.addProcessor(new VariableCaster());
+		spoon.addProcessor(new PerturbationProcessor());
+		if (getIndexOfOption("-r", args) != -1)
+			spoon.addProcessor(new RenameProcessor());
 
-        spoon.setArgs(spoonArgs);
+		spoon.getEnvironment().setAutoImports(true);
+		if (getIndexOfOption("-x", args) != -1)
+			spoon.getEnvironment().setNoClasspath(true);
 
-        spoon.addProcessor(new AssignmentProcessor());
-        spoon.addProcessor(new VariableCaster());
-        spoon.addProcessor(new PerturbationProcessor());
+		spoon.addInputResource(PATH_TO_PERTURBATION);
+		spoon.addInputResource(input);
+		if ((index = getIndexOfOption("-o", args)) == -1)
+			spoon.setSourceOutputDirectory(input);
+		else
+			spoon.setSourceOutputDirectory(args[index+1]);
 
-        if (getIndexOfOption("-r", args) != -1)
-            spoon.addProcessor(new RenameProcessor());
+		spoon.getEnvironment().setLevel(Level.ALL.toString());
 
-        spoon.run();
-    }
+		spoon.run();
+	}
 
 }
