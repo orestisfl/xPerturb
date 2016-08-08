@@ -77,6 +77,9 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
             return false;
         }
 
+        if (candidate.getParent(CtAnnotation.class) != null)
+            return false;
+
         CtCase ctCaseParent = candidate.getParent(CtCase.class);
         if (ctCaseParent != null)
             return false;
