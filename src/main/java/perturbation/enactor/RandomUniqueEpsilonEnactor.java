@@ -5,33 +5,33 @@ package perturbation.enactor;
  */
 public class RandomUniqueEpsilonEnactor extends RandomEnactorImpl {
 
-    private boolean firstTime;
+	private boolean firstTime;
 
-    public RandomUniqueEpsilonEnactor() {
-        super();
-        this.firstTime = true;
-    }
+	public RandomUniqueEpsilonEnactor(Enactor enactor, int seed, float epsilon) {
+		super(enactor, seed, epsilon);
+		this.firstTime = true;
+	}
 
-    public RandomUniqueEpsilonEnactor(float epsilon) {
-        super(epsilon);
-        this.firstTime = true;
-    }
+	public RandomUniqueEpsilonEnactor(float epsilon) {
+		super(epsilon);
+		this.firstTime = true;
+	}
 
-    public RandomUniqueEpsilonEnactor(int seed, float epsilon) {
-        super(seed, epsilon);
-        this.firstTime = true;
-    }
+	public RandomUniqueEpsilonEnactor(int seed, float epsilon) {
+		super(seed, epsilon);
+		this.firstTime = true;
+	}
 
 
-    @Override
-    public boolean shouldBeActivated() {
-        boolean activation = super.shouldBeActivated() && this.firstTime;
-        this.firstTime = !activation;
-        return activation;
-    }
+	@Override
+	public boolean shouldBeActivated() {
+		boolean activation = super.shouldBeActivated() && this.firstTime;
+		this.firstTime = !activation;
+		return activation;
+	}
 
-    @Override
-    public String toString() {
-        return "RNDU";
-    }
+	@Override
+	public String toString() {
+		return "RNDU";
+	}
 }

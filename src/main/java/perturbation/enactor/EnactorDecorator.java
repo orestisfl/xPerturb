@@ -1,7 +1,5 @@
 package perturbation.enactor;
 
-import perturbation.location.PerturbationLocation;
-
 /**
  * Created by spirals on 25/03/16.
  */

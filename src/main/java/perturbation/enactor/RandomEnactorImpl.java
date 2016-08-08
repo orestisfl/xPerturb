@@ -5,33 +5,36 @@ import java.util.Random;
 /**
  * Created by spirals on 23/03/16.
  */
-public class RandomEnactorImpl implements Enactor {
+public class RandomEnactorImpl extends EnactorDecorator {
 
-    protected float epsilon;
-    protected Random rnd;
+	private float epsilon;
+	private Random rnd;
 
-    public RandomEnactorImpl() {
-        this.epsilon = 0.05f;
-        this.rnd = new java.util.Random();
-    }
+	public RandomEnactorImpl(Enactor enactor, int seed, float epsilon) {
+		super(enactor);
+		this.epsilon = epsilon;
+		this.rnd = new java.util.Random(seed);
+	}
 
-    public RandomEnactorImpl(float epsilon) {
-        this.epsilon = epsilon;
-        this.rnd = new java.util.Random();
-    }
+	public RandomEnactorImpl() {
+		this(new AlwaysEnactorImpl(), (int) System.currentTimeMillis(), 0.05f);
+	}
 
-    public RandomEnactorImpl(int seed, float epsilon) {
-        this.epsilon = epsilon;
-        this.rnd = new java.util.Random(seed);
-    }
+	public RandomEnactorImpl(float epsilon) {
+		this(new AlwaysEnactorImpl(), (int) System.currentTimeMillis(), epsilon);
+	}
 
-    @Override
-    public boolean shouldBeActivated() {
-        return rnd.nextFloat() < this.epsilon;
-    }
+	public RandomEnactorImpl(int seed, float epsilon) {
+		this(new AlwaysEnactorImpl(), seed, epsilon);
+	}
 
-    @Override
-    public String toString() {
-        return "RAND";
-    }
+	@Override
+	public boolean shouldBeActivated() {
+		return rnd.nextFloat() < this.epsilon && super.shouldBeActivated();
+	}
+
+	@Override
+	public String toString() {
+		return "RAND" + super.toString();
+	}
 }

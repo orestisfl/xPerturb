@@ -1,32 +1,45 @@
 package perturbation.enactor;
 
-import perturbation.location.PerturbationLocation;
-
 /**
  * Created by spirals on 23/03/16.
  */
-public class NTimeEnactorImpl implements Enactor {
+public class NTimeEnactorImpl extends EnactorDecorator {
 
-    private int n;
-    private int timeCall;
+	/**
+	 * number of time to perturb
+	 */
+	private final int n;
 
-    public NTimeEnactorImpl() {
-        this.n = 1;
-        this.timeCall = 0;
-    }
+	/**
+	 * current number of perturbation
+	 */
+	private int timeCall;
 
-    public NTimeEnactorImpl(int n) {
-        this.n = n;
-        this.timeCall = 0;
-    }
+	public NTimeEnactorImpl(Enactor enactor, int n) {
+		super(enactor);
+		this.n = n;
+		this.timeCall = 0;
+	}
 
-    @Override
-    public boolean shouldBeActivated() {
-        return this.n > this.timeCall++;
-    }
+	public NTimeEnactorImpl(Enactor enactor) {
+		this(enactor, 1);
+	}
 
-    @Override
-    public String toString() {
-        return "NTIM";
-    }
+	public NTimeEnactorImpl(int n) {
+		this(new AlwaysEnactorImpl(), n);
+	}
+
+	public NTimeEnactorImpl() {
+		this(new AlwaysEnactorImpl(), 1);
+	}
+
+	@Override
+	public boolean shouldBeActivated() {
+		return this.n > this.timeCall++ && super.shouldBeActivated();
+	}
+
+	@Override
+	public String toString() {
+		return "NTIM" + super.toString();
+	}
 }

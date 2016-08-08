@@ -10,9 +10,12 @@ public class AlwaysEnactorImpl implements Enactor {
         return true;
     }
 
+	/**
+     * @return an empty string
+     */
     @Override
     public String toString() {
-        return "ALWA";
+        return "";
     }
 
 }
