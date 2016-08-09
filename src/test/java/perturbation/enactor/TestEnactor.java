@@ -22,9 +22,7 @@ public class TestEnactor {
 
 	private static URLClassLoader classLoaderWithoutOldFile;
 	private static CtClass simpleResWithPerturbation;
-	private static Class<?> classPerturbatorEngine;
 
-	private static Object objectPerturbator;
 	private static Method setEnactor;
 	private static Class<?> classAlwaysEnactor;
 	private static Class<?> classNeverEnactor;
@@ -50,10 +48,6 @@ public class TestEnactor {
 
 		Util.addPathToClassPath(launcher.getModelBuilder().getBinaryOutputDirectory().toURL());
 		classLoaderWithoutOldFile = Util.removeOldFileFromClassPath((URLClassLoader) ClassLoader.getSystemClassLoader());
-
-		//PerturbationEngine
-		classPerturbatorEngine = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
-		objectPerturbator = classPerturbatorEngine.newInstance();
 
 		classPerturbationLocation = classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation");
 		setEnactor = classPerturbationLocation.getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor"));

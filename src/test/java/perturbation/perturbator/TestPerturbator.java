@@ -23,7 +23,6 @@ public class TestPerturbator {
 
     private static URLClassLoader classLoaderWithoutOldFile;
     private static CtClass simpleResWithPerturbation;
-    private static Class<?> classPerturbator;
 
     private static Method setPerturbator;
 
@@ -48,9 +47,6 @@ public class TestPerturbator {
 
         Util.addPathToClassPath(launcher.getModelBuilder().getBinaryOutputDirectory().toURL());
         classLoaderWithoutOldFile = Util.removeOldFileFromClassPath((URLClassLoader) ClassLoader.getSystemClassLoader());
-
-        //PerturbationEngine
-        classPerturbator = classLoaderWithoutOldFile.loadClass("perturbation.PerturbationEngine");
 
         classPerturbationLocation = classLoaderWithoutOldFile.loadClass("perturbation.location.PerturbationLocation");
         setPerturbator = classPerturbationLocation.getMethod("setPerturbator", classLoaderWithoutOldFile.loadClass("perturbation.perturbator.Perturbator"));
