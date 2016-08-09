@@ -14,8 +14,6 @@ import java.util.logging.Level;
  */
 public class Main {
 
-	private static final String PATH_TO_PERTURBATION = "src/main/java/perturbation/";
-
 	private static int getIndexOfOption(String opt, String[] args) {
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals(opt))
@@ -83,7 +81,6 @@ public class Main {
 		if (getIndexOfOption("-x", args) != -1)
 			spoon.getEnvironment().setNoClasspath(true);
 
-		spoon.addInputResource(PATH_TO_PERTURBATION);
 		spoon.addInputResource(input);
 		if ((index = getIndexOfOption("-o", args)) == -1)
 			spoon.setSourceOutputDirectory(input);
