@@ -32,7 +32,7 @@ public class VariableCaster extends AbstractProcessor<CtVariable> {
 
     @Override
     public boolean isToBeProcessed(CtVariable candidate) {
-        if (UtilPerturbation.checkIsNotInPerturbatorPackage(candidate))
+        if (UtilPerturbation.isInPerturbatationPackage(candidate))
             return false;
 
         if (candidate.getDefaultExpression() == null ||

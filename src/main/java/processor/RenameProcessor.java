@@ -1,11 +1,9 @@
 package processor;
 
 import spoon.processing.AbstractProcessor;
-import spoon.reflect.code.*;
-import spoon.reflect.declaration.*;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
-import spoon.support.reflect.code.CtTypeAccessImpl;
 
 import java.util.List;
 
@@ -34,6 +32,6 @@ public class RenameProcessor extends AbstractProcessor<CtClass> {
 
     @Override
     public boolean isToBeProcessed(CtClass candidate) {
-        return !(UtilPerturbation.checkIsNotInPerturbatorPackage(candidate)) && candidate.isTopLevel();
+        return !(UtilPerturbation.isInPerturbatationPackage(candidate)) && candidate.isTopLevel();
     }
 }

@@ -1,5 +1,6 @@
 package processor;
 
+import perturbation.PerturbationEngine;
 import spoon.processing.AbstractProcessor;
 import spoon.reflect.code.CtArrayWrite;
 import spoon.reflect.code.CtAssignment;
@@ -20,7 +21,6 @@ import spoon.reflect.code.CtWhile;
 import spoon.reflect.code.UnaryOperatorKind;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtAnonymousExecutable;
-import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtConstructor;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtEnum;
@@ -66,7 +66,7 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
     @Override
     public boolean isToBeProcessed(CtExpression candidate) {
 
-        if (UtilPerturbation.checkIsNotInPerturbatorPackage(candidate)) {
+        if (UtilPerturbation.isInPerturbatationPackage(candidate)) {
             return false;
         }
 
@@ -102,8 +102,7 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
                 return false;
         }
 
-        CtClass perturbatorClass = getFactory().Class().get(UtilPerturbation.QUALIFIED_NAME_PERTURBATOR);
-        CtTypeReference perturbatorReference = perturbatorClass.getReference();
+        CtTypeReference perturbatorReference = getFactory().Type().createReference(PerturbationEngine.class);
 
         //An object on which we call a method can not be perturb
         if (candidate.isParentInitialized()) {
@@ -170,18 +169,18 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
             }
 
             if (candidateParent instanceof CtBinaryOperator) {
-                return checkBrotherCtBinaryOpererator(candidate, (CtBinaryOperator) candidateParent, (CtClass) perturbatorClass);
+                return checkBrotherCtBinaryOpererator(candidate, (CtBinaryOperator) candidateParent, perturbatorReference);
             }
         }
 
         return UtilPerturbation.perturbableTypes.contains(candidate.getType().getSimpleName());
     }
 
-    private static boolean checkBrotherCtBinaryOpererator(CtExpression candidate, CtBinaryOperator parent, CtClass p) {
+    private static boolean checkBrotherCtBinaryOpererator(CtExpression candidate, CtBinaryOperator parent, CtTypeReference p) {
         CtExpression brother = parent.getLeftHandOperand().equals(candidate) ? parent.getRightHandOperand() : parent.getLeftHandOperand();
         if (brother.getType() == null) {
             if (brother instanceof CtInvocation &&
-					p.equals(((CtInvocation) brother).getTarget()))
+					p.getFactory().Code().createTypeAccess(p).equals(((CtInvocation) brother).getTarget()))
                 return true;
             else
                 return UtilPerturbation.perturbableTypes.contains(candidate.getType().getSimpleName());
