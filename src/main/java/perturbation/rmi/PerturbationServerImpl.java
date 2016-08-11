@@ -29,7 +29,7 @@ import perturbation.perturbator.AddOnePerturbatorImpl;
 import perturbation.perturbator.InvPerturbatorImpl;
 
 import java.io.File;
-import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -37,9 +37,18 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.ClassLoader.getSystemClassLoader;
-
 public class PerturbationServerImpl implements PerturbationServer {
+
+	public static final int PORT = 13223;
+
+	public static final String NAME = "Perturbation";
+
+	private List<PerturbationLocation> locations;
+
+	public PerturbationServerImpl(String project, String packagePath) {
+		this.locations = PerturbationServerImpl.buildLocationsList(project, packagePath);
+	}
+
 	private static String removeExt(String name) {
 		return name.substring(0, ((name.length()) - (".java".length())));
 	}
@@ -48,23 +57,7 @@ public class PerturbationServerImpl implements PerturbationServer {
 		return name.endsWith(".java");
 	}
 
-	private static ClassLoader loader = getSystemClassLoader();
-
-	private String project;
-
-	private String packagePath;
-
-	public static final int PORT = 13223;
-
-	private List<PerturbationLocation> locations;
-
-	public PerturbationServerImpl(String project, String packagePath) {
-		PerturbationServerImpl.this.project = project;
-		PerturbationServerImpl.this.packagePath = packagePath;
-		PerturbationServerImpl.this.locations = PerturbationServerImpl.getAllLocations(project, packagePath);
-	}
-
-	private static List<PerturbationLocation> getAllLocations(String project, String packagePath) {
+	private static List<PerturbationLocation> buildLocationsList(String project, String packagePath) {
 		final List<PerturbationLocation> locations = new ArrayList<PerturbationLocation>();
 		List<Class> classes = PerturbationServerImpl.iterateFolders(new ArrayList<Class>(), project, packagePath);
 		for (int i = 0; i < (classes.size()); i++) {
@@ -84,10 +77,11 @@ public class PerturbationServerImpl implements PerturbationServer {
 		assert (root.listFiles()) != null;
 		for (File subFile : root.listFiles()) {
 			if (subFile.isDirectory())
-				PerturbationServerImpl.iterateFolders(classes, ((path + (subFile.getName())) + "/"), ((currentPackage + ".") + (subFile.getName())));
-			else if (PerturbationServerImpl.isJava(subFile.getName())) {
+				iterateFolders(classes, ((path + (subFile.getName())) + "/"), ((currentPackage + ".") + (subFile.getName())));
+			else if (isJava(subFile.getName())) {
 				try {
-					Class<?> clazz = Class.forName(((currentPackage + ".") + (PerturbationServerImpl.removeExt(subFile.getName()))));
+					String packageAsString = currentPackage.isEmpty() ? "" : currentPackage + ".";
+					Class<?> clazz = Class.forName(packageAsString + removeExt(subFile.getName()));
 					classes.add(clazz);
 				} catch (ClassNotFoundException e) {
 					continue;
@@ -97,8 +91,7 @@ public class PerturbationServerImpl implements PerturbationServer {
 		return classes;
 	}
 
-	@Override
-	public List<PerturbationLocation> getAllLocations() throws RemoteException {
+	public List<PerturbationLocation> getLocations() throws RemoteException {
 		return PerturbationServerImpl.this.locations;
 	}
 
@@ -112,38 +105,38 @@ public class PerturbationServerImpl implements PerturbationServer {
 		location.setEnactor(new NeverEnactorImpl());
 	}
 
-	public static void startServer(final String project, final String packagePath) {
-		Thread thread = new Thread(new Runnable() {
-			Registry registry;
+	public void stopService() throws RemoteException {
+		try {
+			registry.unbind(PerturbationServerImpl.NAME);
+		} catch (NotBoundException ignored) {}
+		UnicastRemoteObject.unexportObject(server, true);
+	}
 
+	/**
+	 * Object RMI
+	 */
+	private static PerturbationServer server;
+
+	private static Registry registry;
+
+	/**
+	 * Start the server in the new Thread.
+	 */
+	public static void startServer(final String project, final String packagePath) {
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				PerturbationServer skeleton = null;
 				try {
-					skeleton = ((PerturbationServer) (UnicastRemoteObject.exportObject(new PerturbationServerImpl(project, packagePath), PORT)));
-				} catch (RemoteException e) {
-					throw new RuntimeException(e);
-				}
-				try {
-					LocateRegistry.getRegistry(PORT).list();
-					registry = LocateRegistry.getRegistry(PORT);
-				} catch (Exception ex) {
-					try {
-						registry = LocateRegistry.createRegistry(PORT);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-				}
-				try {
-					registry.bind("Perturbation", skeleton);
-				} catch (RemoteException e) {
-					throw new RuntimeException(e);
-				} catch (AlreadyBoundException e) {
+					server = new PerturbationServerImpl(project, packagePath);
+					UnicastRemoteObject.exportObject(server, PerturbationServerImpl.PORT);
+					registry = LocateRegistry.createRegistry(PerturbationServerImpl.PORT);
+					registry.rebind(PerturbationServerImpl.NAME, server);
+				} catch (Exception e) {
 					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			}
-		});
-		thread.run();
+		}).start();
 	}
 }
 

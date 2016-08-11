@@ -11,10 +11,12 @@ import java.util.List;
  */
 public interface PerturbationServer extends Remote {
 
-	List<PerturbationLocation> getAllLocations() throws RemoteException;
+	List<PerturbationLocation> getLocations() throws RemoteException;
 
 	void enableLocation(PerturbationLocation location) throws RemoteException;
 
 	void disableLocation(PerturbationLocation location) throws RemoteException;
+
+	void stopService() throws RemoteException;
 
 }
