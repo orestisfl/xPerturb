@@ -34,4 +34,9 @@ public class AssignmentProcessor extends AbstractProcessor<CtAssignment> {
 
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		return "Assignment Processor";
+	}
 }

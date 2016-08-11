@@ -27,4 +27,9 @@ public class CountProcessor extends AbstractProcessor<CtClass> {
         countClass = 0;
         countLine = 0;
     }
+
+    @Override
+    public String toString() {
+        return "Count Processor";
+    }
 }

@@ -42,4 +42,9 @@ public class VariableCaster extends AbstractProcessor<CtVariable> {
 
         return !candidate.getType().equals(candidate.getDefaultExpression().getType()) && candidate.getDefaultExpression().getTypeCasts().isEmpty();
     }
+
+    @Override
+    public String toString() {
+        return "Variable Caster Processor";
+    }
 }

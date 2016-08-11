@@ -205,4 +205,9 @@ public class PerturbationProcessor<T extends CtExpression> extends AbstractProce
         super.processingDone();
         UtilPerturbation.addAllFieldsAndMethods(getFactory());
     }
+
+    @Override
+    public String toString() {
+        return "Perturbation Processor";
+    }
 }
