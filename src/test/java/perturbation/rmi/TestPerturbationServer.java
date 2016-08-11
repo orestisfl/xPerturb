@@ -14,19 +14,12 @@ public class TestPerturbationServer {
 
 	@Test
 	public void testPerturbationServer() throws Exception {
-		new Thread() {
-			@Override
-			public void run() {
-				PerturbationServerImpl.startServer("src/test/java/perturbation/rmi/resources/", "perturbation.rmi.resources");
-			}
-		}.start();
-
+		PerturbationServerImpl.startServer("src/test/java/perturbation/rmi/resources/", "perturbation.rmi.resources");
 		Thread.sleep(500);//Must wait the the server is effectively started
-
 		//test rmi service
 		Registry registry = LocateRegistry.getRegistry(PerturbationServerImpl.PORT);
 		PerturbationServer server = (PerturbationServer) registry.lookup(PerturbationServerImpl.NAME);
-		assertEquals(21, server.getLocations().size());
+		assertEquals(21,server.getLocations().size());
 		//Stop rmi service
 		server.stopService();
 	}
