@@ -21,75 +21,36 @@
 
 package perturbation.rmi;
 
+import perturbation.PerturbationEngine;
 import perturbation.enactor.AlwaysEnactorImpl;
 import perturbation.enactor.NeverEnactorImpl;
 import perturbation.location.PerturbationLocation;
-import perturbation.location.PerturbationLocationImpl;
-import perturbation.perturbator.AddOnePerturbatorImpl;
-import perturbation.perturbator.InvPerturbatorImpl;
+import perturbation.log.LoggerImpl;
 
-import java.io.File;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.List;
+
+import static perturbation.PerturbationEngine.loggers;
 
 public class PerturbationServerImpl implements PerturbationServer {
 
+	private static final String NAME_LOGGER = "PerturbationServerLogger";
+
 	public static final int PORT = 13223;
 
-	public static final String NAME = "Perturbation";
+	public static final String NAME_SERVER = "PerturbationServer";
 
 	private List<PerturbationLocation> locations;
 
 	public PerturbationServerImpl(String project, String packagePath) {
-		this.locations = PerturbationServerImpl.buildLocationsList(project, packagePath);
+		this.locations = LocationsListBuilder.buildLocationsList(project, packagePath);
+		loggers.put(NAME_LOGGER, new LoggerImpl());
 	}
 
-	private static String removeExt(String name) {
-		return name.substring(0, ((name.length()) - (".java".length())));
-	}
-
-	private static boolean isJava(String name) {
-		return name.endsWith(".java");
-	}
-
-	private static List<PerturbationLocation> buildLocationsList(String project, String packagePath) {
-		final List<PerturbationLocation> locations = new ArrayList<PerturbationLocation>();
-		List<Class> classes = PerturbationServerImpl.iterateFolders(new ArrayList<Class>(), project, packagePath);
-		for (int i = 0; i < (classes.size()); i++) {
-			Class clazz = classes.get(i);
-			List<PerturbationLocation> locationFromClass = PerturbationLocationImpl.getLocationFromClass(clazz);
-			for (int j = 0; j < (locationFromClass.size()); j++) {
-				PerturbationLocation location = locationFromClass.get(j);
-				locations.add(location);
-				location.setPerturbator(new AddOnePerturbatorImpl(new InvPerturbatorImpl()));
-			}
-		}
-		return locations;
-	}
-
-	private static List<Class> iterateFolders(List<Class> classes, String path, String currentPackage) {
-		File root = new File(path);
-		assert (root.listFiles()) != null;
-		for (File subFile : root.listFiles()) {
-			if (subFile.isDirectory())
-				iterateFolders(classes, ((path + (subFile.getName())) + "/"), ((currentPackage + ".") + (subFile.getName())));
-			else if (isJava(subFile.getName())) {
-				try {
-					String packageAsString = currentPackage.isEmpty() ? "" : currentPackage + ".";
-					Class<?> clazz = Class.forName(packageAsString + removeExt(subFile.getName()));
-					classes.add(clazz);
-				} catch (ClassNotFoundException e) {
-					continue;
-				}
-			}
-		}
-		return classes;
-	}
 
 	public List<PerturbationLocation> getLocations() throws RemoteException {
 		return PerturbationServerImpl.this.locations;
@@ -98,17 +59,30 @@ public class PerturbationServerImpl implements PerturbationServer {
 	@Override
 	public void enableLocation(PerturbationLocation location) throws RemoteException {
 		location.setEnactor(new AlwaysEnactorImpl());
+		loggers.get(NAME_LOGGER).logOn(location);
+	}
+
+	@Override
+	public int getCalls(PerturbationLocation location) throws RemoteException {
+		return loggers.get(NAME_LOGGER).getCalls(location);
+	}
+
+	@Override
+	public int getEnactions(PerturbationLocation location) throws RemoteException {
+		return PerturbationEngine.loggers.get(NAME_LOGGER).getEnactions(location);
 	}
 
 	@Override
 	public void disableLocation(PerturbationLocation location) throws RemoteException {
 		location.setEnactor(new NeverEnactorImpl());
+		loggers.get(NAME_LOGGER).remove(location);
 	}
 
 	public void stopService() throws RemoteException {
 		try {
-			registry.unbind(PerturbationServerImpl.NAME);
-		} catch (NotBoundException ignored) {}
+			registry.unbind(PerturbationServerImpl.NAME_SERVER);
+		} catch (NotBoundException ignored) {
+		}
 		UnicastRemoteObject.unexportObject(server, true);
 	}
 
@@ -130,7 +104,7 @@ public class PerturbationServerImpl implements PerturbationServer {
 					server = new PerturbationServerImpl(project, packagePath);
 					UnicastRemoteObject.exportObject(server, PerturbationServerImpl.PORT);
 					registry = LocateRegistry.createRegistry(PerturbationServerImpl.PORT);
-					registry.rebind(PerturbationServerImpl.NAME, server);
+					registry.rebind(PerturbationServerImpl.NAME_SERVER, server);
 				} catch (Exception e) {
 					e.printStackTrace();
 					throw new RuntimeException(e);
