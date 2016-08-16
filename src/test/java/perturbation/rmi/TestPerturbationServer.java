@@ -46,6 +46,8 @@ public class TestPerturbationServer {
 		PerturbationLocation location = server.enableLocation(locations.get(2));
 		assertTrue(location.getEnactor() instanceof AlwaysEnactorImpl);
 
+		assertEquals(location, server.logOn(location));
+
 		//perturbation execution
 		assertEquals(false, op.and(true, true));
 		assertEquals(1, server.getCalls(location));
@@ -54,9 +56,10 @@ public class TestPerturbationServer {
 		assertEquals(2, server.getCalls(location));
 		assertEquals(2, server.getEnactions(location));
 
-
 		location = server.disableLocation(location);
 		assertTrue(location.getEnactor() instanceof NeverEnactorImpl);
+
+		assertEquals(location, server.stopLogOn(location));
 
 		try {
 			server.getCalls(location);
@@ -66,7 +69,7 @@ public class TestPerturbationServer {
 		}
 
 		try {
-			System.out.println(server.getEnactions(location));
+			server.getEnactions(location);
 			fail();
 		} catch (NullPointerException expected) {
 
