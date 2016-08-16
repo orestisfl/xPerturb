@@ -34,8 +34,6 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
-import static perturbation.PerturbationEngine.loggers;
-
 public class PerturbationServerImpl implements PerturbationServer {
 
 	private static final String NAME_LOGGER = "PerturbationServerLogger";
@@ -48,7 +46,7 @@ public class PerturbationServerImpl implements PerturbationServer {
 
 	public PerturbationServerImpl(String project, String packagePath) {
 		this.locations = LocationsListBuilder.buildLocationsList(project, packagePath);
-		loggers.put(NAME_LOGGER, new LoggerImpl());
+		PerturbationEngine.loggers.put(NAME_LOGGER, new LoggerImpl());
 	}
 
 
@@ -57,25 +55,29 @@ public class PerturbationServerImpl implements PerturbationServer {
 	}
 
 	@Override
-	public void enableLocation(PerturbationLocation location) throws RemoteException {
+	public PerturbationLocation enableLocation(PerturbationLocation location) throws RemoteException {
+		location = locations.get(locations.indexOf(location));
 		location.setEnactor(new AlwaysEnactorImpl());
-		loggers.get(NAME_LOGGER).logOn(location);
+		PerturbationEngine.loggers.get(NAME_LOGGER).logOn(location);
+		return location;
 	}
 
 	@Override
 	public int getCalls(PerturbationLocation location) throws RemoteException {
-		return loggers.get(NAME_LOGGER).getCalls(location);
+		return PerturbationEngine.loggers.get(NAME_LOGGER).getCalls(locations.get(locations.indexOf(location)));
 	}
 
 	@Override
 	public int getEnactions(PerturbationLocation location) throws RemoteException {
-		return PerturbationEngine.loggers.get(NAME_LOGGER).getEnactions(location);
+		return PerturbationEngine.loggers.get(NAME_LOGGER).getEnactions(locations.get(locations.indexOf(location)));
 	}
 
 	@Override
-	public void disableLocation(PerturbationLocation location) throws RemoteException {
+	public PerturbationLocation disableLocation(PerturbationLocation location) throws RemoteException {
+		location = locations.get(locations.indexOf(location));
 		location.setEnactor(new NeverEnactorImpl());
-		loggers.get(NAME_LOGGER).remove(location);
+		PerturbationEngine.loggers.get(NAME_LOGGER).remove(location);
+		return location;
 	}
 
 	public void stopService() throws RemoteException {

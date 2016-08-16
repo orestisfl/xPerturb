@@ -17,7 +17,7 @@ public interface PerturbationServer extends Remote {
 	 */
 	List<PerturbationLocation> getLocations() throws RemoteException;
 
-	void enableLocation(PerturbationLocation location) throws RemoteException;
+	PerturbationLocation enableLocation(PerturbationLocation location) throws RemoteException;
 
 	/**
 	 *
@@ -35,7 +35,7 @@ public interface PerturbationServer extends Remote {
 	 */
 	int getEnactions(PerturbationLocation location) throws RemoteException;
 
-	void disableLocation(PerturbationLocation location) throws RemoteException;
+	PerturbationLocation disableLocation(PerturbationLocation location) throws RemoteException;
 
 	void stopService() throws RemoteException;
 
