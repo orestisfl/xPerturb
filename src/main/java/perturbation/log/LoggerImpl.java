@@ -22,6 +22,7 @@ public class LoggerImpl implements Logger {
     @Override
     public void remove(PerturbationLocation location) {
         this.numberOfCallsPerLocation.remove(location);
+        this.numberOfEnactionsPerLocation.remove(location);
     }
 
     @Override
@@ -48,7 +49,7 @@ public class LoggerImpl implements Logger {
 
     @Override
     public boolean isLogging(PerturbationLocation location) {
-        return this.numberOfCallsPerLocation.containsKey(location);
+        return this.numberOfCallsPerLocation.containsKey(location) && this.numberOfEnactionsPerLocation.containsKey(location);
     }
 
     @Override
