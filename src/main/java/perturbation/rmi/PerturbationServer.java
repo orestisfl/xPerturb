@@ -37,6 +37,10 @@ public interface PerturbationServer extends Remote {
 
 	PerturbationLocation disableLocation(PerturbationLocation location) throws RemoteException;
 
+	PerturbationLocation logOn(PerturbationLocation location) throws RemoteException;
+
+	PerturbationLocation stopLogOn(PerturbationLocation location) throws RemoteException;
+
 	void stopService() throws RemoteException;
 
 }

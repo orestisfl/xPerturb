@@ -58,33 +58,46 @@ public class PerturbationServerImpl implements PerturbationServer {
 	public PerturbationLocation enableLocation(PerturbationLocation location) throws RemoteException {
 		location = locations.get(locations.indexOf(location));
 		location.setEnactor(new AlwaysEnactorImpl());
+		return location;
+	}
+
+	@Override
+	public PerturbationLocation logOn(PerturbationLocation location) throws RemoteException {
+		location = locations.get(locations.indexOf(location));
 		PerturbationEngine.loggers.get(NAME_LOGGER).logOn(location);
 		return location;
 	}
 
 	@Override
+	public PerturbationLocation stopLogOn(PerturbationLocation location) throws RemoteException {
+		location = locations.get(locations.indexOf(location));
+		PerturbationEngine.loggers.get(NAME_LOGGER).remove(location);
+		return location;
+	}
+
+	@Override
 	public int getCalls(PerturbationLocation location) throws RemoteException {
-		return PerturbationEngine.loggers.get(NAME_LOGGER).getCalls(locations.get(locations.indexOf(location)));
+		location = locations.get(locations.indexOf(location));
+		return PerturbationEngine.loggers.get(NAME_LOGGER).getCalls(location);
 	}
 
 	@Override
 	public int getEnactions(PerturbationLocation location) throws RemoteException {
-		return PerturbationEngine.loggers.get(NAME_LOGGER).getEnactions(locations.get(locations.indexOf(location)));
+		location = locations.get(locations.indexOf(location));
+		return PerturbationEngine.loggers.get(NAME_LOGGER).getEnactions(location);
 	}
 
 	@Override
 	public PerturbationLocation disableLocation(PerturbationLocation location) throws RemoteException {
 		location = locations.get(locations.indexOf(location));
 		location.setEnactor(new NeverEnactorImpl());
-		PerturbationEngine.loggers.get(NAME_LOGGER).remove(location);
 		return location;
 	}
 
 	public void stopService() throws RemoteException {
 		try {
 			registry.unbind(PerturbationServerImpl.NAME_SERVER);
-		} catch (NotBoundException ignored) {
-		}
+		} catch (NotBoundException ignored) {}
 		UnicastRemoteObject.unexportObject(server, true);
 	}
 
