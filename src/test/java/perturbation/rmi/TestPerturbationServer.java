@@ -18,7 +18,7 @@ public class TestPerturbationServer {
 		Thread.sleep(500);//Must wait the the server is effectively started
 		//test rmi service
 		Registry registry = LocateRegistry.getRegistry(PerturbationServerImpl.PORT);
-		PerturbationServer server = (PerturbationServer) registry.lookup(PerturbationServerImpl.NAME);
+		PerturbationServer server = (PerturbationServer) registry.lookup(PerturbationServerImpl.NAME_SERVER);
 		assertEquals(21,server.getLocations().size());
 		//Stop rmi service
 		server.stopService();
