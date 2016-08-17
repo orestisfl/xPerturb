@@ -32,6 +32,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Collections;
 import java.util.List;
 
 public class PerturbationServerImpl implements PerturbationServer {
@@ -46,6 +47,7 @@ public class PerturbationServerImpl implements PerturbationServer {
 
 	public PerturbationServerImpl(String project, String packagePath) {
 		this.locations = LocationsListBuilder.buildLocationsList(project, packagePath);
+		Collections.sort(this.locations, (l1, l2) -> l1.getLocationIndex() - l2.getLocationIndex());
 		PerturbationEngine.loggers.put(NAME_LOGGER, new LoggerImpl());
 	}
 
