@@ -69,10 +69,24 @@ public class PerturbationServerImpl implements PerturbationServer {
 	}
 
 	@Override
+	public void logAllLocation() throws RemoteException {
+		for (PerturbationLocation location : this.locations) {
+			PerturbationEngine.loggers.get(NAME_LOGGER).logOn(location);
+		}
+	}
+
+	@Override
 	public PerturbationLocation stopLogOn(PerturbationLocation location) throws RemoteException {
 		location = locations.get(locations.indexOf(location));
 		PerturbationEngine.loggers.get(NAME_LOGGER).remove(location);
 		return location;
+	}
+
+	@Override
+	public void stopLogOnAllLocation() throws RemoteException {
+		for (PerturbationLocation location : this.locations) {
+			PerturbationEngine.loggers.get(NAME_LOGGER).remove(location);
+		}
 	}
 
 	@Override
@@ -85,6 +99,46 @@ public class PerturbationServerImpl implements PerturbationServer {
 	public int getEnactions(PerturbationLocation location) throws RemoteException {
 		location = locations.get(locations.indexOf(location));
 		return PerturbationEngine.loggers.get(NAME_LOGGER).getEnactions(location);
+	}
+
+	@Override
+	public int[] getCalls() throws RemoteException {
+		int [] calls = new int[this.locations.size()];
+		for (int i = 0; i < this.locations.size(); i++) {
+			calls[i] = PerturbationEngine.loggers.get(NAME_LOGGER).getCalls(this.locations.get(i));
+		}
+		return calls;
+	}
+
+	@Override
+	public int[] getCallsAndResetLogger() throws RemoteException {
+		int [] calls = new int[this.locations.size()];
+		for (int i = 0; i < this.locations.size(); i++) {
+			calls[i] = PerturbationEngine.loggers.get(NAME_LOGGER).getCalls(this.locations.get(i));
+			PerturbationEngine.loggers.get(NAME_LOGGER).remove(this.locations.get(i));
+			PerturbationEngine.loggers.get(NAME_LOGGER).logOn(this.locations.get(i));
+		}
+		return calls;
+	}
+
+	@Override
+	public int[] getEnactions() throws RemoteException {
+		int [] enactions = new int[this.locations.size()];
+		for (int i = 0; i < this.locations.size(); i++) {
+			enactions[i] = PerturbationEngine.loggers.get(NAME_LOGGER).getEnactions(this.locations.get(i));
+		}
+		return enactions;
+	}
+
+	@Override
+	public int[] getEnactionsAndResetLogger() throws RemoteException {
+		int [] enactions = new int[this.locations.size()];
+		for (int i = 0; i < this.locations.size(); i++) {
+			enactions[i] = PerturbationEngine.loggers.get(NAME_LOGGER).getEnactions(this.locations.get(i));
+			PerturbationEngine.loggers.get(NAME_LOGGER).remove(this.locations.get(i));
+			PerturbationEngine.loggers.get(NAME_LOGGER).logOn(this.locations.get(i));
+		}
+		return enactions;
 	}
 
 	@Override
