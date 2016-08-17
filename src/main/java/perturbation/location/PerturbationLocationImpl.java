@@ -77,6 +77,11 @@ public class PerturbationLocationImpl implements PerturbationLocation {
     }
 
     @Override
+    public int hashCode() {
+        return this.locationIndex;
+    }
+
+    @Override
     public boolean equals(Object that) {
         return that instanceof PerturbationLocationImpl && (PerturbationLocationImpl.this.locationIndex) == ((PerturbationLocationImpl)that).locationIndex;
     }
