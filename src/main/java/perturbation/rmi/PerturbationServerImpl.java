@@ -23,6 +23,7 @@ package perturbation.rmi;
 
 import perturbation.PerturbationEngine;
 import perturbation.enactor.AlwaysEnactorImpl;
+import perturbation.enactor.Enactor;
 import perturbation.enactor.NeverEnactorImpl;
 import perturbation.location.PerturbationLocation;
 import perturbation.log.LoggerImpl;
@@ -60,6 +61,13 @@ public class PerturbationServerImpl implements PerturbationServer {
 	public PerturbationLocation enableLocation(PerturbationLocation location) throws RemoteException {
 		location = locations.get(locations.indexOf(location));
 		location.setEnactor(new AlwaysEnactorImpl());
+		return location;
+	}
+
+	@Override
+	public PerturbationLocation enableLocation(PerturbationLocation location, Enactor enactor) throws RemoteException {
+		location = locations.get(locations.indexOf(location));
+		location.setEnactor(enactor);
 		return location;
 	}
 
