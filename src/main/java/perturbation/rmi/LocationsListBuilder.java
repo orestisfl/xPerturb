@@ -45,7 +45,7 @@ public class LocationsListBuilder {
 				iterateFolders(classes, ((path + (subFile.getName())) + "/"), ((currentPackage + ".") + (subFile.getName())));
 			else if (isJava(subFile.getName())) {
 				try {
-					String packageAsString = currentPackage.isEmpty() ? "" : currentPackage + ".";
+					String packageAsString = currentPackage.length() == 0 ? "" : currentPackage + ".";
 					Class<?> clazz = Class.forName(packageAsString + removeExt(subFile.getName()));
 					classes.add(clazz);
 				} catch (ClassNotFoundException e) {
