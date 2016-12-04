@@ -191,7 +191,7 @@ public class UtilPerturbation {
 
 		getInstance().listOfFieldByClass.get(currentKey).add(fieldLocation);
 
-		String position = argument.getPosition().getCompilationUnit().getFile().getName() + ":" + argument.getPosition().getLine();
+		String position = argument.getPosition().toString();
 		CtTypeReference<PerturbationLocationImpl> refToLocationImpl = factory.Code().createCtTypeReference(PerturbationLocationImpl.class);
 		CtConstructorCall constructorCall = factory.Code().createConstructorCall(refToLocationImpl,
 				factory.Code().createLiteral(position),

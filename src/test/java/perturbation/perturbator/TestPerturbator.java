@@ -7,8 +7,10 @@ import spoon.reflect.visitor.filter.NameFilter;
 import util.Util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -56,11 +58,13 @@ public class TestPerturbator {
         booleanMethodOfClassUnderTest = classUnderTest.getMethod("_pBoolean");
         intMethodOfClassUnderTest = classUnderTest.getMethod("_pInt");
 
-        objectPerturbationLocation0 = classUnderTest.getFields()[0].get(null);
+        Field field = classUnderTest.getFields()[12];
+
+        objectPerturbationLocation0 = field.get(null);
         objectPerturbationLocation10 = classUnderTest.getFields()[10].get(null);
 
-        classUnderTest.getFields()[0].get(null).getClass().getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor")).invoke(
-                classUnderTest.getFields()[0].get(null), classLoaderWithoutOldFile.loadClass("perturbation.enactor.AlwaysEnactorImpl").newInstance()
+        field.get(null).getClass().getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor")).invoke(
+                field.get(null), classLoaderWithoutOldFile.loadClass("perturbation.enactor.AlwaysEnactorImpl").newInstance()
         );
 
         classUnderTest.getFields()[10].get(null).getClass().getMethod("setEnactor", classLoaderWithoutOldFile.loadClass("perturbation.enactor.Enactor")).invoke(

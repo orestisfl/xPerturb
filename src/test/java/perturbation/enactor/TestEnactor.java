@@ -7,8 +7,10 @@ import spoon.reflect.visitor.filter.NameFilter;
 import util.Util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -69,16 +71,17 @@ public class TestEnactor {
 			initialisation();
 
 		//test the always Enactor which enact at each call
-		setPerturbator.invoke(classUnderTest.getFields()[0].get(null), invPerturbator);
+		Field field = classUnderTest.getFields()[12];
+		setPerturbator.invoke(field.get(null), invPerturbator);
 
 		assertEquals(true, (Boolean) booleanMethodOfClassUnderTest.invoke(objectUnderTest));
 
-		setEnactor.invoke(classUnderTest.getFields()[0].get(null), classAlwaysEnactor.newInstance());
+		setEnactor.invoke(field.get(null), classAlwaysEnactor.newInstance());
 
 		assertEquals(false, (Boolean) booleanMethodOfClassUnderTest.invoke(objectUnderTest));
 
-		setPerturbator.invoke(classUnderTest.getFields()[0].get(null), nothingPerturbator);
-		setEnactor.invoke(classUnderTest.getFields()[0].get(null), classNeverEnactor.newInstance());
+		setPerturbator.invoke(field.get(null), nothingPerturbator);
+		setEnactor.invoke(field.get(null), classNeverEnactor.newInstance());
 	}
 
 	@Test
@@ -128,13 +131,15 @@ public class TestEnactor {
 			initialisation();
 
 		//test the NTime Enactor which means that is enact n time the perturbation at the given location
-		setPerturbator.invoke(classUnderTest.getFields()[0].get(null), invPerturbator);
+		Field field = classUnderTest.getFields()[12];
+
+		setPerturbator.invoke(field.get(null), invPerturbator);
 
 		//Setting Enactor NTime with Location as decorated Enactor
 		Constructor constructorOfNTimeEnactor = classLoaderWithoutOldFile.loadClass("perturbation.enactor.NTimeEnactorImpl").getConstructor(int.class);
 		Object FiveTimeEnactorWithLocationEnactorDecorated = constructorOfNTimeEnactor.newInstance(5);
 
-		setEnactor.invoke(classUnderTest.getFields()[0].get(null), FiveTimeEnactorWithLocationEnactorDecorated);
+		setEnactor.invoke(field.get(null), FiveTimeEnactorWithLocationEnactorDecorated);
 
 		assertEquals(false, (Boolean) booleanMethodOfClassUnderTest.invoke(objectUnderTest));
 		assertEquals(false, (Boolean) booleanMethodOfClassUnderTest.invoke(objectUnderTest));
@@ -145,8 +150,8 @@ public class TestEnactor {
 		//after that, no more perturbation
 		assertEquals(true, (Boolean) booleanMethodOfClassUnderTest.invoke(objectUnderTest));
 
-		setEnactor.invoke(classUnderTest.getFields()[0].get(null), classNeverEnactor.newInstance());
-		setPerturbator.invoke(classUnderTest.getFields()[0].get(null), nothingPerturbator);
+		setEnactor.invoke(field.get(null), classNeverEnactor.newInstance());
+		setPerturbator.invoke(field.get(null), nothingPerturbator);
 	}
 
 	@Test
@@ -156,11 +161,13 @@ public class TestEnactor {
 			initialisation();
 
 		//test the NCallEnactor which it perturb at the n-th call of the perturbation points
-		setPerturbator.invoke(classUnderTest.getFields()[0].get(null), invPerturbator);
+		Field field = classUnderTest.getFields()[12];
+
+		setPerturbator.invoke(field.get(null), invPerturbator);
 
 		//Setting Enactor NCall
 		Constructor constructorNCallEnactor = classLoaderWithoutOldFile.loadClass("perturbation.enactor.NCallEnactorImpl").getConstructor(int.class);
-		setEnactor.invoke(classUnderTest.getFields()[0].get(null), constructorNCallEnactor.newInstance(5));
+		setEnactor.invoke(field.get(null), constructorNCallEnactor.newInstance(5));
 
 		//0 - 4 call no perturbation
 		for (int i = 0; i < 5; i++) {
@@ -175,7 +182,7 @@ public class TestEnactor {
 			assertEquals(true, (Boolean) booleanMethodOfClassUnderTest.invoke(objectUnderTest));
 		}
 
-		setEnactor.invoke(classUnderTest.getFields()[0].get(null), classNeverEnactor.newInstance());
-		setPerturbator.invoke(classUnderTest.getFields()[0].get(null), nothingPerturbator);
+		setEnactor.invoke(field.get(null), classNeverEnactor.newInstance());
+		setPerturbator.invoke(field.get(null), nothingPerturbator);
 	}
 }

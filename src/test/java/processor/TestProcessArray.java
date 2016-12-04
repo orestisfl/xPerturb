@@ -38,7 +38,7 @@ public class TestProcessArray {
             if (perturbation.getExecutable().getDeclaringType().equals(arrayResWithPerturbation.getReference()))
                 assertEquals("initPerturbationLocation0", perturbation.getExecutable().getSimpleName());//init location
             else if (perturbation.isImplicit())
-                assertEquals("<init>", invokationsOfPerturbations.get(8).getExecutable().getSimpleName());//implicit call of super() from java.lang.Object
+                assertEquals("<init>", invokationsOfPerturbations.get(0).getExecutable().getSimpleName());//implicit call of super() from java.lang.Object
             else
                 assertTrue(perturbation.getExecutable().getDeclaringType().equals(perturbator.getReference()));//else invokation of perturbation
         }
