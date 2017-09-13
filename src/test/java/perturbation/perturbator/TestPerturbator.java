@@ -3,7 +3,7 @@ package perturbation.perturbator;
 import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.visitor.filter.NameFilter;
+import spoon.reflect.visitor.filter.NamedElementFilter;
 import util.Util;
 
 import java.lang.reflect.Constructor;
@@ -45,7 +45,7 @@ public class TestPerturbator {
 
         launcher.run();
 
-        simpleResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("SimpleRes")).get(0);
+        simpleResWithPerturbation = launcher.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "SimpleRes")).get(0);
 
         Util.addPathToClassPath(launcher.getModelBuilder().getBinaryOutputDirectory().toURL());
         classLoaderWithoutOldFile = Util.removeOldFileFromClassPath((URLClassLoader) ClassLoader.getSystemClassLoader());

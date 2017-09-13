@@ -4,7 +4,7 @@ import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.visitor.filter.NameFilter;
+import spoon.reflect.visitor.filter.NamedElementFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
 import util.Util;
 
@@ -27,9 +27,9 @@ public class TestProcessArray {
 
         launcher.run();
 
-        CtClass arrayResWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("ArrayRes")).get(0);
+        CtClass arrayResWithPerturbation = launcher.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "ArrayRes")).get(0);
 
-        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
+        CtClass perturbator = launcher.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "PerturbationEngine")).get(0);
 
         //All of the invokation should be perturbation calls or the initialiazer or the super() call
         List<CtInvocation> invokationsOfPerturbations = arrayResWithPerturbation.getElements(new TypeFilter<>(CtInvocation.class));

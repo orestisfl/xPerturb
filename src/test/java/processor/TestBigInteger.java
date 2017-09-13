@@ -1,16 +1,13 @@
 package processor;
 
 import org.junit.Test;
-import perturbation.PerturbationEngine;
 import spoon.Launcher;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtTypeReference;
-import spoon.reflect.visitor.filter.NameFilter;
+import spoon.reflect.visitor.filter.NamedElementFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.code.CtInvocationImpl;
-import spoon.support.reflect.reference.CtTypeReferenceImpl;
 import util.Util;
 
 import java.math.BigInteger;
@@ -34,8 +31,8 @@ public class TestBigInteger {
 
         launcher.run();
 
-        CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("BigIntegerRes")).get(0);
-        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
+        CtClass c = launcher.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "BigIntegerRes")).get(0);
+        CtClass perturbator = launcher.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "PerturbationEngine")).get(0);
 
         CtTypeReference type = launcher.getFactory().Type().createReference(launcher.getFactory().Class().get(BigInteger.class));
 

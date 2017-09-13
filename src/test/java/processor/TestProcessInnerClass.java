@@ -10,7 +10,7 @@ import spoon.reflect.code.CtReturn;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtField;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.visitor.filter.NameFilter;
+import spoon.reflect.visitor.filter.NamedElementFilter;
 import spoon.support.reflect.code.CtInvocationImpl;
 import util.Util;
 
@@ -30,9 +30,9 @@ public class TestProcessInnerClass {
 
         launcherSpoon.run();
 
-        CtClass abstractPerturbed = (CtClass) launcherSpoon.getFactory().Package().getRootPackage().getElements(new NameFilter("AbstractRes")).get(0);
+        CtClass abstractPerturbed = launcherSpoon.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "AbstractRes")).get(0);
 
-        CtClass perturbator = (CtClass) launcherSpoon.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
+        CtClass perturbator = launcherSpoon.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "PerturbationEngine")).get(0);
 
         CtClass innerClassNotStatic = (CtClass) abstractPerturbed.getNestedType("notStaticInnerClass");
 
@@ -60,9 +60,9 @@ public class TestProcessInnerClass {
 
         launcherSpoon.run();
 
-        CtClass abstractPerturbed = (CtClass) launcherSpoon.getFactory().Package().getRootPackage().getElements(new NameFilter("AbstractRes")).get(0);
+        CtClass abstractPerturbed = launcherSpoon.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "AbstractRes")).get(0);
 
-        CtClass perturbator = (CtClass) launcherSpoon.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
+        CtClass perturbator = launcherSpoon.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "PerturbationEngine")).get(0);
 
         CtClass innerClassStatic = (CtClass) abstractPerturbed.getNestedType("staticInnerClass");
 

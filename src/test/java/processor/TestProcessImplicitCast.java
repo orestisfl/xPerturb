@@ -7,7 +7,7 @@ import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.visitor.filter.NameFilter;
+import spoon.reflect.visitor.filter.NamedElementFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.code.CtInvocationImpl;
 import util.Util;
@@ -32,9 +32,9 @@ public class TestProcessImplicitCast {
 
         launcher.run();
 
-        CtClass c = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("CastRes")).get(0);
+        CtClass c = launcher.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "CastRes")).get(0);
 
-        CtClass p = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
+        CtClass p = launcher.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "PerturbationEngine")).get(0);
 
 
         Set<CtMethod> methods = c.getAllMethods();

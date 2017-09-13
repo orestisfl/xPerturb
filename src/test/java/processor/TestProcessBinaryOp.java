@@ -5,7 +5,7 @@ import spoon.Launcher;
 import spoon.reflect.code.CtBinaryOperator;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.visitor.filter.NameFilter;
+import spoon.reflect.visitor.filter.NamedElementFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.code.CtInvocationImpl;
 import util.Util;
@@ -27,8 +27,8 @@ public class TestProcessBinaryOp {
         launcher.addInputResource("src/test/resources/BinOpRes.java");
         launcher.run();
 
-        CtClass binOpWithPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("BinOpRes")).get(0);
-        CtClass perturbator = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("PerturbationEngine")).get(0);
+        CtClass binOpWithPerturbation = launcher.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "BinOpRes")).get(0);
+        CtClass perturbator = launcher.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "PerturbationEngine")).get(0);
 
         List<CtBinaryOperator> binaryOperators = binOpWithPerturbation.getElements(new TypeFilter<>(CtBinaryOperator.class));
 

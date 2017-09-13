@@ -4,7 +4,7 @@ import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.visitor.filter.NameFilter;
+import spoon.reflect.visitor.filter.NamedElementFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
 import util.Util;
 
@@ -28,7 +28,7 @@ public class TestProcessEnum {
         launcher.run();
 
         //Not a single invokation has been introduce
-        CtClass enumWithoutPerturbation = (CtClass) launcher.getFactory().Package().getRootPackage().getElements(new NameFilter("EnumRes")).get(0);
+        CtClass enumWithoutPerturbation = launcher.getFactory().Package().getRootPackage().getElements(new NamedElementFilter<>(CtClass.class, "EnumRes")).get(0);
 
         //filtering the super() call
         List<CtInvocation> invocationList = enumWithoutPerturbation.getElements(new TypeFilter<CtInvocation>(CtInvocation.class){
