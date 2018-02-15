@@ -15,7 +15,7 @@ public class AddNPerturbatorImpl implements Perturbator{
 
     @Override
     public boolean pboolean(boolean value) {
-        throw new UnsupportedOperationException();
+        return value;
     }
 
     @Override
