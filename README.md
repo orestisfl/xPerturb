@@ -1,17 +1,37 @@
 [![Travis Build Status](https://api.travis-ci.org/Spirals-Team/jPerturb.svg?branch=master)](https://travis-ci.org/Spirals-Team/jPerturb)
 
-# jPerturb : a state perturbation tool for Java.
+# jPerturb : a runtime perturbation analysis tool for Java.
+
+See  [Correctness Attraction: A Study of Stability of Software Behavior Under Runtime Perturbation](https://hal.archives-ouvertes.fr/hal-01378523/file/correctness-attraction.pdf) (Benjamin Danglot, Philippe Preux, Benoit Baudry and Martin Monperrus), In Empirical Software Engineering, Springer Verlag, 2017.
+
+```
+@article{danglot2016correctness,
+ title = {{Correctness Attraction: A Study of Stability of Software Behavior Under Runtime Perturbation}},
+ author = {Danglot, Benjamin and Preux, Philippe and Baudry, Benoit and Monperrus, Martin},
+ journal = {{Empirical Software Engineering}},
+ publisher = {{Springer Verlag}},
+ year = {2017},
+ doi = {10.1007/s10664-017-9571-8},
+}
+```
 
 ## Download & Install
 
 To retrieve the project:
 ```
 git clone https://github.com/Spirals-Team/jPerturb
+cd jPerturb
 ```
 
-To install and run test:
+To run the tests
 ```
 mvn test
+```
+
+
+To install in the local repository
+```
+mvn install
 ```
 
 ## Usage with command line
