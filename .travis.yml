@@ -4,8 +4,10 @@ jdk:
   - oraclejdk8
 
 script:
-  # executing the Junit tests
-  - mvn test
+  # executing the Junit tests and installing in the local repository
+  - mvn install
   # also testing the main outside Junit
   - mvn exec:java -Dexec.mainClass="experiment.Main2" -Dexec.args="-v -s quicksort.QuickSortManager -nb 4 -size 4 -exp call pone"
   - mvn exec:java -Dexec.mainClass="experiment.Main2" -Dexec.args="-v -s quicksort.QuickSortManager -nb 4 -size 4 -exp rnd pone"
+  # does the experiment repo compile?
+  - git clone https://github.com/Spirals-Team/correctness-attraction-experiments.git && cd correctness-attraction-experiments && rm -r src/main/java/simplex/ src/main/java/laguerre/ && mvn test
