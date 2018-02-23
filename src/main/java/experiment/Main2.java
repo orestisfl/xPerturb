@@ -86,7 +86,7 @@ public class Main2 {
             // run the exploration of the perturbation space
             lastResultOfMainCall = explorer.run();
             System.out.println(System.currentTimeMillis() - time + " ms");
-            explorer.log();
+
         } else if ((currentIndex = getIndexOfOption("-run", args)) != -1) {
             run(currentIndex + 1, args);
         }

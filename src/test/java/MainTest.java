@@ -1,11 +1,16 @@
 
 import experiment.Logger;
 import experiment.Main2;
+import experiment.exploration.IntegerExplorationPlusOne;
+import experiment.explorer.CallExplorer;
+import experiment.explorer.Explorer;
+import experiment.explorer.RandomExplorer;
 import main.Main;
 import org.junit.After;
 import org.junit.Test;
 import processor.UtilPerturbation;
 import quicksort.QuickSort;
+import quicksort.QuickSortManager;
 import spoon.Launcher;
 import util.Util;
 
@@ -59,4 +64,26 @@ public class MainTest {
 		assertEquals(19, result.getAntifragilePoints().size());
 		assertEquals("30\tend (/home/martin/martin-no-backup/jPerturb/src/main/java/quicksort/QuickSortInstr.java:32)\tNumerical", result.getAntifragilePoints().get(0).toString());
     }
+
+	@Test
+	public void testApi() throws Exception {
+		// shows that the API usage works
+
+		int nbTask = 10;
+		int sizeTask = 10;
+		Explorer expl = new CallExplorer(new QuickSortManager(nbTask, sizeTask), new IntegerExplorationPlusOne());
+		Logger result = expl.run();
+
+		assertEquals(10, result.getNumberOfTasks());
+
+		assertEquals(41, result.getNumberOfLocations());
+
+		assertEquals(1, result.searchSpaceSizePerMagnitude.length);
+		assertEquals(4331, result.searchSpaceSizePerMagnitude[0]);
+		assertEquals(1, result.numberOfSuccessPerMagnitude.length);
+		assertEquals(3323, result.numberOfSuccessPerMagnitude[0]);
+
+	}
+
+
 }

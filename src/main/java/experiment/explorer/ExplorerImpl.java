@@ -98,6 +98,7 @@ public abstract class ExplorerImpl implements Explorer {
         for (int i = 0 ; i < indices.size() ; i++) {
             this.runTask(i);
         }
+        this.log();
         return logger;
     }
 
