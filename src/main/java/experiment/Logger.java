@@ -70,7 +70,7 @@ public class Logger {
         return results[0][0].length;
     }
 
-    public Tuple[][][][] getResults() {
+    public Tuple[][][][] getTupleResults() {
         int numberOfLocations = getNumberOfLocations();
         int numberOfTask = getNumberOfTasks();
         int numberOfPerturbator = getNumberOfPerturbators();
@@ -87,6 +87,103 @@ public class Logger {
         return tupleResults;
     }
 
+    public long getNbSuccess() {
+        int numberOfLocations = getNumberOfLocations();
+        int numberOfTask = getNumberOfTasks();
+        int numberOfPerturbator = getNumberOfPerturbators();
+        int numberOfEnactor = results[0][0][0].length;
+        int result = 0;
+        for (int indexLocation = 0 ; indexLocation < numberOfLocations ; indexLocation ++) {
+            for (int indexTask = 0 ; indexTask < numberOfTask ; indexTask++) {
+                for (int indexPerturbator = 0 ; indexPerturbator < numberOfPerturbator ; indexPerturbator++) {
+                    for (int indexEnactor = 0 ; indexEnactor < numberOfEnactor ; indexEnactor++)
+                        result += results[indexLocation][indexTask][indexPerturbator][indexEnactor].nbSuccess;
+                }
+            }
+        }
+        return result;
+    }
+
+    public long getNbFailures() {
+        int numberOfLocations = getNumberOfLocations();
+        int numberOfTask = getNumberOfTasks();
+        int numberOfPerturbator = getNumberOfPerturbators();
+        int numberOfEnactor = results[0][0][0].length;
+        long result = 0;
+        for (int indexLocation = 0 ; indexLocation < numberOfLocations ; indexLocation ++) {
+            for (int indexTask = 0 ; indexTask < numberOfTask ; indexTask++) {
+                for (int indexPerturbator = 0 ; indexPerturbator < numberOfPerturbator ; indexPerturbator++) {
+                    for (int indexEnactor = 0 ; indexEnactor < numberOfEnactor ; indexEnactor++) {
+                        result += results[indexLocation][indexTask][indexPerturbator][indexEnactor].nbFailure;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public long getNbCalls() {
+        int numberOfLocations = getNumberOfLocations();
+        int numberOfTask = getNumberOfTasks();
+        int numberOfPerturbator = getNumberOfPerturbators();
+        int numberOfEnactor = results[0][0][0].length;
+        long result = 0;
+        for (int indexLocation = 0 ; indexLocation < numberOfLocations ; indexLocation ++) {
+            long resultPerLocation = 0;
+            for (int indexTask = 0 ; indexTask < numberOfTask ; indexTask++) {
+                for (int indexPerturbator = 0 ; indexPerturbator < numberOfPerturbator ; indexPerturbator++) {
+                    for (int indexEnactor = 0 ; indexEnactor < numberOfEnactor ; indexEnactor++) {
+                        result += results[indexLocation][indexTask][indexPerturbator][indexEnactor].nbCalls;
+                        resultPerLocation += results[indexLocation][indexTask][indexPerturbator][indexEnactor].nbCalls;
+                    }
+                }
+            }
+            //System.out.println(resultPerLocation + " " +this.manager.getLocations().get(indexLocation));
+        }
+        return result;
+    }
+
+    public long getNbEnactions() {
+        int numberOfLocations = getNumberOfLocations();
+        int numberOfTask = getNumberOfTasks();
+        int numberOfPerturbator = getNumberOfPerturbators();
+        int numberOfEnactor = results[0][0][0].length;
+        long result = 0;
+        for (int indexLocation = 0 ; indexLocation < numberOfLocations ; indexLocation ++) {
+            for (int indexTask = 0 ; indexTask < numberOfTask ; indexTask++) {
+                for (int indexPerturbator = 0 ; indexPerturbator < numberOfPerturbator ; indexPerturbator++) {
+                    for (int indexEnactor = 0 ; indexEnactor < numberOfEnactor ; indexEnactor++) {
+                        result += results[indexLocation][indexTask][indexPerturbator][indexEnactor].nbEnactions;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+
+    public long getNbExceptions() {
+        int numberOfLocations = getNumberOfLocations();
+        int numberOfTask = getNumberOfTasks();
+        int numberOfPerturbator = getNumberOfPerturbators();
+        int numberOfEnactor = results[0][0][0].length;
+        long result = 0;
+        for (int indexLocation = 0 ; indexLocation < numberOfLocations ; indexLocation ++) {
+            for (int indexTask = 0 ; indexTask < numberOfTask ; indexTask++) {
+                for (int indexPerturbator = 0 ; indexPerturbator < numberOfPerturbator ; indexPerturbator++) {
+                    for (int indexEnactor = 0 ; indexEnactor < numberOfEnactor ; indexEnactor++) {
+                        result += results[indexLocation][indexTask][indexPerturbator][indexEnactor].nbException;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public AggregatedResult[][][][] getResults() {
+        return results;
+    }
+
     /**
      * Method log for explorer : it has side effect ie it will add calls and enactions of the given location and
      * increment by one the 6th integer to count the number of time it has been called.
@@ -99,10 +196,8 @@ public class Logger {
      * @param name
      */
     public void log(int indexLocation, int indexTask, int indexPerturbartor, int indexEnactor, RunResult result, String name) {
-
         result.nbCalls  = PerturbationEngine.loggers.get(name).getCalls(this.manager.getLocations().get(indexLocation));
         result.nbEnactions = PerturbationEngine.loggers.get(name).getEnactions(this.manager.getLocations().get(indexLocation));
-
         this.results[indexLocation][indexTask][indexPerturbartor][indexEnactor].add(result);
     }
 

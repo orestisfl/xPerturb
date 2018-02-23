@@ -69,7 +69,7 @@ public class CallExplorer extends ExplorerImpl {
 
     @Override
     public void log() {
-        Tuple[][][][] results = super.logger.getResults();
+        Tuple[][][][] results = super.logger.getTupleResults();
 
         List<PerturbationLocation> locationExceptionFragile = new ArrayList<>();
         List<PerturbationLocation> locationOracleFragile = new ArrayList<>();

@@ -75,7 +75,7 @@ public class SeedExplorer extends CallExplorer {
     public void log() {
         List<PerturbationLocation> locations = super.manager.getLocations();
         for (PerturbationLocation location : locations) {
-            Tuple[][][][] results = super.logger.getResults();
+            Tuple[][][][] results = super.logger.getTupleResults();
             try {
                 FileWriter writer = new FileWriter("results/" + super.manager.getName() + "/" + nameOfSpecificExploration + "_" + (location.getLocationIndex()) + ".txt", true);
                 String format = "%-15s %-10s %-10s %-10s %-10s %-18s %-18s %-14s %-24s %-10s %-10s %-27s";

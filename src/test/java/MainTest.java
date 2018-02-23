@@ -11,15 +11,10 @@ import org.junit.Test;
 import processor.UtilPerturbation;
 import quicksort.QuickSort;
 import quicksort.QuickSortManager;
-import spoon.Launcher;
-import util.Util;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.net.URLClassLoader;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MainTest {
 
@@ -85,5 +80,37 @@ public class MainTest {
 
 	}
 
+	@Test
+	public void testApiRandomExplorer() throws Exception {
+		// contract: the random explorer does something....
+		// with the seed, it is deterministic
+
+		int nbTask = 5;
+		int sizeTask = 12;
+		int repeat = 5;
+		QuickSortManager manager = new QuickSortManager(nbTask, sizeTask);
+		float pertubProbability = 0.5f;
+		RandomExplorer expl = new RandomExplorer(manager, new IntegerExplorationPlusOne(),
+				repeat, // we repeat 50 times per task/input
+				pertubProbability // probability of injection is 50%
+		);
+		Logger result = expl.run();
+
+		assertEquals(nbTask*repeat*manager.getLocations().size(), expl.nbPerturbedExecution);
+		assertEquals(nbTask, result.getNumberOfTasks());
+
+		assertEquals(manager.getLocations().size(), result.getNumberOfLocations());
+
+		assertEquals(261, result.getNbFailures());
+		assertEquals(796, result.getNbSuccess());
+		assertEquals(173, result.getNbExceptions());
+
+		assertEquals(16515, result.getNbCalls());
+		// approx the half this pertubProbability = 50%
+		assertEquals(7124, result.getNbEnactions());
+
+		// TODO: this fails, bug or incorrect understanding?
+		//assertEquals(expl.nbPerturbedExecution, result.getNbFailures() + result.getNbSuccess() + result.getNbExceptions());
+	}
 
 }

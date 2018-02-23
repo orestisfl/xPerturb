@@ -71,7 +71,7 @@ public class TaskSizeExplorer extends CallExplorer {
 
     @Override
     public void log() {
-        Tuple[][][][] results = super.logger.getResults();
+        Tuple[][][][] results = super.logger.getTupleResults();
         List<PerturbationLocation> locations = super.manager.getLocations();
         for (PerturbationLocation location : locations) {
             try {

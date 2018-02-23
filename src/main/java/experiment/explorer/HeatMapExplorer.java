@@ -18,13 +18,13 @@ public class HeatMapExplorer extends RandomExplorer {
     private static final float[] randomRates = new float[]{0.001f, 0.005f, 0.01f, 0.05f, 0.1f, 0.15f, 0.2f, 0.025f, 0.3f};
 
     public HeatMapExplorer(Manager manager, Exploration exploration) {
-        super(manager,exploration, randomRates);
+        super(manager,exploration, 1, randomRates);
     }
 
     @Override
     public void log() {
 
-        Tuple[][][][] results = super.logger.getResults();
+        Tuple[][][][] results = super.logger.getTupleResults();
 
         int numberOfPerturbor = exploration.getPerturbators().size();
         String[] perturbatorsName = exploration.getPerturbatorsName();

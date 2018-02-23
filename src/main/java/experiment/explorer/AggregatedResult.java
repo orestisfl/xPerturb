@@ -6,6 +6,8 @@ public class AggregatedResult {
 	public long nbSuccess = 0;
 	public long nbFailure = 0;
 	public long nbException = 0;
+
+	/** the number of times this point has been called */
 	public long nbCalls = 0;
 	public long nbEnactions = 0;
 	public long nbExecutions = 0;
