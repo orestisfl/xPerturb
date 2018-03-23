@@ -5,34 +5,42 @@ import perturbation.location.PerturbationLocation;
 import java.util.List;
 
 /**
- * Created by spirals on 21/05/16.
+ * Provides an abstraction to be able to run correctness attraction analysis on any algorithm 
  */
 public interface Manager<T, P> {
 
+    /** Called by the framework to tell the implementation about the number of tasks, and task size.
+    * A task is an input to the program under study (eg an array for QuickSort)
+    * Implementing classes can then allocate some resources based on this information
+    */
     void initialize(int numberOfTask, int sizeOfTask);
 
+    /** Returns the "class under perturbation" (CUP), eg "QuickSort". It can be obtained calling `Class.forName("QuickSort")` */
     Class<?> getCUP();
 
     /**
-     * @return a proper type of callable
+     * @return a Java  callable for executing the program under perturbation on the given input
      */
     CallableImpl<T, P> getCallable(T input);
 
     /**
-     * @return a proper type of oracle
+     * @return the oracle class for the program under perturbation. The oracle is the thing that enables on to say that an output is correct or not for a given input.
      */
     Oracle<T, P> getOracle();
 
     /**
-     *
+     * Returns the list of perturbation points obtained with automated instrumentation.
+     * Provided for free if you extended ManagerImpl
      */
     List<PerturbationLocation> getLocations();
 
     /**
      * Used this getter with filter on type of perturbation points.
+     * Provided for free if you extended ManagerImpl
      */
     List<PerturbationLocation> getLocations(String filter);
-
+    
+    /** Provided for free if you extended ManagerImpl */
     List<Integer> getIndexTask();
 
     void setIndexTask(List<Integer> tasks);
