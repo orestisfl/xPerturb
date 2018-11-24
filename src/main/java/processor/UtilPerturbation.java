@@ -12,6 +12,7 @@ import spoon.reflect.code.CtFieldWrite;
 import spoon.reflect.code.CtInvocation;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.code.CtTypeAccess;
+import spoon.reflect.cu.CompilationUnit;
 import spoon.reflect.cu.SourcePosition;
 import spoon.reflect.declaration.CtAnnotationType;
 import spoon.reflect.declaration.CtAnonymousExecutable;
@@ -294,11 +295,14 @@ public class UtilPerturbation {
 				}
 
 				//Put the static block in first statement
-				SourcePosition position = factory.Core().createSourcePosition(clazz.getPosition().getCompilationUnit(), -1, -1,new int[0]);
+				CompilationUnit compilationUnit = clazz.getPosition().getCompilationUnit();
 
-				getInstance().staticBlockByClass.get(currentKey).setPosition(position);
 				anonymousExecutables.add(getInstance().staticBlockByClass.get(currentKey));
-				((CtClass) clazz).setAnonymousExecutables(anonymousExecutables);
+
+				for (CtAnonymousExecutable exec : anonymousExecutables) {
+					// they must all be at the beginning, so we put them at the top
+					clazz.addTypeMemberAt(0, exec);
+				}
 			}
 		}
 		instance = null;
