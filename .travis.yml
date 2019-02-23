@@ -4,7 +4,6 @@ jdk:
   - oraclejdk8
 
 script:
+  - set -e
   # executing the Junit tests and installing in the local repository
-  - cd jPerturb && mvn install
-  # does the experiment repo compile?
-  - git clone https://github.com/Spirals-Team/correctness-attraction-experiments.git && cd correctness-attraction-experiments && rm -r src/main/java/simplex/ src/main/java/laguerre/ && mvn test
+  - cd jPerturb && mvn test
