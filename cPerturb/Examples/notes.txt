@@ -1,0 +1,51 @@
+Compile command: gcc xpath2.c -Llib -llibxml2 -o xpath2.exe
+
+To read:
+http://www.srcml.org/tutorials/tutorials.html
+https://msdn.microsoft.com/en-us/library/ms256086(v=vs.110).aspx
+https://www.w3schools.com/xml/xpath_intro.asp
+https://www.w3schools.com/xml/dom_intro.asp
+http://xmlsoft.org/tutorial/index.html
+http://xmlsoft.org/examples/index.html
+http://xmlsoft.org/APIfunctions.html
+
+
+Useful functions:
+
+for - control - init - expr - name
+for - control - init - decl - name
+for - block
+
+if - if - condition - ( - expr - name - i - name - operator - = - operator - literal type="number" - 3 - literal - expr - ) - condition
+          then - block type="pseudo" - expr_stmt - expr - name - i - name - operator - expr - ; - expr_stmt - block - then - if
+
+
+nodeset->nodeNr
+doc = xmlParseFile(docname);
+cur = xmlDocGetRootElement(doc);
+xmlFreeDoc(doc);
+if (xmlStrcmp(cur->name, (const xmlChar *) "story")) {
+cur = cur->xmlChildrenNode;
+key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+xmlFree(key);
+
+xmlXPathObjectPtr	getnodeset (xmlDocPtr doc, xmlChar *xpath){
+
+	xmlXPathContextPtr context;
+	xmlXPathObjectPtr result;
+
+	context = xmlXPathNewContext(doc);
+	result = xmlXPathEvalExpression(xpath, context);
+  if(xmlXPathNodeSetIsEmpty(result->nodesetval)){
+		xmlXPathFreeObject(result);
+
+    xmlNewTextChild (cur, NULL, "keyword", keyword);
+    xmlSaveFormatFile (docname, doc, 1);
+
+    xmlAttrPtr newattr;
+    newnode = xmlNewTextChild (cur, NULL, "reference", NULL);
+    newattr = xmlNewProp (newnode, "uri", uri);
+     uri = xmlGetProp(cur, "uri");
+
+     xmlFreeDoc(doc);
+	xmlCleanupParser();

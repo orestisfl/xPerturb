@@ -1,0 +1,24 @@
+language: c
+cache: packages
+compiler: gcc
+sudo: required
+
+addons:
+  apt:
+    packages:
+      - libxml2-dev
+      - libxslt1-dev
+      - libarchive-dev
+      - antlr
+      - libantlr-dev
+      - libcurl4-openssl-dev
+      - libssl-dev
+      - g++
+
+script:
+  - sudo ln -s /usr/lib/x86_64-linux-gnu/libarchive.so.12 /usr/lib/x86_64-linux-gnu/libarchive.so.2
+  - wget http://131.123.42.38/lmcrs/beta/srcML-Ubuntu14.04-64.deb
+  - sudo dpkg -i srcML-Ubuntu14.04-64.deb
+  - make perturb
+  - chmod a+rx cPerturbTest.sh
+  - ./cPerturbTest.sh 2>/dev/null
