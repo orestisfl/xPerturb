@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Correctness Attraction</title>
+
+    <script type="text/javascript" src="scripts/task.js"></script>
+    <script type="text/javascript" src="scripts/quicksortinstr.js"></script>
+    <script type="text/javascript" src="scripts/perturbation.js"></script>
+    <script type="text/javascript" src="scripts/oracle.js"></script>
+    <script type="text/javascript" src="scripts/speedometer.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link href="style/css/bootstrap.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="style/css/bootstrap-theme.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="style/css/theme.css" rel="stylesheet">
+    <!-- Bootstrap slider css-->
+    <link href="style/css/bootstrap-slider.min.css" rel="stylesheet">
+    <!-- Collapse -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<!-- Fixed navbar -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Correctness Attraction</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+
+                <li><a
+                        href="live-demo.html"><span
+                        class="glyphicon glyphicon-home"></span></a></li>
+
+                <li class="active"><a href="sources.html">Sources</a></li>
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Implementation<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="https://github.com/Spirals-Team/jPerturb">JPerturb</a></li>
+                        <li><a href="https://github.com/Spirals-Team/jPerturb-experiments">JPerturb-experiments</a></li>
+                    </ul>
+                </li>
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Publications<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="https://arxiv.org/abs/1611.09187">Correctness Attraction
+                            (arXiv)</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="https://danglotb.github.io/resources/correctness_attraction_report.pdf">Internship
+                            Report</a></li>
+                    </ul>
+                </li>
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">About<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="https://danglotb.github.io/">Benjamin Danglot</a>
+                        </li>
+                        <li>
+                            <a href="http://www.grappa.univ-lille3.fr/~ppreux/index-us.php">Philippe Preux</a>
+                        </li>
+                        <li>
+                            <a href="https://people.rennes.inria.fr/Benoit.Baudry/">Benoit Baudry</a>
+                        </li>
+                        <li>
+                            <a href="http://www.monperrus.net/martin/">Martin Monperrus</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+
+<div class="container theme-showcase" role="main">
+
+    <div class="jumbotron">
+        <h1 class="panel-title"></h1>
+        <p class="text-justify">
+            You can find on this page, javascript sources to explore the perturbability of quicksort. One the left, the
+            original source code and on the right the instrumented one. The instrumentation consist by wrapping every
+            perturbables literals or expressions by a method call. This mehod, named <i>p</i> takes two arguments: an
+            unique index that identify the perturbation point and the original value. The method will perturb the value
+            with a given probability. For instance, with a probrability 0.1%, 1 over 10 integer value will be perturbed
+            by adding one to it. If the probability is 0, the two programs are semantically equivalent.
+        </p>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Sources</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Original</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <pre class="prettyprint">
+function quicksort(array, beg, end) {
+    var left = beg;
+    var right = end;
+    var pivot = array[beg + ((end - beg) / 2)];
+
+
+
+
+
+    while (left <= right) {
+
+        while (array[left] < pivot) {
+            left++;
+        }
+
+        while (array[right] > pivot) {
+            right--;
+        }
+
+        if (left <= right) {
+            swap(array, left, right);
+            left++;
+            right--;
+        }
+    }
+    if (beg < right) {
+        sort(array, beg, right);
+    }
+    if (end > left) {
+        sort(array, left, end);
+    }
+}
+
+function swap( array, i, j) {
+    var x = array[i];
+    array[i] = array[j];
+    array[j] = x;
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-7">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Instrumented</h3>
+                                </div>
+                                <div class="panel-body">
+                                       <pre class="prettyprint">
+function quicksort_instr(array, beg, end) {
+    var left = p(0, beg);
+    var right = p(1, end);
+    var pivot = p(9,
+        array[p(8,
+         Math.floor(p(2, beg) +
+              p(7, (p(5, (p(3, end) - p(4, beg))) / p(6, 2))))
+    )]);
+
+    while (p(12, p(10, left) <= p(11, right))) {
+
+        while (p (16, p(14, array[p(13, left)]) < p(15, pivot))) {
+            p(17, left++);
+        }
+
+        while ( p(21, p(19, array[p(18, right)]) > p(20, pivot))) {
+            p(22, right--);
+        }
+
+        if ( p(25, p(23, left) <= p(24, right))) {
+            swap(array, p(26, left), p(27, right));
+            p(28, left++);
+            p(29, right--);
+        }
+    }
+    if (p (32, p(30, beg) < p(31, right) )) {
+        quicksort_instr(array, p(33, beg), p(34, right));
+    }
+    if (p(37, p(35, end) > p(36, left))) {
+        quicksort_instr(array, p(38, left), p(39, end));
+    }
+}
+
+function swap(array, i, j) {
+    var x = p(41, array[p(40, i)]);
+    array[p(42,i)] = p(44, array[p(43, j)]);
+    array[p(45,j)] = p(46, x);
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">About the perturbation points</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="well">
+                                <p class="text-justify">
+                                    In this implementation, we can find 46 perturbation points: 40 integers and 6
+                                    booleans. In the demo, we also allow users to activate different class of points
+                                    described here:
+                                <ul>
+                                    <li>Antifragile points have good correctness ratio: > 75%.</li>
+                                    <li>Robust points have a correctness ratio ranges from 75% to 50%.</li>
+                                    <li>Fragile point have a correctness ration lower than 50%.</li>
+                                </ul>
+                                This classification of point is based on the results of the related paper: <a
+                                    href="https://hal.archives-ouvertes.fr/hal-01378523">Correctness Attraction: A Study
+                                of Stability of Software Behavior Under Runtime Perturbation.</a>
+                                Index of point are reported in the following table according to their <i>class</i>:
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Type/Class</th>
+                                    <th>Antifragile</th>
+                                    <th>Robust</th>
+                                    <th>Fragile</th>
+                                    <th>Number</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><b>Integer</b></td>
+                                    <td>[2, 3, 4, 5, 6, 7, 8, 10, 11, 14, 17, 20, 22, 23, 28, 29, 31, 34, 35]</td>
+                                    <td>[9, 15, 19]</td>
+                                    <td>[0, 1, 13, 18, 24, 26, 27, 30, 33, 36, 38, 39, 40, 41, 42, 43, 44, 45, 46]</td>
+                                    <td>40</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Boolean</b></td>
+                                    <td>[12]</td>
+                                    <td></td>
+                                    <td>[16, 21, 25, 32, 37]</td>
+                                    <td>6</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Number</b></td>
+                                    <td>20</td>
+                                    <td>3</td>
+                                    <td>23</td>
+                                    <td>46</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
