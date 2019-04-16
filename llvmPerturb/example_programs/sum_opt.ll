@@ -1,4 +1,4 @@
-; ModuleID = 'sum.c'
+; ModuleID = 'sum_opt.bc'
 source_filename = "sum.c"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-pc-linux-gnu"
@@ -14,7 +14,8 @@ define i32 @add(i32, i32) #0 {
   store i32 %1, i32* %4, align 4
   %6 = load i32, i32* %3, align 4
   %7 = load i32, i32* %4, align 4
-  %8 = add nsw i32 %6, %7
+  %inc = add i32 %6, 1
+  %8 = add nsw i32 %inc, %7
   store i32 %8, i32* %5, align 4
   %9 = load i32, i32* %5, align 4
   ret i32 %9
@@ -30,7 +31,8 @@ define i32 @main() #0 {
   store i32 2, i32* %2, align 4
   store i32 3, i32* %3, align 4
   %5 = load i32, i32* %3, align 4
-  %6 = add nsw i32 %5, 1
+  %inc = add i32 %5, 1
+  %6 = add nsw i32 %inc, 1
   store i32 %6, i32* %3, align 4
   %7 = load i32, i32* %2, align 4
   %8 = load i32, i32* %3, align 4

@@ -11,6 +11,7 @@ int main()
      int var1, var2;
      var1 = 2;
      var2 = 3;
+     var2++;
 
      int res = add(var1, var2);
      printf ("%d\n", res);
