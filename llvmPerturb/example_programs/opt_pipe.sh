@@ -9,7 +9,8 @@ echo ""
 echo "---------------------------------------"
 echo ""
 
-cd "$HOME/xPerturb/llvmPerturb/example_programs"
+cd "$HOME/xPerturb/llvmPerturb/example_programs/simple_sum"
 
 opt -load "$HOME/llvm-8.0.0.src/build/lib/LLVMRandom.so" -Count < sum.bc > sum_opt.bc
+
 llvm-dis sum_opt.bc
