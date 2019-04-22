@@ -14,8 +14,7 @@ define i32 @add(i32, i32) #0 {
   store i32 %1, i32* %4, align 4
   %6 = load i32, i32* %3, align 4
   %7 = load i32, i32* %4, align 4
-  %inc = add i32 %6, 1
-  %8 = add nsw i32 %6, %inc, !perturbation-point !2
+  %8 = add nsw i32 %6, %7, !perturbation-point !2
   store i32 %8, i32* %5, align 4
   %9 = load i32, i32* %5, align 4
   ret i32 %9
@@ -52,5 +51,5 @@ attributes #1 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-
 
 !0 = !{i32 1, !"wchar_size", i32 4}
 !1 = !{!"clang version 6.0.0-1ubuntu2 (tags/RELEASE_600/final)"}
-!2 = !{!"1", !"2", !"3", !"4"}
-!3 = !{!"5", !"6", !"7", !"8"}
+!2 = !{!"1", !"2", !"3"}
+!3 = !{!"4", !"5", !"6"}
