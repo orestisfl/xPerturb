@@ -14,19 +14,16 @@
 #include <stdlib.h>     /* srand, rand */
 #include <map>
 #include <vector>
+#include <time.h> /* time */
 
-struct PerturbationPoint {
-  llvm::Instruction* instruction;
-  enum Point { OPERAND_0, OPERAND_1, RESULT, LONLEY_OPERAND };
-  Point point;
-  bool has_arc = false;
-  std::string arc = "";
+#include "Random.hpp"
 
-  PerturbationPoint(llvm::Instruction* instruction, Point p)
-                    : instruction(instruction), point(p){}
-  PerturbationPoint(llvm::Instruction* instruction, Point p, std::string arc)
-                    : instruction(instruction), point(p), arc(arc){}
-};
+using namespace llvm;
+
+PerturbationPoint::PerturbationPoint(llvm::Instruction* instruction, Point p)
+                  : instruction(instruction), point(p){}
+PerturbationPoint::PerturbationPoint(llvm::Instruction* instruction, Point p, std::string arc)
+                  : instruction(instruction), point(p), arc(arc){}
 
 std::map<std::string, int> operationMap;
 std::vector<PerturbationPoint*> perturb_points;
@@ -42,38 +39,25 @@ void printMap(std::map<std::string, int> m){
   llvm::errs() << "\n";
 }
 
-using namespace llvm;
-namespace {
-
-  struct CountOperations : public ModulePass {
-    static char ID; // Pass identification
-    CountOperations() : ModulePass(ID) {}
-    bool runOnModule(Module &M);
-    bool runOnFunction(Function &F, Module &M);
-
-  }; // Struct CountOperations - End
-} // Namespace - End
-
-char CountOperations::ID = 0;
+char PerturbeOperation::ID = 0;
 
 static RegisterPass
-  <CountOperations> X("Count", "Counts opcodes per functions");
+  <PerturbeOperation> X("Random", "Make random adjustments to the code");
 
-bool CountOperations::runOnModule(Module &M){
+bool PerturbeOperation::runOnModule(Module &M){
   bool modifyed  = false;
   for(Module::iterator F = M.begin(), E = M.end(); F != E; ++F) {
         modifyed = runOnFunction(*F, M);
   }
   printMap(operationMap);
+  srandom(time(0));
 
-  // Here we have analysed the whole code and populated the vector
-  errs() << perturb_points.size() << "\n";
-  int pp_rand = rand() % perturb_points.size();
-  // TODO This does not seem to be random... Investigate!!!
-  errs() << "Choose nr: " << pp_rand << "\n";
+  // At this point we have analysed the whole code and populated the vector
+
+  int pp_rand = random() % perturb_points.size();
+  errs() << "Choose nr: " << pp_rand << "/" << perturb_points.size() << "\n";
 
   if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Add) {
-
     switch (perturb_points[pp_rand]->point) {
       case PerturbationPoint::Point::OPERAND_0:
         break;
@@ -101,10 +85,9 @@ bool CountOperations::runOnModule(Module &M){
   return modifyed;
 }
 
-bool CountOperations::runOnFunction(Function &F, Module &M) {
+bool PerturbeOperation::runOnFunction(Function &F, Module &M) {
   errs() << "Function: " << F.getName() << '\n';
   LLVMContext& C = F.getContext();
-
   for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
     // For each operation inside a basic block
     for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
@@ -120,19 +103,13 @@ bool CountOperations::runOnFunction(Function &F, Module &M) {
           new PerturbationPoint(ii, PerturbationPoint::Point::RESULT)
         );
         // Mark the perturbationpoints found on the instruciton!
-        Metadata * Ops[4];
+        Metadata * Ops[3];
         Ops[0] = MDString::get(C, std::to_string(pp));
         Ops[1] = MDString::get(C, std::to_string(pp+1));
         Ops[2] = MDString::get(C, std::to_string(pp+2));
         MDNode * N = MDTuple::get(C, Ops);
         i->setMetadata("perturbation-point", N);
         pp = pp+3;
-      }
-      // Counting number and types of opcodes
-      if(operationMap.find(i->getOpcodeName()) == operationMap.end()) {
-        operationMap[i->getOpcodeName()] = 1;
-      } else {
-        operationMap[i->getOpcodeName()] += 1;
       }
     }
   }

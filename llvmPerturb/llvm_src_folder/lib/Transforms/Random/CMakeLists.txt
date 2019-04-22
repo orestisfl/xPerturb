@@ -1,5 +1,5 @@
 add_llvm_library( LLVMRandom MODULE
-  Count.cpp
+  Random.cpp
 
   PLUGIN_TOOL
   opt
