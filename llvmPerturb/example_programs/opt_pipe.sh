@@ -11,6 +11,11 @@ echo ""
 
 cd "$HOME/xPerturb/llvmPerturb/example_programs/simple_sum"
 
-opt -load "$HOME/llvm-8.0.0.src/build/lib/LLVMRandom.so" -Random < sum.bc > sum_opt.bc
+clang -S -emit-llvm pone.c
+clang -S -emit-llvm sum.c
+llvm-link pone.ll sum.ll -o sump.bc
+llvm-dis sump.bc -o sump.ll
 
-llvm-dis sum_opt.bc
+opt -load "$HOME/llvm-8.0.0.src/build/lib/LLVMRandom.so" -Random < sump.bc > sump_opt.bc
+
+llvm-dis sump_opt.bc
