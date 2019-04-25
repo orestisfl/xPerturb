@@ -1,13 +1,17 @@
 #!/bin/bash
-cp -R "$HOME/xPerturb/llvmPerturb/llvm_src_folder/lib" "$HOME/llvm-8.0.0.src/"
 
-cd "$HOME/llvm-8.0.0.src/build"
+if [[ $1 == "compile" ]]; then
+  cp -R "$HOME/xPerturb/llvmPerturb/llvm_src_folder/lib" "$HOME/llvm-8.0.0.src/"
 
-make LLVMRandom
+  cd "$HOME/llvm-8.0.0.src/build"
 
-echo ""
-echo "---------------------------------------"
-echo ""
+  make LLVMRandom
+
+  echo ""
+  echo "---------------------------------------"
+  echo ""
+
+fi
 
 cd "$HOME/xPerturb/llvmPerturb/example_programs/simple_sum"
 
@@ -19,3 +23,7 @@ llvm-dis sump.bc -o sump.ll
 opt -load "$HOME/llvm-8.0.0.src/build/lib/LLVMRandom.so" -Random < sump.bc > sump_opt.bc
 
 llvm-dis sump_opt.bc
+chmod +x sump_opt.bc
+
+echo "6"
+./sump_opt.bc
