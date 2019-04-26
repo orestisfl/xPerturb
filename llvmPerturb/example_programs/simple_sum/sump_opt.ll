@@ -9,7 +9,7 @@ target triple = "x86_64-pc-linux-gnu"
 define i32 @pone() #0 {
   %1 = alloca i32, align 4
   %2 = alloca i32, align 4
-  store i32 50, i32* %2, align 4
+  store i32 101, i32* %2, align 4
   %3 = call i64 @time(i64* null) #3
   %4 = trunc i64 %3 to i32
   call void @srandom(i32 %4) #3
@@ -43,7 +43,7 @@ declare void @srandom(i32) #1
 declare i64 @random() #1
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define i32 @add(i32, i32) #0 {
+define i32 @mul(i32, i32) #0 {
   %3 = alloca i32, align 4
   %4 = alloca i32, align 4
   %5 = alloca i32, align 4
@@ -53,7 +53,7 @@ define i32 @add(i32, i32) #0 {
   %7 = load i32, i32* %4, align 4
   %perturbation = call i32 @pone()
   %inc = add i32 %6, %perturbation
-  %8 = add nsw i32 %inc, %7, !perturbation-point !2
+  %8 = mul nsw i32 %inc, %7, !perturbation-point !2
   store i32 %8, i32* %5, align 4
   %9 = load i32, i32* %5, align 4
   ret i32 %9
@@ -68,15 +68,12 @@ define i32 @main() #0 {
   store i32 0, i32* %1, align 4
   store i32 2, i32* %2, align 4
   store i32 3, i32* %3, align 4
-  %5 = load i32, i32* %3, align 4
-  %6 = add nsw i32 %5, 1, !perturbation-point !3
-  store i32 %6, i32* %3, align 4
-  %7 = load i32, i32* %2, align 4
-  %8 = load i32, i32* %3, align 4
-  %9 = call i32 @add(i32 %7, i32 %8)
-  store i32 %9, i32* %4, align 4
-  %10 = load i32, i32* %4, align 4
-  %11 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i32 %10)
+  %5 = load i32, i32* %2, align 4
+  %6 = load i32, i32* %3, align 4
+  %7 = call i32 @mul(i32 %5, i32 %6)
+  store i32 %7, i32* %4, align 4
+  %8 = load i32, i32* %4, align 4
+  %9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i32 %8)
   ret i32 0
 }
 
@@ -93,4 +90,3 @@ attributes #3 = { nounwind }
 !0 = !{!"clang version 6.0.0-1ubuntu2 (tags/RELEASE_600/final)"}
 !1 = !{i32 1, !"wchar_size", i32 4}
 !2 = !{!"1", !"2", !"3"}
-!3 = !{!"4", !"5", !"6"}

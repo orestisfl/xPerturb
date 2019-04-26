@@ -54,88 +54,79 @@ bool PerturbeOperation::runOnModule(Module &M){
   errs() << "Instruction to perturbe: \"" << perturb_points[pp_rand]->instruction->getOpcodeName() << "\"\n";
 
   if (auto* op = dyn_cast<BinaryOperator>(perturb_points[pp_rand]->instruction)) {
-    if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Add) {
-      switch (perturb_points[pp_rand]->point) {
-        // Add is comutative, all pps is treated as the same
-        case PerturbationPoint::Point::LONLEY_OPERAND: // Never suposed to get here
-        case PerturbationPoint::Point::RESULT:
-        case PerturbationPoint::Point::OPERAND_0:
-        case PerturbationPoint::Point::OPERAND_1:{
-          IRBuilder<> builder(op);
-          Value* lhs = op->getOperand(0);
+    switch (perturb_points[pp_rand]->instruction->getOpcode()) {
+      // Commutative operators
+      case Instruction::Add:
+      case Instruction::FAdd:{
+        switch (perturb_points[pp_rand]->point) {
+          // Add is comutative, all pps is treated as the same
+          case PerturbationPoint::Point::LONLEY_OPERAND: // Never suposed to get here
+          case PerturbationPoint::Point::RESULT:
+          case PerturbationPoint::Point::OPERAND_0:
+          case PerturbationPoint::Point::OPERAND_1:{
+            IRBuilder<> builder(op);
+            Value* lhs = op->getOperand(0);
 
-          auto pert = callLinkedFunction(M, op);
-          Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
-          perturb_points[pp_rand]->instruction->setOperand(0, inc);
-            break;
+            auto pert = callLinkedFunction(M, op);
+            Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
+            perturb_points[pp_rand]->instruction->setOperand(0, inc);
+              break;
+          }
         }
+        break;
       }
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::FAdd) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Sub) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::FSub) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Mul) {
-      switch (perturb_points[pp_rand]->point) {
-        case PerturbationPoint::Point::LONLEY_OPERAND: // Never suposed to get here
-        case PerturbationPoint::Point::RESULT:{
-          IRBuilder<> builder(op);
-          Value* lhs = op->getOperand(0);
-          Value* rhs = op->getOperand(1);
-          Value* tmp = builder.CreateBinOp(Instruction::Mul, lhs, rhs, "tmp");
-          auto pert = callLinkedFunction(M, op);
-          Instruction* a = BinaryOperator::CreateAdd(tmp, pert, "tmp2");
-          ReplaceInstWithInst(op, a);
-          break;
-        }
-        case PerturbationPoint::Point::OPERAND_0:{
-          IRBuilder<> builder(op);
-          Value* lhs = op->getOperand(0);
-
-          auto pert = callLinkedFunction(M, op);
-          Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
-          perturb_points[pp_rand]->instruction->setOperand(0, inc);
-          break;
-        }
-        case PerturbationPoint::Point::OPERAND_1:{
-          IRBuilder<> builder(op);
-          Value* lhs = op->getOperand(1);
-
-          auto pert = callLinkedFunction(M, op);
-          Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
-          perturb_points[pp_rand]->instruction->setOperand(1, inc);
+      case Instruction::Sub:
+      case Instruction::FSub:
+      case Instruction::Mul:
+      case Instruction::FMul:
+      case Instruction::UDiv:
+      case Instruction::SDiv:
+      case Instruction::FDiv:
+      case Instruction::URem:
+      case Instruction::SRem:
+      case Instruction::FRem:
+      case Instruction::Shl:
+      case Instruction::LShr:
+      case Instruction::AShr:
+      case Instruction::And:
+      case Instruction::Or:
+      case Instruction::Xor:{
+        switch (perturb_points[pp_rand]->point) {
+          case PerturbationPoint::Point::LONLEY_OPERAND: // Never suposed to get here
+          case PerturbationPoint::Point::RESULT:{
+            IRBuilder<> builder(op);
+            Value* lhs = op->getOperand(0);
+            Value* rhs = op->getOperand(1);
+            Value* tmp = builder.CreateBinOp(Instruction::Mul, lhs, rhs, "tmp");
+            auto pert = callLinkedFunction(M, op);
+            Instruction* a = BinaryOperator::CreateAdd(tmp, pert, "tmp2");
+            ReplaceInstWithInst(op, a);
             break;
+          }
+          case PerturbationPoint::Point::OPERAND_0:{
+            IRBuilder<> builder(op);
+            Value* lhs = op->getOperand(0);
+
+            auto pert = callLinkedFunction(M, op);
+            Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
+            perturb_points[pp_rand]->instruction->setOperand(0, inc);
+            break;
+          }
+          case PerturbationPoint::Point::OPERAND_1:{
+            IRBuilder<> builder(op);
+            Value* lhs = op->getOperand(1);
+
+            auto pert = callLinkedFunction(M, op);
+            Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
+            perturb_points[pp_rand]->instruction->setOperand(1, inc);
+              break;
+          }
         }
+        break;
       }
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::FMul) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::UDiv) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::SDiv) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::FDiv) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::URem) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::SRem) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::FRem) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Shl) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::LShr) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::AShr) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::And) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Or) {
-      /* code */
-    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Xor) {
-      /* code */
-    }// else if (OTHER BINARY OPERATOR GOES HERE){} OSV.
-  } // else if (OTHER OPERATOR GOES HERE){} OSV.
+    }
+
+  } // else if (OTHER OPERATOR TYPES GOES HERE){} OSV.
 
   return modifyed;
 }
