@@ -8,6 +8,7 @@
 #include "llvm/IR/GlobalVariable.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/SymbolTableListTraits.h"
+#include "llvm/Transforms/Utils/BasicBlockUtils.h" /* ReplaceInstWithInst */
 
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
@@ -49,7 +50,7 @@ bool PerturbeOperation::runOnModule(Module &M){
 
   // At this point we have analysed the whole code and populated the vector
   int pp_rand = random() % perturb_points.size();
-  errs() << "Inserting perturbation at point nr: " << pp_rand << "/" << perturb_points.size() << "\n";
+  errs() << "Inserting perturbation at point nr: " << pp_rand+1 << "/" << perturb_points.size() << "\n";
   errs() << "Instruction to perturbe: \"" << perturb_points[pp_rand]->instruction->getOpcodeName() << "\"\n";
 
   if (auto* op = dyn_cast<BinaryOperator>(perturb_points[pp_rand]->instruction)) {
@@ -69,6 +70,70 @@ bool PerturbeOperation::runOnModule(Module &M){
             break;
         }
       }
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::FAdd) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Sub) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::FSub) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Mul) {
+      switch (perturb_points[pp_rand]->point) {
+        case PerturbationPoint::Point::LONLEY_OPERAND: // Never suposed to get here
+        case PerturbationPoint::Point::RESULT:{
+          IRBuilder<> builder(op);
+          Value* lhs = op->getOperand(0);
+          Value* rhs = op->getOperand(1);
+          Value* tmp = builder.CreateBinOp(Instruction::Mul, lhs, rhs, "tmp");
+          auto pert = callLinkedFunction(M, op);
+          Instruction* a = BinaryOperator::CreateAdd(tmp, pert, "tmp2");
+          ReplaceInstWithInst(op, a);
+          break;
+        }
+        case PerturbationPoint::Point::OPERAND_0:{
+          IRBuilder<> builder(op);
+          Value* lhs = op->getOperand(0);
+
+          auto pert = callLinkedFunction(M, op);
+          Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
+          perturb_points[pp_rand]->instruction->setOperand(0, inc);
+          break;
+        }
+        case PerturbationPoint::Point::OPERAND_1:{
+          IRBuilder<> builder(op);
+          Value* lhs = op->getOperand(1);
+
+          auto pert = callLinkedFunction(M, op);
+          Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
+          perturb_points[pp_rand]->instruction->setOperand(1, inc);
+            break;
+        }
+      }
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::FMul) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::UDiv) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::SDiv) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::FDiv) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::URem) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::SRem) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::FRem) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Shl) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::LShr) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::AShr) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::And) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Or) {
+      /* code */
+    } else if (perturb_points[pp_rand]->instruction->getOpcode() == Instruction::Xor) {
+      /* code */
     }// else if (OTHER BINARY OPERATOR GOES HERE){} OSV.
   } // else if (OTHER OPERATOR GOES HERE){} OSV.
 
