@@ -61,6 +61,7 @@ bool PerturbeOperation::runOnModule(Module &M){
   int pp_rand = PerturbationIndex;
   errs() << "Instruction to perturbe: \"" << perturb_points[pp_rand]->instruction->getOpcodeName() << "\"\n";
 
+
   if (auto* op = dyn_cast<BinaryOperator>(perturb_points[pp_rand]->instruction)) {
     switch (perturb_points[pp_rand]->instruction->getOpcode()) {
       // Commutative operators
@@ -105,7 +106,7 @@ bool PerturbeOperation::runOnModule(Module &M){
             IRBuilder<> builder(op);
             Value* lhs = op->getOperand(0);
             Value* rhs = op->getOperand(1);
-            Value* tmp = builder.CreateBinOp(Instruction::Mul, lhs, rhs, "tmp");
+            Value* tmp = builder.CreateBinOp((Instruction::BinaryOps)perturb_points[pp_rand]->instruction->getOpcode(), lhs, rhs, "tmp");
             auto pert = callLinkedFunction(M, op);
             Instruction* a = BinaryOperator::CreateAdd(tmp, pert, "tmp2");
             ReplaceInstWithInst(op, a);
