@@ -9,15 +9,17 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/SymbolTableListTraits.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h" /* ReplaceInstWithInst */
+#include "llvm/Support/CommandLine.h"
+
 
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 
-#include "llvm/Support/raw_ostream.h"
 #include <stdlib.h>     /* srand, rand */
 #include <map>
 #include <vector>
 #include <time.h> /* time */
+//  #include <string>
 
 #include "Random.hpp"
 
@@ -34,6 +36,8 @@ char PerturbeOperation::ID = 0;
 static RegisterPass
   <PerturbeOperation> X("Random", "Make random adjustments to the code");
 
+cl::opt<int> PerturbationIndex("pp", cl::desc("Specify the perturbation point to be perturbed"), cl::value_desc("number"));
+
 CallInst * callLinkedFunction( Module &M, BinaryOperator *op){
   Constant *hookFunc = M.getOrInsertFunction("pone", IntegerType::get(M.getContext(), 32));
   Function *hook= cast<Function>(hookFunc);
@@ -42,6 +46,8 @@ CallInst * callLinkedFunction( Module &M, BinaryOperator *op){
 }
 
 bool PerturbeOperation::runOnModule(Module &M){
+  errs() << PerturbationIndex << "\n";
+
   bool modifyed  = false;
   for(Module::iterator F = M.begin(), E = M.end(); F != E; ++F) {
     modifyed = runOnFunction(*F, M);
@@ -49,8 +55,10 @@ bool PerturbeOperation::runOnModule(Module &M){
   srandom(time(0));
 
   // At this point we have analysed the whole code and populated the vector
-  int pp_rand = random() % perturb_points.size();
-  errs() << "Inserting perturbation at point nr: " << pp_rand+1 << "/" << perturb_points.size() << "\n";
+  // int pp_rand = random() % perturb_points.size();
+  // errs() << "Inserting perturbation at point nr: " << pp_rand+1 << "/" << perturb_points.size() << "\n";
+
+  int pp_rand = PerturbationIndex;
   errs() << "Instruction to perturbe: \"" << perturb_points[pp_rand]->instruction->getOpcodeName() << "\"\n";
 
   if (auto* op = dyn_cast<BinaryOperator>(perturb_points[pp_rand]->instruction)) {
