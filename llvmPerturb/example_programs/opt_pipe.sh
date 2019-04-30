@@ -68,13 +68,13 @@ if [[ "$1" == "big" ]] || [[ "$2" == "big" ]]; then
   clang -S -emit-llvm ../perturbation_types/pone.c -o ../perturbation_types/pone.ll
   llvm-link ../perturbation_types/pone.ll linked_challenge.ll -o linked_challenge_pone.bc
 
-  opt -load "$HOME/llvm-8.0.0.src/build/lib/LLVMRandom.so" -Random < linked_challenge_pone.bc > linked_challenge_pone_opt.bc
+  opt -load "$HOME/llvm-8.0.0.src/build/lib/LLVMRandom.so" -Random -pp 2234 < linked_challenge_pone.bc > linked_challenge_pone_opt.bc
 
-  echo "OUTPUT:    c1 bd 88 bf e6 5e 87 01 3f 3f 41 96 c1 8a f3 68 - EXPECTED"
 
   chmod +x linked_challenge.bc
   chmod +x linked_challenge_pone_opt.bc
-  #./linked_challenge.bc 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
-  ./linked_challenge_pone_opt.bc 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
+  ./linked_challenge.bc 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 00
+  ./linked_challenge_pone_opt.bc 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 00
+  #echo "OUTPUT:    c1 bd 88 bf e6 5e 87 01 3f 3f 41 96 c1 8a f3 68 - EXPECTED"
 
 fi
