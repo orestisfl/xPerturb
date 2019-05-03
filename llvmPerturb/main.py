@@ -1,23 +1,26 @@
+from __future__ import division # Float division
 import sys
 import os
-import subprocess
+import subprocess # Popen
 import random
+from tqdm import tqdm # Progress bar
 
-number_of_inputs_to_try = 5
-probability_of_perturbating = 1
+number_of_inputs_to_try = 1000
 executable = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc"
 
 class RESULT:
-    def __init__(self, s, f, pr, e, pe):
+    def __init__(self, s, f, err, pr, e, pe):
         self.Success = s
         self.Fail = f
+        self.Error = err
         self.Probability = pr
         self.Executable = e
         self.PerturbationPoint = pe
     def __str__(self):
-        return self.Executable + ", " + str(self.Executable) + ", " + str(self.Success/(self.Fail + self.Success))
+        return "Executable: " + self.Executable + "\nCorrectness ratio " + str(self.Success/(self.Fail + self.Error + self.Success)) + "\nSuccess: " + str(self.Success) + "\nFails: " + str(self.Fail) + "\nErrors: " + str(self.Error)
 
 def getRandomInput():
+    # Returns a randomly generated input tailored for the wb in mind
     ret = '{0:0{1}X}'.format(random.randint(0, 255),2)
     for i in range(15):
         ret = ret + " " + '{0:0{1}X}'.format(random.randint(0, 255),2)
@@ -28,6 +31,7 @@ def printExperiemntResult(result_list):
         print(i)
 
 def generatePerturbationType(prob, plus):
+    # Generate the apropriate perturbation function with set probability and pp-model
     d = {}
     d['probability'] = prob
     if plus:
@@ -42,78 +46,62 @@ def generatePerturbationType(prob, plus):
 
 
 def main():
-
     results = []
     path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/"
-    sp = subprocess.Popen(["clang", "-emit-llvm", path + "chow_aes3_encrypt_wb.c"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    reference = "gcc -O3 -o " + path + "wb_challenge " + path + "challenge.c " + path + "chow_aes3_encrypt_wb.c"
+    sp = subprocess.call(reference, shell=True)
+    cmd1 = " ".join(["clang", "-c", "-emit-llvm", path + "chow_aes3_encrypt_wb.c", "-o", path + "chow_aes3_encrypt_wb.bc"])
+    sp = subprocess.call(cmd1, shell=True)
+    cmd2 = " ".join(["clang", "-c", "-emit-llvm", path + "challenge.c", "-o",  path + "challenge.bc"])
+    sp = subprocess.call(cmd2, shell=True)
+    cmd3 = " ".join(["llvm-link", path + "challenge.bc", path + "chow_aes3_encrypt_wb.bc", "-o", path + "linked_challenge.bc"])
+    sp = subprocess.call(cmd3, shell=True)
+
+    ## Get number of perturbation points
+    sp = subprocess.Popen(["opt", "-load", "/home/koski/llvm-8.0.0.src/build/lib/LLVMPerturbCount.so", "-Count", path + "linked_challenge.bc"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = sp.communicate()
-    sp = subprocess.Popen(["clang", "-emit-llvm", path + "challenge.c"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = sp.communicate()
-    sp = subprocess.Popen(["llvm-link", path + "challenge.ll", path + "chow_aes3_encrypt_wb.ll", "-o", path + "linked_challenge.bc"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = sp.communicate()
-    sp = subprocess.Popen(["llvm-dis", path + "linked_challenge.bc", "-o", path + "linked_challenge.ll"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = sp.communicate()
+    number_of_perturbation_points = int(err)
+    print("Number of pp: " + str(number_of_perturbation_points))
 
+    for p in range(0, 101): ## Probability
+        print("Probability: " + str(p))
 
-
-    ## ./home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone_opt.bc
-    ## ./home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone_opt.bc
-
-
-    for p in range(50, 101): ## Probability
-        print("Probability: " + str(p)) ## TODO Implemnt a progressbar
-
-        ## Build the llvm IR with correct perturbation type
-        ## Set probability of perturbating to p
+        # Generate and embedd the perturbation code along with the wb
         generatePerturbationType(p, True)
-        sp = subprocess.Popen(["clang", "-S", "-emit-llvm", path + "../perturbation_types/pone.c", "-o", path + "../perturbation_types/pone.ll"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        sp = subprocess.Popen(["llvm-link", path + "../perturbation_types/pone.ll", path + "linked_challenge.ll", "-o", path + "linked_challenge_pone.bc"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        sp = subprocess.Popen(["chmod", "+x", path + "linked_challenge.bc"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = sp.communicate()
+        sp = subprocess.call("clang -c -emit-llvm " + path + "../perturbation_types/pone.c -o " + path + "../perturbation_types/pone.bc", shell=True)
+        sp = subprocess.call("llvm-link " + path + "../perturbation_types/pone.bc " + path + "linked_challenge.bc -o " + path + "linked_challenge_pone.bc", shell=True)
 
-        ## Get number of perturbation points
-        sp = subprocess.Popen(["opt", "-load", "/home/koski/llvm-8.0.0.src/build/lib/LLVMPerturbCount.so", "-Count", path + "linked_challenge_pone.bc"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = sp.communicate()
-        number_of_perturbation_points = int(err)
-
-        print("number_of_perturbation_points: " + str(number_of_perturbation_points))
         for i in range(0, number_of_perturbation_points): ## PerturbationPoint
-            if i%1000 == 0:
-                print("Pertrubartionpoint: " + str(i))
-            results.append(RESULT(0, 0, probability_of_perturbating, executable, i))
+            print("Perturbationpoint: " + str(i))
+            results.append(RESULT(0, 0, 0, p, executable, i))
 
-            ## Generate a binary for the i:th pp set
-            sp = subprocess.Popen(["opt", "-load", "/home/koski/llvm-8.0.0.src/build/lib/LLVMPerturbCount.so", "-Random", "-pp", str(i), "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc", ">", "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone_opt.bc"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out, err = sp.communicate()
+            ## Generate a binary for the i:th pp
+            sp5 = subprocess.call("opt -load \"/home/koski/llvm-8.0.0.src/build/lib/LLVMRandom.so\" -Random -o " + path + "linked_challenge_pone_opt.bc -pp " + str(i) + " < " + path + "linked_challenge_pone.bc", shell=True)
+            sp6 = subprocess.call("llc " + path + "linked_challenge_pone_opt.bc -o " + path + "linked_challenge_pone_opt.s", shell=True)
+            sp7 = subprocess.call("gcc " + path + "linked_challenge_pone_opt.s -o " + path + "linked_challenge_pone_opt -no-pie", shell=True)
+            sp8 = subprocess.call("chmod +x " + path + "linked_challenge_pone_opt", shell=True)
 
-            for j in range(number_of_inputs_to_try): ## Inputs
-                print("Inputs: " + str(j))
+
+            for j in tqdm(range(number_of_inputs_to_try)): ## Inputs
                 input_hex = getRandomInput()
-                ## print(input_hex)
+                cmd1 = [path + "linked_challenge_pone_opt"] + input_hex.split()
+                cmd2 = [path + "wb_challenge"] + input_hex.split()
 
-                sp = subprocess.Popen(["chmod", "+x", path + "linked_challenge_pone_opt.bc"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                out, err = sp.communicate()
+                ## Run the perturbed binary and the reference binary
+                out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+                out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-                ## Run the generated binary with the input
-                sp = subprocess.Popen([path + "linked_challenge_pone_opt.bc"] + input_hex.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                out_opt, err_opt = sp.communicate()
-                ## Run the reference binary
-                sp = subprocess.Popen([path + "linked_challenge.bc"] + input_hex.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                out_ref, err_ref = sp.communicate()
+                if err_opt:
+                    results[i].Error = results[i].Error +1
+                    continue
 
-                ## If corect output
-                    ## results[i].Success +=1
-                ## Else incorrect output
-                    ## results[i].Fail +=1
-                print(out_ref)
-                print(out_opt)
                 if out_ref == out_opt:
                     results[i].Success = results[i].Success + 1
                 else:
                     results[i].Fail = results[i].Fail + 1
+            print("Results are:")
             print(results[i])
             break
+        break
     printExperiemntResult(results)
 main()
