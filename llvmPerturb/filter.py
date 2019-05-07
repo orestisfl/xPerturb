@@ -4,7 +4,14 @@ import os
 import subprocess # Popen
 import random
 from tqdm import tqdm # Progress bar
+import time
+from concurrent.futures import ThreadPoolExecutor # ThreadPoolExecutor
 
+
+
+
+
+number_of_threads = 5
 number_of_inputs_to_try = 1000
 highpass = 90
 atPercent = 50
@@ -17,6 +24,7 @@ executable = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016
 path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/"
 results = []
 
+pool = ThreadPoolExecutor(max_workers = number_of_threads)
 
 class RESULT:
     def __init__(self, s, f, err, pr, e, pe):
@@ -112,7 +120,7 @@ def testPerturbationPoint(i):
 def handlePerturbationPoint(i):
     global countBad
     global results
-    results.append(RESULT(0, 0, 0, atPercent, executable, i))
+    global lock
     insertPerturbationPoint(i)
     fails = 0
     for j in range(number_of_inputs_to_try): ## Inputs
@@ -130,12 +138,12 @@ def handlePerturbationPoint(i):
             results[i].Fail = results[i].Fail + 1
 
     if results[i].Bad:
-        countBad = countBad + 1
         cleanFiles(i, True)
     else:
         cleanFiles(i, False)
-        print(results[i])
-        print("")
+    print(results[i])
+    print("")
+
 
 def main():
     compileWhiteBoxToLLVM()
@@ -148,9 +156,15 @@ def main():
     # Embedd the perturbation code inside the wb
     sp = subprocess.call("clang -c -emit-llvm " + path + "../perturbation_types/pone.c -o " + path + "../perturbation_types/pone.bc", shell=True)
     sp = subprocess.call("llvm-link " + path + "../perturbation_types/pone.bc " + path + "linked_challenge.bc -o " + path + "linked_challenge_pone.bc", shell=True)
-    for i in range(0, number_of_perturbation_points): ## PerturbationPoint
-        handlePerturbationPoint(i)
-    #printExperiemntResult(results)
+    print("Number of inputs: " + str(number_of_inputs_to_try))
+    print("Number of threads: " + str(number_of_threads))
+    for i in range(number_of_perturbation_points): ## PerturbationPoint
+        results.append(RESULT(0, 0, 0, atPercent, executable, i))
+        pool.submit(handlePerturbationPoint, i)
+        #handlePerturbationPoint(i)
+    pool.shutdown(wait=True)
+
+    printExperiemntResult(results)
     print(countBad)
     print("Fin")
 

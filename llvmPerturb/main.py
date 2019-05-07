@@ -46,7 +46,7 @@ def generatePerturbationType(prob, plus):
 
 
 def main():
-    results = []
+    results = [] # List of RESULT instances
     path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/"
     reference = "gcc -O3 -o " + path + "wb_challenge " + path + "challenge.c " + path + "chow_aes3_encrypt_wb.c"
     sp = subprocess.call(reference, shell=True)

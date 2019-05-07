@@ -1,0 +1,30 @@
+Number of pp: 60492
+Number of inputs: 5000
+Probability: 50
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.518
+Success: 2590
+Fails: 2410
+Errors: 0
+Index: 3
+
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.7626
+Success: 3813
+Fails: 0
+Errors: 1187
+Index: 2
+
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.762
+Success: 3810
+Fails: 0
+Errors: 1190
+Index: 0
+
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.7598
+Success: 3799
+Fails: 0
+Errors: 1201
+Index: 1

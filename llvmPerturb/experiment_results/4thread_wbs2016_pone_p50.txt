@@ -1,0 +1,51 @@
+Number of pp: 60492
+Probability: 50
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.532
+Success: 532
+Fails: 468
+Errors: 0
+Index: 3
+
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.787
+Success: 787
+Fails: 0
+Errors: 213
+Index: 1
+
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.791
+Success: 791
+Fails: 0
+Errors: 209
+Index: 2
+
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.501
+Success: 501
+Fails: 499
+Errors: 0
+Index: 4
+
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.782
+Success: 782
+Fails: 0
+Errors: 218
+Index: 0
+
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.453
+Success: 453
+Fails: 547
+Errors: 0
+Index: 5
+
+Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
+Correctness ratio: 0.455
+Success: 455
+Fails: 545
+Errors: 0
+Index: 6
+
