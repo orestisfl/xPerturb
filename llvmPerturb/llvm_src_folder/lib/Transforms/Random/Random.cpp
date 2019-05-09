@@ -31,7 +31,7 @@ PerturbationPoint::PerturbationPoint(llvm::Instruction* instruction, Point p, st
                   : instruction(instruction), point(p), arc(arc){}
 
 std::vector<PerturbationPoint*> perturb_points;
-int pp = 1;
+int pp = 0;
 char PerturbeOperation::ID = 0;
 static RegisterPass
   <PerturbeOperation> X("Random", "Make random adjustments to the code");
@@ -46,11 +46,14 @@ CallInst * callLinkedFunction( Module &M, BinaryOperator *op){
 }
 
 bool PerturbeOperation::runOnModule(Module &M){
-  errs() << PerturbationIndex << "\n";
+  //errs() << PerturbationIndex << "\n";
 
   bool modifyed  = false;
   for(Module::iterator F = M.begin(), E = M.end(); F != E; ++F) {
-    modifyed = runOnFunction(*F, M);
+    if (!runOnFunction(*F, M)){
+      // Opt for speed
+      break;
+    };
   }
   srandom(time(0));
 
@@ -59,7 +62,7 @@ bool PerturbeOperation::runOnModule(Module &M){
   // errs() << "Inserting perturbation at point nr: " << pp_rand+1 << "/" << perturb_points.size() << "\n";
 
   int pp_rand = PerturbationIndex;
-  errs() << "Instruction to perturbe: \"" << perturb_points[pp_rand]->instruction->getOpcodeName() << "\"\n";
+  // errs() << "Instruction to perturbe: \"" << perturb_points[pp_rand]->instruction->getOpcodeName() << "\"\n";
 
 
   if (auto* op = dyn_cast<BinaryOperator>(perturb_points[pp_rand]->instruction)) {
@@ -144,9 +147,9 @@ bool PerturbeOperation::runOnFunction(Function &F, Module &M) {
   // errs() << "Function: " << F.getName() << '\n';
   // Do not perturbe our perturbation algorithm!!!
   // Keep adding our perturbation schemes to this here, in the future do something more nice looking!
-  if (F.getName() == "pone") {return false;}
+  if (F.getName() == "pone") {return true;}
 
-  LLVMContext& C = F.getContext();
+  // LLVMContext& C = F.getContext();
   for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
     // For each operation inside a basic block
     for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
@@ -166,16 +169,20 @@ bool PerturbeOperation::runOnFunction(Function &F, Module &M) {
           new PerturbationPoint(ii, PerturbationPoint::Point::RESULT)
         );
 
-        Metadata * Ops[3];
-        Ops[0] = MDString::get(C, std::to_string(pp));
-        Ops[1] = MDString::get(C, std::to_string(pp+1));
-        Ops[2] = MDString::get(C, std::to_string(pp+2));
-        MDNode * N = MDTuple::get(C, Ops);
+        // Metadata * Ops[3];
+        // Ops[0] = MDString::get(C, std::to_string(pp));
+        // Ops[1] = MDString::get(C, std::to_string(pp+1));
+        // Ops[2] = MDString::get(C, std::to_string(pp+2));
+        // MDNode * N = MDTuple::get(C, Ops);
+        //
+        // i->setMetadata("perturbation-point", N);
 
-        i->setMetadata("perturbation-point", N);
         pp = pp+3;
+
+        // Minor speed opt
+        if ( pp > PerturbationIndex ) { return false; }
       }
     }
   }
-  return false;
+  return true;
 }
