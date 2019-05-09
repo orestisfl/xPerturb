@@ -1,0 +1,6 @@
+#ifndef PONE_HEADER
+#define PONE_HEADER
+
+int pone();
+
+#endif
