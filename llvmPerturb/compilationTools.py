@@ -4,7 +4,7 @@ import os
 import subprocess # Popen
 import random
 
-number_of_inputs_to_try = 1000
+number_of_inputs_to_try = 50
 highpass = 90
 # atPercent = 50
 threshold = number_of_inputs_to_try * (100-highpass)/100
@@ -53,7 +53,6 @@ def generatePerturbationType(prob, plus):
         d['minus'] = ""
     else:
         d['minus'] = "-"
-
     with open("perturbation_templates/pm_one.tmp", 'r') as ftemp:
         templateString = ftemp.read()
     with open("example_programs/perturbation_types/pone.c", 'w') as f:
@@ -73,9 +72,9 @@ def compileWhiteBoxToLLVM():
     sp = subprocess.call(cmd0, shell=True)
 
     # Compile the wb
-    cmd1 = " ".join(["clang", "-c", "-emit-llvm", path + "chow_aes3_encrypt_wb.c", "-o", path + "chow_aes3_encrypt_wb.bc"])
+    cmd1 = " ".join(["clang", "-c", "-emit-llvm", "-fexceptions", path + "chow_aes3_encrypt_wb.c", "-o", path + "chow_aes3_encrypt_wb.bc"])
     sp = subprocess.call(cmd1, shell=True)
-    cmd2 = " ".join(["clang", "-c", "-I", path + "../perturbation_types", "-emit-llvm", path + "../perturbation_types/pone.o", path + "challenge.c", "-o",  path + "challenge.bc"])
+    cmd2 = " ".join(["clang", "-c", "-I", path + "../perturbation_types", "-emit-llvm", "-fexceptions", path + "../perturbation_types/pone.o", path + "challenge.c", "-o",  path + "challenge.bc"])
     sp = subprocess.call(cmd2, shell=True)
     cmd3 = " ".join(["llvm-link", path + "challenge.bc", path + "chow_aes3_encrypt_wb.bc", "-o", path + "linked_challenge.bc"])
     sp = subprocess.call(cmd3, shell=True)
@@ -103,17 +102,49 @@ def insertPerturbationPoint(i):
     sp8 = subprocess.call("chmod +x " + path + "perturbations/linked_challenge_pone_opt_" + str(i) + "", shell=True)
 
 def testPerturbationPoint(i):
+    success = 0
+    fail = 0
+    error = 0
+
     input_hex = getRandomInput()
-    cmd1 = [path + "perturbations/linked_challenge_pone_opt_" + str(i) + ""] + input_hex.split()
-    cmd2 = [path + "wb_challenge"] + input_hex.split()
+    with open("/home/koski/xPerturb/llvmPerturb/experiment_results/inputs.txt", "r") as fi:
+        line = fi.readline()
+        c = 1
+        while line and c < 50:
+            cmd1 = [path + "perturbations/linked_challenge_pone_opt_" + str(i) + ""] + input_hex.split()
+            cmd2 = [path + "wb_challenge"] + input_hex.split()
+            out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-    ## Run the perturbed binary and the reference binary
-    out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-    out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            if err_opt:
+                error +=1
+            elif out_ref == out_opt:
+                success+=1
+            else:
+                fail+=1
+            line = fi.readline()
+            c += 1
+    return success, fail, error
 
-    if err_opt:
-        return "Error"
-    elif out_ref == out_opt:
-        return "Success"
-    else:
-        return "Fail"
+    # cmd1 = [path + "perturbations/linked_challenge_pone_opt_" + str(i) + ""] + input_hex.split()
+    # cmd2 = [path + "wb_challenge"] + input_hex.split()
+    #
+    # ## Run the perturbed binary and the reference binary
+    # out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    # ## print("printing mfs")
+    #
+    # # out_list = out_opt.split("\n")
+    # # for row in out_list:
+    # #     try:
+    # #         print(i, int(row))
+    # #     except Exception:
+    # #         pass
+    # #print(out_opt)
+    # out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    #
+    # if err_opt:
+    #     return "Error"
+    # elif out_ref == out_opt:
+    #     return "Success"
+    # else:
+    #     return "Fail"
