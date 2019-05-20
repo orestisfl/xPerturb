@@ -25,6 +25,8 @@
 
 using namespace llvm;
 
+int first = 1;
+
 PerturbationPoint::PerturbationPoint(llvm::Instruction* instruction, Point p)
                   : instruction(instruction), point(p){}
 PerturbationPoint::PerturbationPoint(llvm::Instruction* instruction, Point p, std::string arc)
@@ -38,7 +40,9 @@ static RegisterPass
 
 cl::opt<int> PerturbationIndex("pp", cl::desc("Specify the perturbation point to be perturbed"), cl::value_desc("number"));
 
-CallInst * callLinkedFunction( Module &M, BinaryOperator *op){
+
+CallInst * callPoneFunction( Module &M, BinaryOperator *op){
+  //errs()<<"Insert dice call\n";
   Constant *hookFunc = M.getOrInsertFunction("pone", IntegerType::get(M.getContext(), 32));
   Function *hook= cast<Function>(hookFunc);
   IRBuilder<> builder(op);
@@ -46,24 +50,16 @@ CallInst * callLinkedFunction( Module &M, BinaryOperator *op){
 }
 
 bool PerturbeOperation::runOnModule(Module &M){
-  //errs() << PerturbationIndex << "\n";
-
   bool modifyed  = false;
   for(Module::iterator F = M.begin(), E = M.end(); F != E; ++F) {
-    if (!runOnFunction(*F, M)){
-      // Opt for speed
-      break;
-    };
+    runOnFunction(*F, M);
   }
-  srandom(time(0));
 
   // At this point we have analysed the whole code and populated the vector
   // int pp_rand = random() % perturb_points.size();
   // errs() << "Inserting perturbation at point nr: " << pp_rand+1 << "/" << perturb_points.size() << "\n";
 
   int pp_rand = PerturbationIndex;
-  // errs() << "Instruction to perturbe: \"" << perturb_points[pp_rand]->instruction->getOpcodeName() << "\"\n";
-
 
   if (auto* op = dyn_cast<BinaryOperator>(perturb_points[pp_rand]->instruction)) {
     switch (perturb_points[pp_rand]->instruction->getOpcode()) {
@@ -79,7 +75,7 @@ bool PerturbeOperation::runOnModule(Module &M){
             IRBuilder<> builder(op);
             Value* lhs = op->getOperand(0);
 
-            auto pert = callLinkedFunction(M, op);
+            auto pert = callPoneFunction(M, op);
             Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
             perturb_points[pp_rand]->instruction->setOperand(0, inc);
               break;
@@ -110,7 +106,7 @@ bool PerturbeOperation::runOnModule(Module &M){
             Value* lhs = op->getOperand(0);
             Value* rhs = op->getOperand(1);
             Value* tmp = builder.CreateBinOp((Instruction::BinaryOps)perturb_points[pp_rand]->instruction->getOpcode(), lhs, rhs, "tmp");
-            auto pert = callLinkedFunction(M, op);
+            auto pert = callPoneFunction(M, op);
             Instruction* a = BinaryOperator::CreateAdd(tmp, pert, "tmp2");
             ReplaceInstWithInst(op, a);
             break;
@@ -119,7 +115,7 @@ bool PerturbeOperation::runOnModule(Module &M){
             IRBuilder<> builder(op);
             Value* lhs = op->getOperand(0);
 
-            auto pert = callLinkedFunction(M, op);
+            auto pert = callPoneFunction(M, op);
             Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
             perturb_points[pp_rand]->instruction->setOperand(0, inc);
             break;
@@ -128,7 +124,7 @@ bool PerturbeOperation::runOnModule(Module &M){
             IRBuilder<> builder(op);
             Value* lhs = op->getOperand(1);
 
-            auto pert = callLinkedFunction(M, op);
+            auto pert = callPoneFunction(M, op);
             Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
             perturb_points[pp_rand]->instruction->setOperand(1, inc);
               break;
@@ -143,22 +139,36 @@ bool PerturbeOperation::runOnModule(Module &M){
   return modifyed;
 }
 
+Function * monitor;
+
 bool PerturbeOperation::runOnFunction(Function &F, Module &M) {
   // errs() << "Function: " << F.getName() << '\n';
   // Do not perturbe our perturbation algorithm!!!
   // Keep adding our perturbation schemes to this here, in the future do something more nice looking!
+
+  if (F.getName() == "init_pone") {
+    monitor = cast<Function>(&F);
+    return true;
+  }
   if (F.getName() == "pone") {return true;}
+  if (F.getName() == "rdtsc") {return true;}
+
 
   // LLVMContext& C = F.getContext();
   for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
     // For each operation inside a basic block
     for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
+      if ((F.getName() == "main") && first && !(isa<AllocaInst>(i))) {
+        first = 0;
+        Instruction *newInst = CallInst::Create(monitor, "");
+        bb->getInstList().insert(i, newInst);
+      }
+
       Instruction* ii = &*(i);
       // Find all perturbation points inside of binary operators
       if (isa<BinaryOperator>(i)) {
         // Mark the perturbationpoints type and location according to a pre defined scheme!
         // See Random.hpp
-        // errs() << i->getOpcodeName() << "\n";
         perturb_points.push_back(
           new PerturbationPoint(ii, PerturbationPoint::Point::OPERAND_0)
         );
@@ -168,14 +178,6 @@ bool PerturbeOperation::runOnFunction(Function &F, Module &M) {
         perturb_points.push_back(
           new PerturbationPoint(ii, PerturbationPoint::Point::RESULT)
         );
-
-        // Metadata * Ops[3];
-        // Ops[0] = MDString::get(C, std::to_string(pp));
-        // Ops[1] = MDString::get(C, std::to_string(pp+1));
-        // Ops[2] = MDString::get(C, std::to_string(pp+2));
-        // MDNode * N = MDTuple::get(C, Ops);
-        //
-        // i->setMetadata("perturbation-point", N);
 
         pp = pp+3;
 

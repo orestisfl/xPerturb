@@ -4,7 +4,7 @@ import os
 import subprocess # Popen
 import random
 
-number_of_inputs_to_try = 50
+number_of_inputs_to_try = 1000
 highpass = 90
 # atPercent = 50
 threshold = number_of_inputs_to_try * (100-highpass)/100
@@ -24,7 +24,6 @@ class RESULT:
         self.Probability = pr
         self.Executable = e
         self.PerturbationPoint = pe
-        self.Bad = False
 
     def __str__(self):
         return "Executable: " + self.Executable + "\nCorrectness ratio: " + str(self.Success/(self.Fail + self.Error + self.Success)) + "\nSuccess: " + str(self.Success) + "\nFails: " + str(self.Fail) + "\nErrors: " + str(self.Error) + "\nIndex: " + str(self.PerturbationPoint)
@@ -37,11 +36,13 @@ def getRandomInput():
     return ret
 
 def printExperiemntResult(result_list):
-    for i in result_list:
-        if i.Bad:
-            countBad +=1
-        else:
-            print(i)
+    fd = open("results.yay", "w")
+    for i in result_list.keys():
+        print(result_list[i])
+        fd.write(str(result_list[i]))
+        fd.write("\n")
+        fd.write("\n")
+    fd.close()
     # print("Bad: " + str(countBad))
     # print("Good: " + str(countGood))
 
@@ -110,7 +111,7 @@ def testPerturbationPoint(i):
     with open("/home/koski/xPerturb/llvmPerturb/experiment_results/inputs.txt", "r") as fi:
         line = fi.readline()
         c = 1
-        while line and c < 50:
+        while line: # and c < 50:
             cmd1 = [path + "perturbations/linked_challenge_pone_opt_" + str(i) + ""] + input_hex.split()
             cmd2 = [path + "wb_challenge"] + input_hex.split()
             out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()

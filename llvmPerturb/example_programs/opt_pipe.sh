@@ -50,7 +50,6 @@ if [[ "$1" == "count" ]] || [[ "$2" == "count" ]]; then
   echo "OUTPUT:    c1 bd 88 bf e6 5e 87 01 3f 3f 41 96 c1 8a f3 68 - EXPECTED"
 
   chmod +x linked_challenge.bc
-  chmod +x linked_challenge_pone_opt.bc
   ./linked_challenge.bc 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
 
 

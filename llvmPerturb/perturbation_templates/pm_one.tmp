@@ -1,11 +1,18 @@
 #include <stdlib.h>
 #include <time.h>
-#include <stdio.h>
+//#include <sys/time.h>
 
-int pone(){{
-  int prob = {probability};
+#include <stdio.h>
+#include "pone.h"
+
+void init_pone(){{
   srandom(time(0));
-  if (random()% 100 < prob){{
+}}
+
+int pone(){{ // Perturbe namechange
+  int prob = {probability};
+  int r = random()% 100;
+  if (r < prob){{
     return {minus}1;
   }}else{{
     return 0;

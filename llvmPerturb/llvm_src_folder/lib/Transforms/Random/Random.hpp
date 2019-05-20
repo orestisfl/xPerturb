@@ -9,6 +9,10 @@ namespace llvm {
     bool runOnFunction(Function &F, Module &M);
   };
 }
+// 
+// CallInst * callInitPoneFunction( Module &, Instruction *);
+// CallInst * callPoneFunction( Module &, BinaryOperator *);
+
 
 struct PerturbationPoint {
   llvm::Instruction* instruction;
