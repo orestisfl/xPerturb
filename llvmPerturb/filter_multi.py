@@ -11,10 +11,10 @@ import threading
 from compilationTools import *
 
 number_of_threads = 4
-search_space = 0.1
+search_space = 600 # In decimal percent
 # number_of_inputs_to_try = 1000
 # highpass = 90
-atPercent = 10
+atPercent = 25
 # threshold = number_of_inputs_to_try * (100-highpass)/100
 # activeThreads = 10
 # countBad = 0
@@ -76,7 +76,7 @@ def main():
     sp = subprocess.call("clang -c -emit-llvm " + path + "../perturbation_types/pone.c -o " + path + "../perturbation_types/pone.bc", shell=True)
     sp = subprocess.call("llvm-link " + path + "../perturbation_types/pone.bc " + path + "linked_challenge.bc -o " + path + "linked_challenge_pone.bc", shell=True)
 
-    for i in range(0, number_of_perturbation_points, int(number_of_perturbation_points*search_space)): ## number_of_perturbation_points PerturbationPoint
+    for i in range(0, number_of_perturbation_points, int(number_of_perturbation_points/search_space)): ## number_of_perturbation_points PerturbationPoint
         results[i] = RESULT(0, 0, 0, atPercent, executable, i)
         threadQueue.append(transformationThread(i))
 
