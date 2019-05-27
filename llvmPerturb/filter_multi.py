@@ -4,85 +4,127 @@ import sys
 import os
 import subprocess # Popen
 import random
-#from tqdm import tqdm # Progress bar
+from tqdm import tqdm # Progress bar
 import time
 import threading
 #from concurrent.futures import ThreadPoolExecutor # ThreadPoolExecutor
 from compilationTools import *
 
-number_of_threads = 4
+
+percentHops = 5
+percentToInvestigate = 0.01
+number_of_concurrent_threads = 5
 search_space = 600 # In decimal percent
 # number_of_inputs_to_try = 1000
 # highpass = 90
-atPercent = 25
+atPercent = 100
 # threshold = number_of_inputs_to_try * (100-highpass)/100
 # activeThreads = 10
 # countBad = 0
 # countGood = 0
 # stdoutAvalible = True
-executable = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc"
+path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/"
+executable = "linked_challenge"
 # path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/"
 results = {}
 threadLock = threading.Lock()
 threadQueue = []
-# pool = ThreadPoolExecutor(max_workers = number_of_threads)
+# pool = ThreadPoolExecutor(max_workers = number_of_concurrent_threads)
 
 
 class transformationThread (threading.Thread):
-   def __init__(self, threadID):
+   def __init__(self, perturbationIndex, probability, exe, path):
       threading.Thread.__init__(self)
-      self.threadID = threadID
+      self.PerturbationIndex = perturbationIndex
+      self.Probability = probability
+      self.Executable = exe
+      self.Path = path
+      self.NumberOfInputs = 1000
+
    def run(self):
-      print("Starting job number " + str(self.threadID))
-      handlePerturbationPoint(self.threadID)
-      print("Exiting job number " + str(self.threadID))
+       #print("\ngeneratePerturbationType(self.Probability, self.PerturbationIndex)")
+       generatePerturbationType(self.Probability, self.PerturbationIndex)
+       #print("\ninsertPerturbationProtocol(self.PerturbationIndex, self.Probability, self.Path)")
+       insertPerturbationProtocol(self.PerturbationIndex, self.Probability, self.Path)
+       #print("\ninsertPerturbationPoint(self.PerturbationIndex)")
+       insertPerturbationPoint(self.PerturbationIndex, self.Path, self.Probability)
+       #print("\ntestPerturbationPoint(self.PerturbationPoint)")
+       succ_fail_err = testPerturbationPoint(self.PerturbationIndex, self.Path, self.Probability, self.NumberOfInputs)
+       results[self.PerturbationIndex][self.Probability].Success = succ_fail_err[0]
+       results[self.PerturbationIndex][self.Probability].Fail = succ_fail_err[1]
+       results[self.PerturbationIndex][self.Probability].Error = succ_fail_err[2]
+       #print("Thread done")
+       cleanFiles(self.PerturbationIndex, self.Probability, self.Path, False)
 
-def handlePerturbationPoint(i):
-    global results
-    insertPerturbationPoint(i)
-    results[i].Success, results[i].Fail, results[i].Error = testPerturbationPoint(i)
-
-    cleanFiles(i, False)
-
-    print(results[i])
-    print("")
-
+def subset(seq, perc):
+    return seq[::int(1/perc)]
 
 def executeThreads():
     """ Execute a couple of threads simountaniusly, not all at once! """
     global threadQueue
     indexCounter = 0
-    while indexCounter < len(threadQueue):
-        for i in range(0, number_of_threads):
+    for indexCounter in tqdm(range(0, len(threadQueue), number_of_concurrent_threads)):
+        # pass
+        # while indexCounter < len(threadQueue):
+        for i in range(0, number_of_concurrent_threads):
             if indexCounter + i == len(threadQueue):
                 break
             threadQueue[indexCounter + i].start()
-        for i in range(0, number_of_threads):
+            time.sleep(0.050)
+        for i in range(0, number_of_concurrent_threads):
             if indexCounter + i == len(threadQueue):
                 break
             threadQueue[indexCounter + i].join()
         if indexCounter + i == len(threadQueue):
             return
-        indexCounter += number_of_threads
+        # indexCounter += number_of_concurrent_threads
+
+def readFile(filename):
+    # File with contents like: (25, 0.997, 4800)
+    # (Probability, Correctness, PerturbationIndex)
+    results = [] # List of Indecies
+    fd = open(filename, "r")
+    lines = fd.readlines()
+    fd.close()
+    for l in lines:
+        results.append(int(eval(l.strip())[-1]))
+    return results
+
+def queuePerturbationThreads(points, percent, fixedPercent):
+    for i in range(len(points)):
+        results[points[i]] = {}
+
+    if fixedPercent:
+        for i in range(len(points)):
+            p = percent
+            results[points[i]][p] = RESULT(p, executable, path, points[i])
+            threadQueue.append(transformationThread(points[i], p, executable, path))
+
+    else:
+        for i in range(len(points)):
+            for p in range(0, percent, percentHops): # Probabilities to investigate
+                results[points[i]][p] = RESULT(p, executable, path, points[i])
+                threadQueue.append(transformationThread(points[i], p, executable, path))
+
 
 def main():
-    generatePerturbationType(atPercent, True)
-    compileWhiteBoxToLLVM()
-
-    number_of_perturbation_points = getNumberOfPerturbationPoints()
     print("Probability: " + str(atPercent))
 
-    # Embedd the perturbation code inside the wb
-    sp = subprocess.call("clang -c -emit-llvm " + path + "../perturbation_types/pone.c -o " + path + "../perturbation_types/pone.bc", shell=True)
-    sp = subprocess.call("llvm-link " + path + "../perturbation_types/pone.bc " + path + "linked_challenge.bc -o " + path + "linked_challenge_pone.bc", shell=True)
+    #print("\ncompileWhiteBoxToLLVM(self.Probability, self.Path)")
+    compileReferenceWhitebox(path)
+    compileWhiteBoxToLLVM(path)
 
-    for i in range(0, number_of_perturbation_points, int(number_of_perturbation_points/search_space)): ## number_of_perturbation_points PerturbationPoint
-        results[i] = RESULT(0, 0, 0, atPercent, executable, i)
-        threadQueue.append(transformationThread(i))
+    points = [0]
+    #points = range(0, 100)
+    #pNum = getNumberOfPerturbationPoints(path)
+    #points = subset(range(0, pNum), percentToInvestigate)
+    #points = readFile("./experiment_results/interestingPoints.txt")
 
+    queuePerturbationThreads(points, atPercent, False) ## Boolean to only investigate the percentage, not all percentages
     executeThreads()
 
     print("------------------------")
+    writeToFile("./experiment_results/points.cvc", results)
     printExperiemntResult(results)
     print("Fin")
 

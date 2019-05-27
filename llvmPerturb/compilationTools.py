@@ -5,28 +5,27 @@ import subprocess # Popen
 import random
 
 number_of_inputs_to_try = 1000
-highpass = 90
-# atPercent = 50
-threshold = number_of_inputs_to_try * (100-highpass)/100
-# activeThreads = 10
-# countBad = 0
-# countGood = 0
-# stdoutAvalible = True
-path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/"
-# results = []
-
+# highpass = 90
+# threshold = number_of_inputs_to_try * (100-highpass)/100
 
 class RESULT:
-    def __init__(self, s, f, err, pr, e, pe):
-        self.Success = s
-        self.Fail = f
-        self.Error = err
+    def __init__(self, pr, e, path, pe):
+        self.Success = 0
+        self.Fail = 0
+        self.Error = 0
         self.Probability = pr
         self.Executable = e
         self.PerturbationPoint = pe
+        self.Path = path
 
     def __str__(self):
-        return "Executable: " + self.Executable + "\nCorrectness ratio: " + str(self.Success/(self.Fail + self.Error + self.Success)) + "\nSuccess: " + str(self.Success) + "\nFails: " + str(self.Fail) + "\nErrors: " + str(self.Error) + "\nIndex: " + str(self.PerturbationPoint)
+        return "Executable: " + self.Executable + "\nCorrectness ratio: " + str(self.get_correctness()) + "\nSuccess: " + str(self.Success) + "\nFails: " + str(self.Fail) + "\nErrors: " + str(self.Error) + "\nIndex: " + str(self.PerturbationPoint) + "\nPercent: " + str(self.Probability)
+
+    def get_correctness(self):
+        return self.Success/(self.Fail + self.Error + self.Success)
+
+    def print_plottable_data(self):
+        return str(self.Probability) + ", " + str(self.get_correctness()) + ", " + str(self.PerturbationPoint)
 
 def getRandomInput():
     # Returns a randomly generated input tailored for the wb in mind
@@ -35,16 +34,29 @@ def getRandomInput():
         ret = ret + " " + '{0:0{1}X}'.format(random.randint(0, 255),2)
     return ret
 
-def printExperiemntResult(result_list):
-    fd = open("results.yay", "w")
+def getNumberOfPerturbationPoints(path):
+    sp = subprocess.Popen(["opt", "-load", "/home/koski/llvm-8.0.0.src/build/lib/LLVMPerturbCount.so", "-Count", path + "src/wb.ll"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = sp.communicate()
+    print("Number of pp: " + str(int(err)))
+    return int(err)
+
+def writeToFile(filename, result_list):
+    fd = open(filename, "w")
+
     for i in result_list.keys():
-        print(result_list[i])
-        fd.write(str(result_list[i]))
-        fd.write("\n")
-        fd.write("\n")
+        for p in result_list[i].keys():
+            fd.write(result_list[i][p].print_plottable_data())
+            fd.write("\n")
     fd.close()
-    # print("Bad: " + str(countBad))
-    # print("Good: " + str(countGood))
+
+def printExperiemntResult(result_list):
+    for i in result_list.keys():
+        for p in result_list[i].keys():
+            print(result_list[i][p])
+            print("")
+
+def compileReferenceWhitebox(path):
+    pass
 
 def generatePerturbationType(prob, plus):
     # Generate the apropriate perturbation function with set probability and pp-model
@@ -54,98 +66,93 @@ def generatePerturbationType(prob, plus):
         d['minus'] = ""
     else:
         d['minus'] = "-"
+
     with open("perturbation_templates/pm_one.tmp", 'r') as ftemp:
         templateString = ftemp.read()
-    with open("example_programs/perturbation_types/pone.c", 'w') as f:
+    with open("example_programs/perturbation_types/pone_" + str(prob) + ".c", 'w') as f:
         f.write(templateString.format(**d))
 
     with open("perturbation_templates/pm_oneh.tmp", 'r') as ftemp:
         templateString = ftemp.read()
-    with open("example_programs/perturbation_types/pone.h", 'w') as f:
+    with open("example_programs/perturbation_types/pone_"+ str(prob) +".h", 'w') as f:
         f.write(templateString)
 
-def compileWhiteBoxToLLVM():
-    reference = " ".join(["gcc", "-O3", "-I", path + "../perturbation_types", "-o ", path + "wb_challenge", path + "challenge.c", path + "chow_aes3_encrypt_wb.c"])
-    sp = subprocess.call(reference, shell=True)
-
-    # Embedd the perturbation code inside the wb
-    cmd0 = " ".join(["gcc", "-c", path + "../perturbation_types/pone.c", "-o", path + "../perturbation_types/pone.o" ])
+    cmd0 = "clang -S -emit-llvm example_programs/perturbation_types/pone_"+ str(prob) +".c -o example_programs/perturbation_types/pone_"+ str(prob) +".ll"
+    # cmd0 = " ".join(["gcc", "-c", "example_programs/perturbation_types/pone_"+ str(prob) +".c", "-o", "example_programs/perturbation_types/pone_"+ str(prob) +".o" ])
     sp = subprocess.call(cmd0, shell=True)
 
-    # Compile the wb
-    cmd1 = " ".join(["clang", "-c", "-emit-llvm", "-fexceptions", path + "chow_aes3_encrypt_wb.c", "-o", path + "chow_aes3_encrypt_wb.bc"])
-    sp = subprocess.call(cmd1, shell=True)
-    cmd2 = " ".join(["clang", "-c", "-I", path + "../perturbation_types", "-emit-llvm", "-fexceptions", path + "../perturbation_types/pone.o", path + "challenge.c", "-o",  path + "challenge.bc"])
-    sp = subprocess.call(cmd2, shell=True)
-    cmd3 = " ".join(["llvm-link", path + "challenge.bc", path + "chow_aes3_encrypt_wb.bc", "-o", path + "linked_challenge.bc"])
-    sp = subprocess.call(cmd3, shell=True)
+def compileWhiteBoxToLLVM(path):
+    cmds = [None] * 4
+    cmds[0] = "clang -S -emit-llvm " + path + "src/chow_aes3_encrypt_wb.c -o " + path + "src/chow_aes3_encrypt_wb.ll"
+    cmds[1] = "clang -S -emit-llvm " + path + "src/challenge.c -o " + path + "src/challenge.ll"
+    cmds[2] = "llvm-link " + path + "src/challenge.ll " + path + "src/chow_aes3_encrypt_wb.ll -o " + path + "src/linked_challenge.bc"
+    cmds[3] = "llvm-dis " + path + "src/linked_challenge.bc -o " + path + "src/wb.ll"
 
-def getNumberOfPerturbationPoints():
-    sp = subprocess.Popen(["opt", "-load", "/home/koski/llvm-8.0.0.src/build/lib/LLVMPerturbCount.so", "-Count", path + "linked_challenge.bc"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = sp.communicate()
-    print("Number of pp: " + str(int(err)))
-    return int(err)
+    for cmd in cmds:
+        sp = subprocess.call(cmd, shell=True)
 
-def cleanFiles(i, delete_all):
-    if delete_all:
-        cmd32 = ["rm", path + "perturbations/linked_challenge_pone_opt_" + str(i)]
-        out_opt, err_opt = subprocess.Popen(" ".join(cmd32), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+def insertPerturbationProtocol(i, prob, path):
+    cmds = [None] * 1
+    cmds[0] = "llvm-link example_programs/perturbation_types/pone_"+ str(prob) +".ll " + path + "src/wb.ll -o " + path + "perturbations/wb_p_"+ str(prob) +".bc"
+    for cmd in cmds:
+        sp = subprocess.call(cmd, shell=True)
 
-    cmd30 = ["rm", path + "perturbations/linked_challenge_pone_opt_" + str(i) + ".bc"]
-    cmd31 = ["rm", path + "perturbations/linked_challenge_pone_opt_" + str(i) + ".s"]
-    out_opt, err_opt = subprocess.Popen(" ".join(cmd30), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-    out_opt, err_opt = subprocess.Popen(" ".join(cmd31), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+def insertPerturbationPoint(pointIndex, path, prob):
+    cmds = [None] * 4
+    cmds[0] = "opt -load \"/home/koski/llvm-8.0.0.src/build/lib/LLVMRandom.so\" -Random -pp " + str(pointIndex) + " < " + path + "perturbations/wb_p_"+ str(prob) +".bc > " + path + "perturbations/wb_p_" + str(prob) +"_"+ str(pointIndex) + ".bc"
+    cmds[1] = "llc -o " + path + "perturbations/wb_p_" + str(prob) + "_" + str(pointIndex) + ".s " + path + "perturbations/wb_p_" + str(prob) + "_" + str(pointIndex) + ".bc"
+    cmds[2] = "gcc -o " + path + "perturbations/wb_p_" + str(prob) + "_" + str(pointIndex) + " " + path + "perturbations/wb_p_" + str(prob) + "_" + str(pointIndex) + ".s -no-pie"
+    cmds[3] = "chmod +x " + path + "perturbations/wb_p_" + str(prob) +"_"+ str(pointIndex)
+    for cmd in cmds:
+        sp = subprocess.call(cmd, shell=True)
 
-def insertPerturbationPoint(i):
-    sp5 = subprocess.call("opt -load \"/home/koski/llvm-8.0.0.src/build/lib/LLVMRandom.so\" -Random -o " + path + "perturbations/linked_challenge_pone_opt_" + str(i) + ".bc -pp " + str(i) + " < " + path + "linked_challenge_pone.bc", shell=True)
-    sp6 = subprocess.call("llc " + path + "perturbations/linked_challenge_pone_opt_" + str(i) + ".bc -o " + path + "perturbations/linked_challenge_pone_opt_" + str(i) + ".s", shell=True)
-    sp7 = subprocess.call("gcc " + path + "perturbations/linked_challenge_pone_opt_" + str(i) + ".s -o " + path + "perturbations/linked_challenge_pone_opt_" + str(i) + " -no-pie", shell=True)
-    sp8 = subprocess.call("chmod +x " + path + "perturbations/linked_challenge_pone_opt_" + str(i) + "", shell=True)
-
-def testPerturbationPoint(i):
+def testPerturbationPoint(i, path, prob, numberOfInputs):
     success = 0
     fail = 0
     error = 0
 
-    input_hex = getRandomInput()
-    with open("/home/koski/xPerturb/llvmPerturb/experiment_results/inputs.txt", "r") as fi:
-        line = fi.readline()
-        c = 1
-        while line: # and c < 50:
-            cmd1 = [path + "perturbations/linked_challenge_pone_opt_" + str(i) + ""] + input_hex.split()
-            cmd2 = [path + "wb_challenge"] + input_hex.split()
-            out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-            out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    for inp in range(numberOfInputs):
+        input_hex = getRandomInput()
+        cmd1 = [path + "perturbations/wb_p_"+ str(prob) +"_"+ str(i)] + input_hex.split()
+        cmd2 = [path + "src/wb_challenge"] + input_hex.split()
+        out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-            if err_opt:
-                error +=1
-            elif out_ref == out_opt:
-                success+=1
-            else:
-                fail+=1
-            line = fi.readline()
-            c += 1
+        if err_opt:
+            error +=1
+        elif out_ref == out_opt:
+            success+=1
+        else:
+            fail+=1
+    #
+    # with open("/home/koski/xPerturb/llvmPerturb/experiment_results/inputs.txt", "r") as fi:
+    #     line = fi.readline()
+    #     c = 1
+    #     while line: # and c < 50:
+    #         cmd1 = [path + "perturbations/wb_p_"+ str(prob) +"_"+ str(i)] + input_hex.split()
+    #         cmd2 = [path + "src/wb_challenge"] + input_hex.split()
+    #         out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    #         out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    #
+    #         if err_opt:
+    #             error +=1
+    #         elif out_ref == out_opt:
+    #             success+=1
+    #         else:
+    #             fail+=1
+    #         line = fi.readline()
+    #         c += 1
     return success, fail, error
 
-    # cmd1 = [path + "perturbations/linked_challenge_pone_opt_" + str(i) + ""] + input_hex.split()
-    # cmd2 = [path + "wb_challenge"] + input_hex.split()
-    #
-    # ## Run the perturbed binary and the reference binary
-    # out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-    # ## print("printing mfs")
-    #
-    # # out_list = out_opt.split("\n")
-    # # for row in out_list:
-    # #     try:
-    # #         print(i, int(row))
-    # #     except Exception:
-    # #         pass
-    # #print(out_opt)
-    # out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-    #
-    # if err_opt:
-    #     return "Error"
-    # elif out_ref == out_opt:
-    #     return "Success"
-    # else:
-    #     return "Fail"
+
+def cleanFiles(i, prob, path, delete_all): ## TODO Denna lirar inte med den nya strukturen
+    if delete_all:
+        cmd32 = ["rm", path + "perturbations/wb_p_" + str(prob)]
+        out_opt, err_opt = subprocess.Popen(" ".join(cmd32), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+    cmd30 = ["rm", path + "perturbations/wb_p_" + str(prob) +"_"+ str(i) + ".bc"]
+    cmd31 = ["rm", path + "perturbations/wb_p_" + str(prob) +"_"+ str(i) + ".s"]
+    cmd32 = ["rm", path + "perturbations/wb_p_" + str(prob) + ".bc"]
+    out_opt, err_opt = subprocess.Popen(" ".join(cmd30), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    out_opt, err_opt = subprocess.Popen(" ".join(cmd31), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    out_opt, err_opt = subprocess.Popen(" ".join(cmd32), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()

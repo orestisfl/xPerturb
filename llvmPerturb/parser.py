@@ -1,4 +1,9 @@
 
+import numpy as np
+import matplotlib.pyplot as plt
+
+color_list = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
+
 """
 Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
 Correctness ratio: 0.595
@@ -25,33 +30,56 @@ class CorrPoint():
         return str((self.percent, self.corr, self.index))
 
 
-def readFile(percent):
+def readFile(filename):
+    lista = []
     try:
-        fd = open("./experiment_results/results_pone_p" + str(percent) + ".txt", "r")
+        fd = open(filename, "r")
     except:
-        return
-    print("Working on file: " + str(percent))
-    while fd.readline():
-        try:
-            corr = float(fd.readline().strip().split(" ")[-1])
-            succ = fd.readline()
-            fails = fd.readline()
-            errors = fd.readline()
-            index = int(fd.readline().strip().split(" ")[-1])
-            fd.readline()
-        except:
-            fd.close()
-            return
-        points.append(CorrPoint(percent, corr, index))
+        return lista
+    lines = fd.readlines()
+    for line in lines:
+        probability = int(line.strip().split(", ")[0])
+        corr = float(line.strip().split(", ")[1])
+        index = int(line.strip().split(", ")[2])
+        points.append(CorrPoint(probability, corr, index))
+    return lista
+
+def advancedPlot(points):
+    colorCounter = 0
+    indx = set([i.index for i in points])
+    for ind in indx:
+        x = [i.percent for i in points if i.index == ind]
+        y = [i.corr for i in points if i.index == ind]
+        z = np.polyfit(x, y, 1)
+        p = np.poly1d(z)
+        plt.plot(x, p(x), c = color_list[colorCounter])
+
+        # plt.scatter(x, y, c = color_list[colorCounter])
+        colorCounter += 1
+
 
 
 def main():
-    for percentage in range(0, 101):
-        readFile(percentage)
-    points.sort()
+    ## readFile("./experiment_results/results_pone_p.txt")
+    readFile("./experiment_results/points_pALL_top10.cvc")
 
-    for point in points:
-        print(point)
+    points.sort()
+    for i in points:
+        print(i)
+    # new_list = [expression(i) for i in old_list if filter(i)]
+    x = [i.percent for i in points]
+    y = [i.corr for i in points]
+    plt.ylim(0,1)
+    plt.xlim(0,100)
+    plt.title("Perturbationpoint " + str(points[0].index))
+    plt.xlabel("Perturbation probability")
+    plt.ylabel("Correctness")
+    advancedPlot(points)
+    #plt.scatter(x, y)
+    plt.show()
+
+    # for point in points:
+    #     print(point)
 
 
 

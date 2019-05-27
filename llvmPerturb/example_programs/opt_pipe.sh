@@ -59,15 +59,15 @@ fi
 
 if [[ "$1" == "big" ]] || [[ "$2" == "big" ]]; then
   cd "$HOME/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016"
-  clang -S -emit-llvm chow_aes3_encrypt_wb.c
-  clang -S -emit-llvm challenge.c
+  clang -S -emit-llvm src/chow_aes3_encrypt_wb.c
+  clang -S -emit-llvm src/challenge.c
   llvm-link challenge.ll chow_aes3_encrypt_wb.ll -o linked_challenge.bc
   llvm-dis linked_challenge.bc -o linked_challenge.ll
 
-  clang -S -emit-llvm ../perturbation_types/pone.c -o ../perturbation_types/pone.ll
-  llvm-link ../perturbation_types/pone.ll linked_challenge.ll -o linked_challenge_pone.bc
+  clang -S -emit-llvm ../perturbation_types_backup/pone_0.c -o ../perturbation_types_backup/pone.ll
+  llvm-link ../perturbation_types_backup/pone.ll linked_challenge.ll -o linked_challenge_pone.bc
 
-  opt -load "$HOME/llvm-8.0.0.src/build/lib/LLVMRandom.so" -Random -pp 0 < linked_challenge_pone.bc > linked_challenge_pone_opt.bc
+  opt -load "$HOME/llvm-8.0.0.src/build/lib/LLVMRandom.so" -Random -pp 4800 < linked_challenge_pone.bc > linked_challenge_pone_opt.bc
 
 
   chmod +x linked_challenge.bc
