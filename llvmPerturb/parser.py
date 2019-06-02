@@ -11,10 +11,54 @@ Success: 595
 Fails: 401
 Errors: 4
 Index: 0
+Activation: 16
 
 """
 
 points = []
+
+class CorrPointList():
+    def __init__(self):
+        self.Points = []
+    def getPointsFromFile(self, executable):
+        lista = []
+        try:
+            fd = open(executable + ".cvc", "r")
+        except:
+            return lista
+        lines = fd.readlines()
+        for line in lines:
+            probability = int(line.strip().split(", ")[0])
+            corr = float(line.strip().split(", ")[1])
+            index = int(line.strip().split(", ")[2])
+            self.Points.append(CorrPoint(probability, corr, index))
+        self.Points.sort()
+        self.Points.reverse()
+
+    def printTopPoints(self, num):
+        for i in self.Points[0:num]:
+            print(i)
+
+    def saveTopPoints(self, num, name):
+        with open(name + "_top" + str(num) + ".cvc", "w") as fd:
+            for i in self.Points[0:num]:
+                fd.write(i)
+                fd.write("\n")
+
+    def plotPoints(self, name, top = 0):
+        if not top:
+            top = len(self.Points)
+        x = [i.percent for i in self.Points[0:top]]
+        y = [i.corr for i in self.Points[0:top]]
+        plt.ylim(0,1)
+        plt.xlim(0,100)
+        plt.title("Executable " + name)
+        plt.xlabel("Perturbation probability")
+        plt.ylabel("Correctness")
+        #advancedPlot(points)
+        plt.scatter(x, y)
+        plt.show()
+
 
 class CorrPoint():
     def __init__(self, p, c, i):
@@ -30,20 +74,6 @@ class CorrPoint():
         return str((self.percent, self.corr, self.index))
 
 
-def readFile(filename):
-    lista = []
-    try:
-        fd = open(filename, "r")
-    except:
-        return lista
-    lines = fd.readlines()
-    for line in lines:
-        probability = int(line.strip().split(", ")[0])
-        corr = float(line.strip().split(", ")[1])
-        index = int(line.strip().split(", ")[2])
-        points.append(CorrPoint(probability, corr, index))
-    return lista
-
 def advancedPlot(points):
     colorCounter = 0
     indx = set([i.index for i in points])
@@ -58,28 +88,21 @@ def advancedPlot(points):
         colorCounter += 1
 
 
-
 def main():
-    ## readFile("./experiment_results/results_pone_p.txt")
-    readFile("./experiment_results/points_pALL_top10.cvc")
+    numberOfPointsToView = 25
+    point_list = CorrPointList()
+    files = ["./experiment_results/points_p25_all",
+    "./experiment_results/points_p50_all",
+    "./experiment_results/points_p90_all",
+    "./experiment_results/points_p99_all",
+    "./experiment_results/points_p5_all",
+    "./experiment_results/points_p10_all"
+    ]
+    for i in files:
+        point_list.getPointsFromFile(i)
 
-    points.sort()
-    for i in points:
-        print(i)
-    # new_list = [expression(i) for i in old_list if filter(i)]
-    x = [i.percent for i in points]
-    y = [i.corr for i in points]
-    plt.ylim(0,1)
-    plt.xlim(0,100)
-    plt.title("Perturbationpoint " + str(points[0].index))
-    plt.xlabel("Perturbation probability")
-    plt.ylabel("Correctness")
-    advancedPlot(points)
-    #plt.scatter(x, y)
-    plt.show()
-
-    # for point in points:
-    #     print(point)
+    # point_list.printTopPoints(numberOfPointsToView)
+    point_list.plotPoints("All points")
 
 
 

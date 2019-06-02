@@ -4,6 +4,7 @@ import os
 import subprocess # Popen
 import random
 
+
 number_of_inputs_to_try = 1000
 # highpass = 90
 # threshold = number_of_inputs_to_try * (100-highpass)/100
@@ -13,19 +14,36 @@ class RESULT:
         self.Success = 0
         self.Fail = 0
         self.Error = 0
+        self.Activations = 0
         self.Probability = pr
         self.Executable = e
         self.PerturbationPoint = pe
         self.Path = path
 
     def __str__(self):
-        return "Executable: " + self.Executable + "\nCorrectness ratio: " + str(self.get_correctness()) + "\nSuccess: " + str(self.Success) + "\nFails: " + str(self.Fail) + "\nErrors: " + str(self.Error) + "\nIndex: " + str(self.PerturbationPoint) + "\nPercent: " + str(self.Probability)
+        return"""Executable: %s
+Correctness %1.3f
+Success: %d
+Fails: %d
+Errors: %d
+Index: %d
+Percent: %d
+Activations: %1.3f""" %(
+        self.Executable,
+        self.get_correctness(),
+        self.Success,
+        self.Fail,
+        self.Error,
+        self.PerturbationPoint,
+        self.Probability,
+        self.Activations
+        )
 
     def get_correctness(self):
         return self.Success/(self.Fail + self.Error + self.Success)
 
     def print_plottable_data(self):
-        return str(self.Probability) + ", " + str(self.get_correctness()) + ", " + str(self.PerturbationPoint)
+        return str(self.Probability) + ", " + str(self.get_correctness()) + ", " + str(self.PerturbationPoint) + ", " + str(self.Activations)
 
 def getRandomInput():
     # Returns a randomly generated input tailored for the wb in mind
@@ -35,25 +53,10 @@ def getRandomInput():
     return ret
 
 def getNumberOfPerturbationPoints(path):
-    sp = subprocess.Popen(["opt", "-load", "/home/koski/llvm-8.0.0.src/build/lib/LLVMPerturbCount.so", "-Count", path + "src/wb.ll"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    sp = subprocess.Popen(["opt", "-load", "/home/koski/llvm-8.0.0.src/build/lib/LLVMPerturbCount.so", "-Count", "-o", "/dev/null", path + "src/wb.ll"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = sp.communicate()
-    print("Number of pp: " + str(int(err)))
-    return int(err)
-
-def writeToFile(filename, result_list):
-    fd = open(filename, "w")
-
-    for i in result_list.keys():
-        for p in result_list[i].keys():
-            fd.write(result_list[i][p].print_plottable_data())
-            fd.write("\n")
-    fd.close()
-
-def printExperiemntResult(result_list):
-    for i in result_list.keys():
-        for p in result_list[i].keys():
-            print(result_list[i][p])
-            print("")
+    print("Number of pp: " + str(int(out)))
+    return int(out)
 
 def compileReferenceWhitebox(path):
     pass
@@ -99,31 +102,58 @@ def insertPerturbationProtocol(i, prob, path):
 
 def insertPerturbationPoint(pointIndex, path, prob):
     cmds = [None] * 4
-    cmds[0] = "opt -load \"/home/koski/llvm-8.0.0.src/build/lib/LLVMRandom.so\" -Random -pp " + str(pointIndex) + " < " + path + "perturbations/wb_p_"+ str(prob) +".bc > " + path + "perturbations/wb_p_" + str(prob) +"_"+ str(pointIndex) + ".bc"
+    cmds[0] = "opt -load \"/home/koski/llvm-8.0.0.src/build/lib/LLVMRandom.so\" -Random -pp " + str(pointIndex) + " -o " + path + "perturbations/wb_p_" + str(prob) +"_"+ str(pointIndex) + ".bc" + " < " + path + "perturbations/wb_p_"+ str(prob) +".bc"
     cmds[1] = "llc -o " + path + "perturbations/wb_p_" + str(prob) + "_" + str(pointIndex) + ".s " + path + "perturbations/wb_p_" + str(prob) + "_" + str(pointIndex) + ".bc"
     cmds[2] = "gcc -o " + path + "perturbations/wb_p_" + str(prob) + "_" + str(pointIndex) + " " + path + "perturbations/wb_p_" + str(prob) + "_" + str(pointIndex) + ".s -no-pie"
     cmds[3] = "chmod +x " + path + "perturbations/wb_p_" + str(prob) +"_"+ str(pointIndex)
     for cmd in cmds:
         sp = subprocess.call(cmd, shell=True)
 
+def countPerturbations(logs):
+    onces = 0
+    zeros = 0
+    for line in logs.split("\n"):
+        try:
+            if line[:4] == "PP: ":
+                if int(line.strip()[-1]):
+                    onces += 1
+                else:
+                    zeros +=1
+        except:
+            continue
+
+    return onces + zeros
+
 def testPerturbationPoint(i, path, prob, numberOfInputs):
     success = 0
     fail = 0
     error = 0
+    activations = []
 
     for inp in range(numberOfInputs):
         input_hex = getRandomInput()
         cmd1 = [path + "perturbations/wb_p_"+ str(prob) +"_"+ str(i)] + input_hex.split()
         cmd2 = [path + "src/wb_challenge"] + input_hex.split()
-        out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-        out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        p1 = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out_opt, err_opt  = p1.communicate()
+        rc1 = p1.returncode
 
-        if err_opt:
+        p2 = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out_ref, err_ref = p2.communicate()
+        rc2 = p1.returncode
+
+        # out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        # out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+        if int(rc1):
             error +=1
         elif out_ref == out_opt:
             success+=1
         else:
             fail+=1
+
+        activations.append(countPerturbations(err_opt))
+
     #
     # with open("/home/koski/xPerturb/llvmPerturb/experiment_results/inputs.txt", "r") as fi:
     #     line = fi.readline()
@@ -142,7 +172,7 @@ def testPerturbationPoint(i, path, prob, numberOfInputs):
     #             fail+=1
     #         line = fi.readline()
     #         c += 1
-    return success, fail, error
+    return success, fail, error, (lambda lista: sum(lista)/len(lista))(activations)
 
 
 def cleanFiles(i, prob, path, delete_all): ## TODO Denna lirar inte med den nya strukturen
