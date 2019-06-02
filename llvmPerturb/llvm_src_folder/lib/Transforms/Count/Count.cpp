@@ -27,7 +27,7 @@ bool CountPP::runOnModule(Module &M){
   for(Module::iterator F = M.begin(), E = M.end(); F != E; ++F) {
         modifyed = runOnFunction(*F, M, pp_counter);
   }
-  errs() << pp_counter << "\n";
+  outs() << pp_counter << "\n";
   return modifyed;
 }
 

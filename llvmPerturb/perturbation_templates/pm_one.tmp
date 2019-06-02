@@ -1,6 +1,7 @@
 #include <stdlib.h>
 // #include <time.h>
 #include <sys/time.h>
+#include <stdio.h>
 
 #include <stdio.h>
 #include "pone_{probability}.h"
@@ -8,20 +9,17 @@
 void init_pone(){{
   struct timeval time;
   gettimeofday(&time, NULL);
-  // microsecond has 1 000 000
-  // Assuming you did not need quite that accuracy
-  // Also do not assume the system clock has that accuracy.
   srandom((time.tv_sec * 1000) + (time.tv_usec / 1000));
-
-  //srandom(time(0));
 }}
 
 int pone(){{ // Perturbe namechange
   int prob = {probability};
   int r = random()% 100;
   if (r < prob){{
+    fprintf(stderr, "PP: %d\n", 1);
     return {minus}1;
   }}else{{
+    fprintf(stderr, "PP: %d\n", 0);
     return 0;
   }}
 }}

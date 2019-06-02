@@ -6,7 +6,7 @@
 #include "llvm/IR/Instruction.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/GlobalVariable.h"
-#include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/raw_ostream.h" /* outs, errs */
 #include "llvm/IR/SymbolTableListTraits.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h" /* ReplaceInstWithInst */
 #include "llvm/Support/CommandLine.h"
@@ -42,7 +42,6 @@ cl::opt<int> PerturbationIndex("pp", cl::desc("Specify the perturbation point to
 
 
 CallInst * callPoneFunction( Module &M, BinaryOperator *op){
-  //errs()<<"Insert dice call\n";
   Constant *hookFunc = M.getOrInsertFunction("pone", IntegerType::get(M.getContext(), 32));
   Function *hook= cast<Function>(hookFunc);
   IRBuilder<> builder(op);
@@ -57,7 +56,6 @@ bool PerturbeOperation::runOnModule(Module &M){
 
   // At this point we have analysed the whole code and populated the vector
   // int pp_rand = random() % perturb_points.size();
-  // errs() << "Inserting perturbation at point nr: " << pp_rand+1 << "/" << perturb_points.size() << "\n";
 
   int pp_rand = PerturbationIndex;
 
@@ -142,7 +140,7 @@ bool PerturbeOperation::runOnModule(Module &M){
 Function * monitor;
 
 bool PerturbeOperation::runOnFunction(Function &F, Module &M) {
-  // errs() << "Function: " << F.getName() << '\n';
+  // outs() << "Function: " << F.getName() << '\n';
   // Do not perturbe our perturbation algorithm!!!
   // Keep adding our perturbation schemes to this here, in the future do something more nice looking!
 
