@@ -9,36 +9,35 @@ import time
 import threading
 from compilationTools import *
 
-#
-# percentHops = 5
-# percentOfPointsToInvestigate = 0.01
-# number_of_concurrent_threads = 5
-# atPercent = 5
-# path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/"
-# executable = "linked_challenge"
-# results = {}
-# threadQueue = []
-
 class Experiment():
     def __init__(self):
         self.Results = {}
         self.Jobs = []
         self.PerturbationPoints = []
         self.Path = None
-        self.Executable = None
+        self.Title = ""
+        self.Files = None
         self.PercentOfPointsToInvestigate = None
         self.NumberOfConcurrentJobs = 5
         self.Probabilities = []
+
+    def setTitle(self, title):
+        self.Title = title
     def setPath(self, path):
         self.Path = path
-    def setExecutable(self, exe):
-        self.Executable = exe
+    def setFiles(self, exe):
+        self.Files = exe
     def setProbabilities(self, lista):
         self.Probabilities = lista
     def setPercentOfPointsToInvestigate(self, p):
         self.PercentOfPointsToInvestigate = p
+
     def findAllPerturbationPoints(self):
-        self.PerturbationPoints = range(0, getNumberOfPerturbationPoints(self.Path))
+        sp = subprocess.Popen(["opt", "-load", "/home/koski/llvm-8.0.0.src/build/lib/LLVMPerturbCount.so", "-Count", "-o", "/dev/null", self.Path + "/wb.ll"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = sp.communicate()
+        print("Number of pp: " + str(int(out)))
+        self.PerturbationPoints = range(0, int(out))
+
     def getPointsFromFile(self, filename):
         # File with contents like: (25, 0.997, 4800, 16)
         # (Probability, Correctness, PerturbationIndex, Activations)
@@ -47,18 +46,17 @@ class Experiment():
         fd.close()
         for l in lines:
             self.Results.append(int(eval(l.strip())[2]))
+
     def queuePerturbationJobs(self):
         points = self.PerturbationPoints[::int(1/self.PercentOfPointsToInvestigate)]
         for i in range(len(points)):
             self.Results[points[i]] = {}
 
-        for pr in self.Probabilities:
-            generatePerturbationType(pr, True) # TODO Move to a place that is more intuitive
-
         for i in range(len(points)):
             for p in self.Probabilities: # Probabilities to investigate
-                self.Results[points[i]][p] = RESULT(p, self.Executable, self.Path, points[i])
-                self.Jobs.append(Job(p, self.Executable, self.Path, points[i], self.Results))
+                self.Results[points[i]][p] = RESULT(p, self.Title, self.Path, points[i])
+                self.Jobs.append(Job(p, self.Files, self.Path, points[i], self.Results))
+
     def executeJobs(self):
         # Execute a couple of threads simountaniusly, not all at once!
         indexCounter = 0
@@ -94,11 +92,11 @@ class Experiment():
 
 
 class Job (threading.Thread, Experiment):
-   def __init__(self, probability, exe, path, perturbationIndex, res):
+   def __init__(self, probability, f, path, perturbationIndex, res):
       threading.Thread.__init__(self)
       self.PerturbationIndex = perturbationIndex
       self.Probability = probability
-      self.Executable = exe
+      self.Files = f
       self.Path = path
       self.NumberOfInputs = 1000
       self.ResultsReference = res
@@ -107,33 +105,49 @@ class Job (threading.Thread, Experiment):
        #print("\ngeneratePerturbationType(self.Probability, self.PerturbationIndex)")
        ## generatePerturbationType(self.Probability, True) ## TODO Moove this outside of tread!, works bad if multiple wants to write and read at the same time!
        #print("\ninsertPerturbationProtocol(self.PerturbationIndex, self.Probability, self.Path)")
-       insertPerturbationProtocol(self.PerturbationIndex, self.Probability, self.Path)
+       T = Transformator()
+       T.setSourceFolder(self.Path)
+       T.setSourceFiles(["challenge.c", "chow_aes3_encrypt_wb.c"])
+       T.setProbability(self.Probability)
+       T.setPerturbationIndex(self.PerturbationIndex)
+       T.setPerturbationType("PONE")
+
+       T.insertPerturbationProtocol()
        #print("\ninsertPerturbationPoint(self.PerturbationIndex)")
-       insertPerturbationPoint(self.PerturbationIndex, self.Path, self.Probability)
+       T.insertPerturbationPoint()
        #print("\ntestPerturbationPoint(self.PerturbationPoint)")
-       succ_fail_err_act = testPerturbationPoint(self.PerturbationIndex, self.Path, self.Probability, self.NumberOfInputs)
+
+       R = Runner()
+       succ_fail_err_act = R.testPerturbationPoint(self.Path, self.PerturbationIndex, self.Probability, self.NumberOfInputs)
        self.ResultsReference[self.PerturbationIndex][self.Probability].Success = succ_fail_err_act[0]
        self.ResultsReference[self.PerturbationIndex][self.Probability].Fail = succ_fail_err_act[1]
        self.ResultsReference[self.PerturbationIndex][self.Probability].Error = succ_fail_err_act[2]
        self.ResultsReference[self.PerturbationIndex][self.Probability].Activations = succ_fail_err_act[3]
        #print("Thread done")
-       cleanFiles(self.PerturbationIndex, self.Probability, self.Path, False)
+       T.cleanFiles(False)
 
 
 def main():
     print("Start!")
     #print("\ncompileWhiteBoxToLLVM(self.Probability, self.Path)")
-    path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/"
-    compileReferenceWhitebox(path)
-    compileWhiteBoxToLLVM(path)
+    path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/src/"
+    files = ["challenge.c", "chow_aes3_encrypt_wb.c"]
+    probabilities = [5]
+    percentOfPointsToInvestigate = 0.00005
+    C = Compiler(path, files)
+    C.compileWhiteBoxToLLVM()
+    C.compileReferenceWhiteBox()
+    for p in range(0, 101):
+        C.generatePerturbationType(p, True)
 
     E = Experiment()
     E.setPath(path)
-    E.setExecutable("linked_challenge")
+    E.setFiles(files)
+    E.setTitle("Ches2016")
     E.findAllPerturbationPoints()
     # E.getPointsFromFile("filename.cvc")
-    E.setPercentOfPointsToInvestigate(0.01)
-    E.setProbabilities([5])
+    E.setPercentOfPointsToInvestigate(percentOfPointsToInvestigate)
+    E.setProbabilities(probabilities)
     E.queuePerturbationJobs()
     E.executeJobs()
     E.saveExperiment()
