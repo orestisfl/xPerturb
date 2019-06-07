@@ -42,10 +42,10 @@ cl::opt<int> PerturbationIndex("pp", cl::desc("Specify the perturbation point to
 
 
 CallInst * callPoneFunction( Module &M, BinaryOperator *op){
-  Constant *hookFunc = M.getOrInsertFunction("pone", IntegerType::get(M.getContext(), 32));
+  Constant *hookFunc = M.getOrInsertFunction("pone", IntegerType::get(M.getContext(), 64));
   Function *hook= cast<Function>(hookFunc);
   IRBuilder<> builder(op);
-  return builder.CreateCall(hook, llvm::NoneType::None, "perturbation");
+  return builder.CreateCall(hook, llvm::NoneType::None, "perturbation_i64");
 }
 
 bool PerturbeOperation::runOnModule(Module &M){
@@ -58,6 +58,9 @@ bool PerturbeOperation::runOnModule(Module &M){
   // int pp_rand = random() % perturb_points.size();
 
   int pp_rand = PerturbationIndex;
+
+  // perturb_points[pp_rand]->instruction->print(errs());
+  //errs()<<"\n";
 
   if (auto* op = dyn_cast<BinaryOperator>(perturb_points[pp_rand]->instruction)) {
     switch (perturb_points[pp_rand]->instruction->getOpcode()) {
@@ -73,8 +76,32 @@ bool PerturbeOperation::runOnModule(Module &M){
             IRBuilder<> builder(op);
             Value* lhs = op->getOperand(0);
 
-            auto pert = callPoneFunction(M, op);
-            Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
+            auto perturbation_i64 = callPoneFunction(M, op);
+            // TODO make pert the same type (i.e i32 or i8 etc) as the lhs
+            //CastInst* perturbation;
+            Value* inc;
+            //errs() << lhs->getType() << "\n";
+            if (lhs->getType() == Type::getInt8Ty(M.getContext())) {
+              //errs()<<"8-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt8Ty(M.getContext()), "perturbation", op);
+              inc = builder.CreateBinOp(Instruction::Add, lhs, perturbation, "inc");
+            } else if (lhs->getType() == Type::getInt16Ty(M.getContext())) {
+              //errs()<<"16-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt16Ty(M.getContext()), "perturbation", op);
+              inc = builder.CreateBinOp(Instruction::Add, lhs, perturbation, "inc");
+            } else if (lhs->getType() == Type::getInt32Ty(M.getContext())) {
+              //errs()<<"32-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt32Ty(M.getContext()), "perturbation", op);
+              inc = builder.CreateBinOp(Instruction::Add, lhs, perturbation, "inc");
+            } else if (lhs->getType() == Type::getInt64Ty(M.getContext())) {
+              //errs()<<"64-bit\n";
+              inc = builder.CreateBinOp(Instruction::Add, lhs, perturbation_i64, "inc");
+            // Need to do a sign extension or make pone output 64 bit integers
+            } else {
+              errs()<<"UNKNOWN INTEGER\n";
+            }
+
+            // Value* inc = builder.CreateBinOp(Instruction::Add, lhs, perturbation, "inc");
             perturb_points[pp_rand]->instruction->setOperand(0, inc);
               break;
           }
@@ -104,26 +131,102 @@ bool PerturbeOperation::runOnModule(Module &M){
             Value* lhs = op->getOperand(0);
             Value* rhs = op->getOperand(1);
             Value* tmp = builder.CreateBinOp((Instruction::BinaryOps)perturb_points[pp_rand]->instruction->getOpcode(), lhs, rhs, "tmp");
-            auto pert = callPoneFunction(M, op);
-            Instruction* a = BinaryOperator::CreateAdd(tmp, pert, "tmp2");
+            // auto pert = callPoneFunction(M, op);
+
+            auto perturbation_i64 = callPoneFunction(M, op);
+            // TODO make pert the same type (i.e i32 or i8 etc) as the lhs
+
+
+            Instruction* a;
+            //errs() << lhs->getType() << "\n";
+            if (lhs->getType() == Type::getInt8Ty(M.getContext())) {
+              //errs()<<"8-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt8Ty(M.getContext()), "perturbation", op);
+              a = BinaryOperator::CreateAdd(tmp, perturbation, "tmp2");
+            } else if (lhs->getType() == Type::getInt16Ty(M.getContext())) {
+              //errs()<<"16-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt16Ty(M.getContext()), "perturbation", op);
+              a = BinaryOperator::CreateAdd(tmp, perturbation, "tmp2");
+            } else if (lhs->getType() == Type::getInt32Ty(M.getContext())) {
+              //errs()<<"32-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt32Ty(M.getContext()), "perturbation", op);
+              a = BinaryOperator::CreateAdd(tmp, perturbation, "tmp2");
+            } else if (lhs->getType() == Type::getInt64Ty(M.getContext())) {
+              //errs()<<"64-bit\n";
+              a = BinaryOperator::CreateAdd(tmp, perturbation_i64, "tmp2");
+            // Need to do a sign extension or make pone output 64 bit integers
+            } else {
+              errs()<<"UNKNOWN INTEGER\n";
+            }
+
+            //Instruction* a = BinaryOperator::CreateAdd(tmp, perturbation, "tmp2");
             ReplaceInstWithInst(op, a);
             break;
           }
           case PerturbationPoint::Point::OPERAND_0:{
             IRBuilder<> builder(op);
             Value* lhs = op->getOperand(0);
+            // auto pert = callPoneFunction(M, op);
 
-            auto pert = callPoneFunction(M, op);
-            Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
+            auto perturbation_i64 = callPoneFunction(M, op);
+            // TODO make pert the same type (i.e i32 or i8 etc) as the lhs
+            //CastInst* perturbation;
+            Value* inc;
+            //errs() << lhs->getType() << "\n";
+            if (lhs->getType() == Type::getInt8Ty(M.getContext())) {
+              //errs()<<"8-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt8Ty(M.getContext()), "perturbation", op);
+              inc = builder.CreateBinOp(Instruction::Add, lhs, perturbation, "inc");
+            } else if (lhs->getType() == Type::getInt16Ty(M.getContext())) {
+              //errs()<<"16-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt16Ty(M.getContext()), "perturbation", op);
+              inc = builder.CreateBinOp(Instruction::Add, lhs, perturbation, "inc");
+            } else if (lhs->getType() == Type::getInt32Ty(M.getContext())) {
+              //errs()<<"32-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt32Ty(M.getContext()), "perturbation", op);
+              inc = builder.CreateBinOp(Instruction::Add, lhs, perturbation, "inc");
+            } else if (lhs->getType() == Type::getInt64Ty(M.getContext())) {
+              //errs()<<"64-bit\n";
+              inc = builder.CreateBinOp(Instruction::Add, lhs, perturbation_i64, "inc");
+            // Need to do a sign extension or make pone output 64 bit integers
+            } else {
+              errs()<<"UNKNOWN INTEGER\n";
+            }
+
+            // Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
             perturb_points[pp_rand]->instruction->setOperand(0, inc);
             break;
           }
           case PerturbationPoint::Point::OPERAND_1:{
             IRBuilder<> builder(op);
-            Value* lhs = op->getOperand(1);
+            Value* rhs = op->getOperand(1);
 
-            auto pert = callPoneFunction(M, op);
-            Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
+            //auto pert = callPoneFunction(M, op);
+            auto perturbation_i64 = callPoneFunction(M, op);
+            // TODO make pert the same type (i.e i32 or i8 etc) as the lhs
+            //CastInst* perturbation;
+            Value* inc;
+            //errs() << rhs->getType() << "\n";
+            if (rhs->getType() == Type::getInt8Ty(M.getContext())) {
+              //errs()<<"8-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt8Ty(M.getContext()), "perturbation", op);
+              inc = builder.CreateBinOp(Instruction::Add, rhs, perturbation, "inc");
+            } else if (rhs->getType() == Type::getInt16Ty(M.getContext())) {
+              //errs()<<"16-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt16Ty(M.getContext()), "perturbation", op);
+              inc = builder.CreateBinOp(Instruction::Add, rhs, perturbation, "inc");
+            } else if (rhs->getType() == Type::getInt32Ty(M.getContext())) {
+              //errs()<<"32-bit\n";
+              CastInst* perturbation = new TruncInst(perturbation_i64, Type::getInt32Ty(M.getContext()), "perturbation", op);
+              inc = builder.CreateBinOp(Instruction::Add, rhs, perturbation, "inc");
+            } else if (rhs->getType() == Type::getInt64Ty(M.getContext())) {
+              //errs()<<"64-bit\n";
+              inc = builder.CreateBinOp(Instruction::Add, rhs, perturbation_i64, "inc");
+            // Need to do a sign extension or make pone output 64 bit integers
+            } else {
+              errs()<<"UNKNOWN INTEGER\n";
+            }
+            //Value* inc = builder.CreateBinOp(Instruction::Add, lhs, pert, "inc");
             perturb_points[pp_rand]->instruction->setOperand(1, inc);
               break;
           }
@@ -165,8 +268,6 @@ bool PerturbeOperation::runOnFunction(Function &F, Module &M) {
       Instruction* ii = &*(i);
       // Find all perturbation points inside of binary operators
       if (isa<BinaryOperator>(i)) {
-        // Mark the perturbationpoints type and location according to a pre defined scheme!
-        // See Random.hpp
         perturb_points.push_back(
           new PerturbationPoint(ii, PerturbationPoint::Point::OPERAND_0)
         );

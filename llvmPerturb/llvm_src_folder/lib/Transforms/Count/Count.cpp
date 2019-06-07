@@ -32,11 +32,20 @@ bool CountPP::runOnModule(Module &M){
 }
 
 bool CountPP::runOnFunction(Function &F, Module &M, int &pp_counter){
+  LLVMContext& C = F.getContext();
+
   for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
     // For each operation inside a basic block
     for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
       // Find all perturbation points inside of binary operators
       if (isa<BinaryOperator>(i)) {
+        Metadata * Ops[3];
+        Ops[0] = MDString::get(C, std::to_string(pp_counter));
+        Ops[1] = MDString::get(C, std::to_string(pp_counter+1));
+        Ops[2] = MDString::get(C, std::to_string(pp_counter+2));
+        MDNode * N = MDTuple::get(C, Ops);
+
+        i->setMetadata("perturbation-point", N);
         pp_counter = pp_counter+3;
       }
     }
