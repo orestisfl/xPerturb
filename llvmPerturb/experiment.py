@@ -55,7 +55,7 @@ class Experiment():
         for i in range(len(points)):
             for p in self.Probabilities: # Probabilities to investigate
                 self.Results[points[i]][p] = RESULT(p, self.Title, self.Path, points[i])
-                self.Jobs.append(Job(p, self.Files, self.Path, points[i], self.Results))
+                self.Jobs.append(Job(p, self.Files, self.Path, points[i], self.Results, self.Title.lower()))
 
     def executeJobs(self):
         # Execute a couple of threads simountaniusly, not all at once!
@@ -74,9 +74,9 @@ class Experiment():
                 return
     def saveExperiment(self):
         if len(self.Probabilities) == 1:
-            fn = "./experiment_results/points_p" + str(self.Probabilities[0]) + "_all.cvc"
+            fn = "/home/koski/xPerturb/llvmPerturb/experiment_results/" + self.Title.lower() + "_points_p" + str(self.Probabilities[0]) + "_all.cvc"
         else:
-            fn = "./experiment_results/points_px_top" + str(len(self.PerturbationPoints)) + ".cvc"
+            fn = "/home/koski/xPerturb/llvmPerturb/experiment_results/" + self.Title.lower() + "_points_px_n" + str(len(self.PerturbationPoints)) + ".cvc"
         fd = open(fn, "w")
         for i in self.Results.keys():
             for p in self.Results[i].keys():
@@ -84,6 +84,7 @@ class Experiment():
                 fd.write("\n")
         fd.close()
     def printExperiemntResults(self):
+        print("")
         for i in self.Results.keys():
             for p in self.Results[i].keys():
                 print(self.Results[i][p])
@@ -92,7 +93,7 @@ class Experiment():
 
 
 class Job (threading.Thread, Experiment):
-   def __init__(self, probability, f, path, perturbationIndex, res):
+   def __init__(self, probability, f, path, perturbationIndex, res, challenge_name):
       threading.Thread.__init__(self)
       self.PerturbationIndex = perturbationIndex
       self.Probability = probability
@@ -100,6 +101,33 @@ class Job (threading.Thread, Experiment):
       self.Path = path
       self.NumberOfInputs = 1000
       self.ResultsReference = res
+      self.R = Runner()
+
+
+      if challenge_name == "ches2016":
+          self.R.getRandomInput = self.input_ches2016
+      elif challenge_name == "kryptologik":
+          self.R.getRandomInput = self.input_kryptologik
+      elif challenge_name == "nsc2013":
+          self.R.getRandomInput = self.input_nsc2013
+      else:
+          raise ValueError("Wrong title on whitebox, could not find coresponding input setting for that white-box")
+
+   def input_ches2016(self):
+       ret = '{0:0{1}X}'.format(random.randint(0, 255),2)
+       for i in range(15):
+            ret = ret + " " + '{0:0{1}X}'.format(random.randint(0, 255),2)
+       return ret
+   def input_kryptologik(self):
+       ret = '{0:0{1}X}'.format(random.randint(0, 255),2)
+       for i in range(15):
+           ret = ret + " " + '{0:0{1}X}'.format(random.randint(0, 255),2)
+       return ret
+   def input_nsc2013(self):
+       ret = '{0:0{1}X}'.format(random.randint(0, 255),2)
+       for i in range(15):
+           ret = ret + '{0:0{1}X}'.format(random.randint(0, 255),2)
+       return ret
 
    def run(self):
        #print("\ngeneratePerturbationType(self.Probability, self.PerturbationIndex)")
@@ -107,7 +135,7 @@ class Job (threading.Thread, Experiment):
        #print("\ninsertPerturbationProtocol(self.PerturbationIndex, self.Probability, self.Path)")
        T = Transformator()
        T.setSourceFolder(self.Path)
-       T.setSourceFiles(["challenge.c", "chow_aes3_encrypt_wb.c"])
+       T.setSourceFiles(self.Files)
        T.setProbability(self.Probability)
        T.setPerturbationIndex(self.PerturbationIndex)
        T.setPerturbationType("PONE")
@@ -117,8 +145,7 @@ class Job (threading.Thread, Experiment):
        T.insertPerturbationPoint()
        #print("\ntestPerturbationPoint(self.PerturbationPoint)")
 
-       R = Runner()
-       succ_fail_err_act = R.testPerturbationPoint(self.Path, self.PerturbationIndex, self.Probability, self.NumberOfInputs)
+       succ_fail_err_act = self.R.testPerturbationPoint(self.Path, self.PerturbationIndex, self.Probability, self.NumberOfInputs)
        self.ResultsReference[self.PerturbationIndex][self.Probability].Success = succ_fail_err_act[0]
        self.ResultsReference[self.PerturbationIndex][self.Probability].Fail = succ_fail_err_act[1]
        self.ResultsReference[self.PerturbationIndex][self.Probability].Error = succ_fail_err_act[2]
@@ -126,24 +153,24 @@ class Job (threading.Thread, Experiment):
        #print("Thread done")
        T.cleanFiles(False)
 
-
-def main():
-    print("Start!")
+def ches2016():
+    print("Starting ches2016")
     #print("\ncompileWhiteBoxToLLVM(self.Probability, self.Path)")
     path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/src/"
     files = ["challenge.c", "chow_aes3_encrypt_wb.c"]
     probabilities = [5]
-    percentOfPointsToInvestigate = 0.00005
+    percentOfPointsToInvestigate = 0.01
     C = Compiler(path, files)
     C.compileWhiteBoxToLLVM()
-    C.compileReferenceWhiteBox()
-    for p in range(0, 101):
-        C.generatePerturbationType(p, True)
+    # C.compileReferenceWhiteBox()
+
+    # for p in range(0, 101):
+    #     C.generatePerturbationType(p, True)
 
     E = Experiment()
     E.setPath(path)
     E.setFiles(files)
-    E.setTitle("Ches2016")
+    E.setTitle("ches2016")
     E.findAllPerturbationPoints()
     # E.getPointsFromFile("filename.cvc")
     E.setPercentOfPointsToInvestigate(percentOfPointsToInvestigate)
@@ -155,4 +182,70 @@ def main():
 
     print("Fin")
 
+def kryptologik():
+    print("Needs to be run from kryptologiks src folder")
+    print("Starting Kryptologik")
+    #print("\ncompileWhiteBoxToLLVM(self.Probability, self.Path)")
+    path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_kryptologik/src/"
+    files = ["DemoKey_table_encrypt.c"]
+    probabilities = [5, 10, 50, 75, 90, 99]
+    percentOfPointsToInvestigate = 0.01
+    C = Compiler(path, files)
+    C.compileWhiteBoxToLLVM()
+    # C.compileReferenceWhiteBox()
+
+    # for p in range(0, 101):
+    #     C.generatePerturbationType(p, True)
+
+    E = Experiment()
+    E.setPath(path)
+    E.setFiles(files)
+    E.setTitle("kryptologik")
+    E.findAllPerturbationPoints()
+    # E.getPointsFromFile("filename.cvc")
+    E.setPercentOfPointsToInvestigate(percentOfPointsToInvestigate)
+    E.setProbabilities(probabilities)
+    E.queuePerturbationJobs()
+    E.executeJobs()
+    E.saveExperiment()
+    E.printExperiemntResults()
+
+    print("Fin")
+
+def nsc2013_variants_noenc_1():
+    print("Starting nsc2013_variants_noenc_1")
+    #print("\ncompileWhiteBoxToLLVM(self.Probability, self.Path)")
+    path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_nsc2013_variants/src/"
+    files = ["nosuchcon_2013_whitebox_noenc.c"]
+    # Compile nosuchcon_2013_whitebox_noenc_generator.c separate
+    probabilities = [5, 10, 50, 75, 90, 99]
+    percentOfPointsToInvestigate = 1
+    C = Compiler(path, files)
+    C.compileWhiteBoxToLLVM()
+    C.compileReferenceWhiteBox(["gcc -o " + path + "nosuchcon_2013_whitebox_noenc_generator " + path + "nosuchcon_2013_whitebox_noenc_generator.c",
+    path + "nosuchcon_2013_whitebox_noenc_generator"])
+
+    # for p in range(0, 101):
+    #     C.generatePerturbationType(p, True)
+
+    E = Experiment()
+    E.setPath(path)
+    E.setFiles(files)
+    E.setTitle("nsc2013")
+    E.findAllPerturbationPoints()
+    # E.getPointsFromFile("filename.cvc")
+    E.setPercentOfPointsToInvestigate(percentOfPointsToInvestigate)
+    E.setProbabilities(probabilities)
+    E.queuePerturbationJobs()
+    E.executeJobs()
+    E.saveExperiment()
+    E.printExperiemntResults()
+
+    print("Fin")
+
+def main():
+    nsc2013_variants_noenc_1()
+    ches2016()
+    kryptologik()
+    # TODO Fix inpt generator set
 main()

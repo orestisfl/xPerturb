@@ -48,6 +48,7 @@ Activations: %1.3f""" %(
         return str(self.Probability) + ", " + str(self.get_correctness()) + ", " + str(self.PerturbationPoint) + ", " + str(self.Activations)
 
 class Compiler():
+    # Compile neccesarry scripts to be able to work with stuff
     def __init__(self, sfo, sfi):
         self.SourceFolder = sfo
         self.SourceFiles = sfi
@@ -70,8 +71,10 @@ class Compiler():
         for cmd in cmds:
             sp = subprocess.call(cmd, shell=True)
 
-    def compileReferenceWhiteBox(self):
-        pass
+    def compileReferenceWhiteBox(self, cmds):
+        for cmd in cmds:
+            sp = subprocess.call(cmd, shell=True)
+
 
     def generatePerturbationType(self, prob, plus):
         # Generate the apropriate perturbation function with set probability and pp-model
@@ -98,6 +101,7 @@ class Compiler():
 
 
 class Transformator():
+    # Trasforms the code at a choosen perturbation point
     def __init__(self):
         self.SourceFolder = ""
         self.SourceFiles = []
@@ -121,7 +125,7 @@ class Transformator():
 
     def insertPerturbationProtocol(self):
         cmds = [None] * 1
-        cmds[0] = "llvm-link example_programs/perturbation_types/pone_"+ str(self.Probability) +".ll " + self.SourceFolder + "wb.ll -o " + self.SourceFolder + "../perturbations/wb_p_" + str(self.Probability) +".bc"
+        cmds[0] = "llvm-link " + self.SourceFolder + "../../perturbation_types/pone_"+ str(self.Probability) +".ll " + self.SourceFolder + "wb.ll -o " + self.SourceFolder + "../perturbations/wb_p_" + str(self.Probability) +".bc"
         for cmd in cmds:
             sp = subprocess.call(cmd, shell=True)
 
@@ -148,17 +152,14 @@ class Transformator():
 
 
 class Runner():
+    # Runs the witebox with random input
     def __init__(self):
         self.Source = ""
         self.logs = ""
-        self.NumberOfInputs = 1000
 
     def getRandomInput(self):
-        # Random generated input tailored for chow2016 challenge
-        ret = '{0:0{1}X}'.format(random.randint(0, 255),2)
-        for i in range(15):
-            ret = ret + " " + '{0:0{1}X}'.format(random.randint(0, 255),2)
-        return ret
+        # User defined function
+        pass
 
     def countPerturbations(self, logs):
         onces = 0
@@ -183,17 +184,20 @@ class Runner():
         for inp in range(numberOfInputs):
             input_hex = self.getRandomInput()
             cmd1 = [path + "../perturbations/wb_p_"+ str(prob) +"_"+ str(i)] + input_hex.split()
-            cmd2 = [path + "wb_challenge"] + input_hex.split()
+            cmd2 = [path + "wb_reference"] + input_hex.split()
             p1 = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out_opt, err_opt  = p1.communicate()
             rc1 = p1.returncode
+
+            #print(out_opt)
+            #print(err_opt)
 
             p2 = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out_ref, err_ref = p2.communicate()
             rc2 = p1.returncode
 
-            # out_opt, err_opt = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-            # out_ref, err_ref = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            ##print(out_ref)
+            ##print(err_ref)
 
             if int(rc1):
                 error +=1
