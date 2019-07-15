@@ -5,36 +5,39 @@ target triple = "x86_64-pc-linux-gnu"
 
 @.str = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 
+
+
 ; Function Attrs: noinline nounwind optnone uwtable
-define i32 @mul(i32, i32) #0 {
-  %3 = alloca i32, align 4
-  %4 = alloca i32, align 4
-  %5 = alloca i32, align 4
-  store i32 %0, i32* %3, align 4
-  store i32 %1, i32* %4, align 4
-  %6 = load i32, i32* %3, align 4
-  %7 = load i32, i32* %4, align 4
-  %8 = mul nsw i32 %6, %7
-  store i32 %8, i32* %5, align 4
-  %9 = load i32, i32* %5, align 4
-  ret i32 %9
+define signext i8 @mul(i8 signext, i8 signext) #0 {
+  %3 = alloca i8, align 1
+  %4 = alloca i8, align 1
+  %5 = alloca i8, align 1
+  store i8 %0, i8* %3, align 1
+  store i8 %1, i8* %4, align 1
+  %6 = load i8, i8* %3, align 1
+  %7 = load i8, i8* %4, align 1
+  %8 = add nsw i8 %6, %7
+  store i8 %8, i8* %5, align 1
+  %9 = load i8, i8* %5, align 1
+  ret i8 %9
 }
 
 ; Function Attrs: noinline nounwind optnone uwtable
 define i32 @main() #0 {
   %1 = alloca i32, align 4
-  %2 = alloca i32, align 4
-  %3 = alloca i32, align 4
-  %4 = alloca i32, align 4
+  %2 = alloca i8, align 1
+  %3 = alloca i8, align 1
+  %4 = alloca i8, align 1
   store i32 0, i32* %1, align 4
-  store i32 2, i32* %2, align 4
-  store i32 3, i32* %3, align 4
-  %5 = load i32, i32* %2, align 4
-  %6 = load i32, i32* %3, align 4
-  %7 = call i32 @mul(i32 %5, i32 %6)
-  store i32 %7, i32* %4, align 4
-  %8 = load i32, i32* %4, align 4
-  %9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i32 %8)
+  store i8 2, i8* %2, align 1
+  store i8 3, i8* %3, align 1
+  %5 = load i8, i8* %2, align 1
+  %6 = load i8, i8* %3, align 1
+  %7 = call signext i8 @mul(i8 signext %5, i8 signext %6)
+  store i8 %7, i8* %4, align 1
+  %8 = load i8, i8* %4, align 1
+  %9 = sext i8 %8 to i32
+  %10 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i32 %9)
   ret i32 0
 }
 
