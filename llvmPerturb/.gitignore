@@ -2,7 +2,12 @@ notes.txt
 .idea/*
 notes.txt
 
-*/perturbations/*
+*.pyc
 
-## To later be added
-side-channel/*
+attacks/daredevilLogs/*
+attacks/logs/*
+attacks/DemoKey_table.bin
+
+example_programs/*/perturbations
+experiment_results/old/*
+experiment_results/traces/*
