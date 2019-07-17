@@ -4,9 +4,6 @@ import os
 import subprocess # Popen
 import random
 
-
-number_of_inputs_to_try = 1000
-
 class RESULT:
     def __init__(self, pr, e, path, pe):
         self.Success = 0
@@ -194,7 +191,6 @@ class Runner():
 
             p2 = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out_ref, err_ref = p2.communicate()
-            rc2 = p1.returncode
 
             ##print(out_ref)
             ##print(err_ref)
@@ -209,3 +205,40 @@ class Runner():
             activations.append(self.countPerturbations(err_opt))
 
         return success, fail, error, (lambda lista: sum(lista)/len(lista))(activations)
+    def run_nsc_generator_version(self, path, i, prob, numberOfInputs):
+        success = 0
+        fail = 0
+        error = 0
+        activations = []
+
+        for inp in range(numberOfInputs):
+            input_hex = self.getRandomInput()
+            cmd0 = [path + "../perturbations/wb_p_"+ str(prob) +"_"+ str(i)]
+            cmd1 = [path + "../perturbations/nosuchcon_2013_whitebox_noenc"] + input_hex.split()
+            cmd2 = [path + "wb_reference"] + input_hex.split()
+
+            p0o, p0e = subprocess.Popen(" ".join(cmd0), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            activations.append(self.countPerturbations(p0e))
+
+            p1 = subprocess.Popen(" ".join(cmd1), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out_opt, err_opt  = p1.communicate()
+            rc1 = p1.returncode
+
+            #print(out_opt)
+            #print(err_opt)
+            p25o, p25e = subprocess.Popen(path + "/nosuchcon_2013_whitebox_noenc_generator", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            p2 = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out_ref, err_ref = p2.communicate()
+            p0o, p0e = subprocess.Popen("rm " + path + "../perturbations/wbt_noenc", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+            #print(out_ref)
+            #print(err_ref)
+
+            if int(rc1):
+                error +=1
+            elif out_ref == out_opt:
+                success+=1
+            else:
+                fail+=1
+        #print(success/(success + fail))
+        return success, fail, error, (sum(activations)/len(activations))
