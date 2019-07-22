@@ -34,12 +34,14 @@ class CorrPointList():
             probability = int(line.strip().split(", ")[0])
             corr = float(line.strip().split(", ")[1])
             index = int(line.strip().split(", ")[2])
-            self.Points.append(CorrPoint(probability, corr, index))
+            cp = CorrPoint(probability, corr, index)
+            if cp not in self.Points:
+                self.Points.append(cp)
         fd.close()
 
     def plotTopPoints(self, num, prob):
         #print("Top " + str(num) + " for " + self.Title + " at " + str(prob))
-        top = [i for i in self.Points if i.percent == prob]
+        top = [i for i in self.Points if i.percent == prob and i.corr != 1]
         top.sort()
         top.reverse()
         colorCounter = 0
@@ -48,8 +50,9 @@ class CorrPointList():
         plt.title("Top - 10 highest correctness")
         plt.xlabel("Perturbation probability")
         plt.ylabel("Correctness")
+        print(len(top[0:num]))
         for i in top[0:num]:
-            top_point_xy = [(y.percent, y.corr) for y in self.Points if i.index == y.index]
+            top_point_xy = [(y.percent, y.corr) for y in self.Points if i.index == y.index and y.corr >0]
             x, y = zip(*top_point_xy)
             z = np.polyfit(x, y, 1)
             p = np.poly1d(z)
@@ -60,7 +63,7 @@ class CorrPointList():
 
     def saveTopPoints(self, num, prob):
         fd = open("./experiment_results/" + self.Title + "_top" + str(num) + "_p" + str(prob) + ".pts", "w")
-        top = [i for i in self.Points if i.percent == prob]
+        top = [i for i in self.Points if i.percent == prob and i.corr != 1]
         top.sort()
         top.reverse()
         for i in top[0:num]:
@@ -90,6 +93,9 @@ class CorrPoint():
             return self.percent < other.percent
         else:
             return self.corr < other.corr
+    def __eq__(self, other):
+        return self.percent == other.percent and self.index == other.index
+
     def __str__(self):
         return str(self.percent) + ", " + str(self.corr) + ", " + str(self.index)
 
@@ -130,17 +136,21 @@ def nsc2013_all():
     point_list.setTitle("nsc2013")
     # nsc2013_files = ["./experiment_results/nsc2013 - noenc_points_px_n114.cvc"]
     # nsc2013 - noenc - generator_points_p50_all
-    nsc2013_files = ["./experiment_results/nsc2013 - noenc - generator_points_p50_all.cvc",
-    "./experiment_results/nsc2013 - noenc - generator_points_p99_all.cvc",
-    "./experiment_results/nsc2013 - noenc - generator_points_p5_all.cvc"]
+    nsc2013_files = [
+     "./experiment_results/nsc2013 - noenc - generator_points_p5_all.cvc",
+     "./experiment_results/nsc2013 - noenc - generator_points_p50_p99_n408.cvc",
+     "./experiment_results/nsc2013 - noenc - generator_points_px_n10.cvc",
+     "./experiment_results/nsc2013 - noenc - generator_points_px_n408.cvc"]
+
+
     for i in nsc2013_files:
         point_list.getPointsFromFile(i)
 
     plt.subplot(2,3,3)
     point_list.plotPoints()
     plt.subplot(2,3,6)
-    point_list.plotTopPoints(10, 90)
-    point_list.saveTopPoints(10, 90)
+    point_list.plotTopPoints(10, 50)
+    point_list.saveTopPoints(10, 50)
 
 def main():
     plt.title("Perturbation points")
