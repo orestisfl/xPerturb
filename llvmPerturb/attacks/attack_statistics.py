@@ -31,6 +31,7 @@ class AttackStatitic():
         self.keyGuessAbs = []
         self.keyGuessSum = []
         self.Score = -1
+        self.perturbationpoint = -1
 
     def parseDaredevilData(self, data, times):
         # Key bytes, best candidates
@@ -67,6 +68,7 @@ class AttackStatitic():
         self.evaluteCorrelationMatrix(self.highestAbsMatrix, reference.highestAbsMatrix, key)
 
     def evaluteCorrelationMatrix(self, attackM, referenceM, key):
+        # Probably useless function now that the attack score is implemented...
         keyByteList = [key[i:i+2] for i in range(0, len(key), 2)]
 
         lst = []
@@ -117,11 +119,10 @@ class AttackStatitic():
         imSumScore = imSumScore/len(keyByteList)
         imAbsScore = imAbsScore/len(keyByteList)
 
-        print(("abs", imAbsScore))
-        print(("sum", imSumScore))
-
-        print("")
-
+        if self.perturbationpoint != -1:
+            print(str(imAbsScore) + "\t" + str(imSumScore) + "\t" + str(self.perturbationpoint))
+        else:
+            print(str(imAbsScore) + "\t" + str(imSumScore))
     def loadFromFile(self, fn):
         fd = open(fn, "r")
         l = fd.readlines()
