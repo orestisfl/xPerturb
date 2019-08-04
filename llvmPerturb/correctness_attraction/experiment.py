@@ -7,7 +7,10 @@ import random
 from tqdm import tqdm # Progress bar
 import time
 import threading
-from compilationTools import *
+from compilationTools import * # Compiler, Transformator, Runner
+from Result import *
+
+
 
 class Experiment():
     def __init__(self):
@@ -38,14 +41,12 @@ class Experiment():
         print("Number of pp: " + str(int(out)))
         self.PerturbationPoints = range(0, int(out))
 
-    def getPointsFromFile(self, filename):
-        # File with contents like: (25, 0.997, 4800, 16)
-        # (Probability, Correctness, PerturbationIndex, Activations)
-        fd = open(filename, "r")
-        lines = fd.readlines()
-        fd.close()
-        for l in lines:
-            self.Results.append(int(eval(l.strip())[2]))
+    def findAllPerturbationPointsFirstRound(self, rounds):
+        sp = subprocess.Popen(["opt", "-load", "/home/koski/llvm-8.0.0.src/build/lib/LLVMPerturbCount.so", "-Count", "-o", "/dev/null", self.Path + "/wb.ll"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = sp.communicate()
+        print("Number of pp: " + str(int(out)))
+        r1 = (int(out)/rounds) * 1.5
+        self.PerturbationPoints = range(0, int(r1))
 
     def queuePerturbationJobs(self):
         points = self.PerturbationPoints[::int(1/self.PercentOfPointsToInvestigate)]
@@ -65,7 +66,7 @@ class Experiment():
                 if indexCounter + i == len(self.Jobs):
                     break
                 self.Jobs[indexCounter + i].start()
-                time.sleep(0.50) # Neccesary to give a different seed to all the threads
+                time.sleep(2) # Neccesary to give a different seed to all the threads
             for i in range(0, self.NumberOfConcurrentJobs):
                 if indexCounter + i == len(self.Jobs):
                     break
@@ -89,8 +90,6 @@ class Experiment():
             for p in self.Results[i].keys():
                 print(self.Results[i][p])
                 print("")
-
-
 
 class Job (threading.Thread, Experiment):
    def __init__(self, probability, f, path, perturbationIndex, res, challenge_name):
@@ -132,27 +131,27 @@ class Job (threading.Thread, Experiment):
 
 
    def run(self):
-       #print("\ngeneratePerturbationType(self.Probability, self.PerturbationIndex)")
        ## generatePerturbationType(self.Probability, True) ## TODO Moove this outside of tread!, works bad if multiple wants to write and read at the same time!
-       #print("\ninsertPerturbationProtocol(self.PerturbationIndex, self.Probability, self.Path)")
 
-       T = Transformator()
-       T.setSourceFolder(self.Path)
-       T.setSourceFiles(self.Files)
-       T.setProbability(self.Probability)
-       T.setPerturbationIndex(self.PerturbationIndex)
-       T.setPerturbationType("PONE")
-
-       T.insertPerturbationProtocol()
-       #print("\ninsertPerturbationPoint(self.PerturbationIndex)")
-       T.insertPerturbationPoint()
-       #print("\ntestPerturbationPoint(self.PerturbationPoint)")
-       T.cleanFiles(False)
-       succ_fail_err_act = self.R.run_nsc_generator_version(self.Path, self.PerturbationIndex, self.Probability, self.NumberOfInputs)
+       # T = Transformator()
+       # T.setSourceFolder(self.Path)
+       # T.setSourceFiles(self.Files)
+       # T.setProbability(self.Probability)
+       # T.setPerturbationIndex(self.PerturbationIndex)
+       # T.setPerturbationType("PONE")
+       #
+       # T.insertPerturbationProtocol()
+       # T.insertPerturbationPoint()
+       # T.cleanFiles(False)
+       # # succ_fail_err_act = self.R.run_nsc_generator_version(self.Path, self.PerturbationIndex, self.Probability, self.NumberOfInputs)
+       succ_fail_err_act = self.R.testPerturbationPoint(self.Path, self.PerturbationIndex, self.Probability, self.NumberOfInputs)
        self.ResultsReference[self.PerturbationIndex][self.Probability].Success = succ_fail_err_act[0]
        self.ResultsReference[self.PerturbationIndex][self.Probability].Fail = succ_fail_err_act[1]
        self.ResultsReference[self.PerturbationIndex][self.Probability].Error = succ_fail_err_act[2]
        self.ResultsReference[self.PerturbationIndex][self.Probability].Activations = succ_fail_err_act[3]
+       print(self.ResultsReference[self.PerturbationIndex][self.Probability])
+
+
 
 def ches2016():
     print("Starting ches2016")
@@ -160,10 +159,10 @@ def ches2016():
     path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/src/"
     files = ["challenge.c", "chow_aes3_encrypt_wb.c"]
     probabilities = [50]
-    percentOfPointsToInvestigate = 0.01
-    C = Compiler(path, files)
-    C.compileWhiteBoxToLLVM()
-    # C.compileReferenceWhiteBox()
+    percentOfPointsToInvestigate = 1
+    # C = Compiler(path, files)
+    # C.compileWhiteBoxToLLVM()
+    # C.compileReferenceWhiteBox(["gcc -o " + path + "wb_reference " + path + "challenge.c " + path + "chow_aes3_encrypt_wb.c"])
 
     # for p in range(0, 101):
     #     C.generatePerturbationType(p, True)
@@ -172,8 +171,10 @@ def ches2016():
     E.setPath(path)
     E.setFiles(files)
     E.setTitle("ches2016")
-    E.findAllPerturbationPoints()
-    # E.getPointsFromFile("filename.cvc")
+    # E.findAllPerturbationPoints()
+    # E.findAllPerturbationPointsFirstRound(10)
+    E.PerturbationPoints = [48000, 11400, 19800, 11700, 28200, 16200, 24600, 7300, 59700, 10000]
+    # E.PerturbationPoints = [8040, 4740, 1320, 4860, 2760, 960, 6860, 3060, 4020, 1080]
     E.setPercentOfPointsToInvestigate(percentOfPointsToInvestigate)
     E.setProbabilities(probabilities)
     E.queuePerturbationJobs()
@@ -189,11 +190,11 @@ def kryptologik():
     #print("\ncompileWhiteBoxToLLVM(self.Probability, self.Path)")
     path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_kryptologik/src/"
     files = ["DemoKey_table_encrypt.c"]
-    probabilities = [5, 10, 50, 75, 90, 99]
-    percentOfPointsToInvestigate = 0.01
+    probabilities = [50]
+    percentOfPointsToInvestigate = 1
     C = Compiler(path, files)
     C.compileWhiteBoxToLLVM()
-    # C.compileReferenceWhiteBox()
+    C.compileReferenceWhiteBox(["gcc -o " + path + "wb_reference " + path + "DemoKey_table_encrypt.c"])
 
     # for p in range(0, 101):
     #     C.generatePerturbationType(p, True)
@@ -202,8 +203,9 @@ def kryptologik():
     E.setPath(path)
     E.setFiles(files)
     E.setTitle("kryptologik")
-    E.findAllPerturbationPoints()
-    # E.getPointsFromFile("filename.cvc")
+    # E.findAllPerturbationPoints()
+    # E.findAllPerturbationPointsFirstRound(14)
+    E.PerturbationPoints = [1440, 1380, 480, 780, 180, 1740, 1620, 1800, 1560, 1320]
     E.setPercentOfPointsToInvestigate(percentOfPointsToInvestigate)
     E.setProbabilities(probabilities)
     E.queuePerturbationJobs()
@@ -234,26 +236,24 @@ def nsc2013_variants_noenc_1():
     E.setFiles(files)
     E.setTitle("nsc2013 - noenc")
     E.findAllPerturbationPoints()
-    # E.getPointsFromFile("filename.cvc")
-    E.setPercentOfPointsToInvestigate(percentOfPointsToInvestigate)
-    E.setProbabilities(probabilities)
-    E.queuePerturbationJobs()
-    E.executeJobs()
-    E.saveExperiment()
-    E.printExperiemntResults()
+    # E.setPercentOfPointsToInvestigate(percentOfPointsToInvestigate)
+    # E.setProbabilities(probabilities)
+    # E.queuePerturbationJobs()
+    # E.executeJobs()
+    # E.saveExperiment()
+    # E.printExperiemntResults()
 
     print("Fin")
 
 def nsc2013_variants_noenc_2():
     print("Starting nsc2013_variants_noenc_2")
-    #print("\ncompileWhiteBoxToLLVM(self.Probability, self.Path)")
+    print("Must be run frm the nsc perturbation folder!")
     path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_nsc2013_variants_generator/src/"
     files = ["nosuchcon_2013_whitebox_noenc_generator.c"]
 
     # Compile nosuchcon_2013_whitebox_noenc.c separate
-    # TODO: Generate binaries for 5, 10, 75, 90
-    probabilities = [50, 99]
-    percentOfPointsToInvestigate = 0.5
+    probabilities = [50]
+    percentOfPointsToInvestigate = 1
     C = Compiler(path, files)
     C.compileWhiteBoxToLLVM()
     C.compileReferenceWhiteBox(["gcc -o " + path + "wb_reference " + path + "nosuchcon_2013_whitebox_noenc.c", "gcc -o " + path + "nosuchcon_2013_whitebox_noenc_generator " + path + "nosuchcon_2013_whitebox_noenc_generator.c",
@@ -265,15 +265,17 @@ def nsc2013_variants_noenc_2():
 
     # OBS !! Korningsdelem (Runnern, Maste koras ien trad. Genereringen av perts kan koras i fler tradar)
 
+
     E = Experiment()
     E.NumberOfConcurrentJobs = 1
     E.setPath(path)
     E.setFiles(files)
     E.setTitle("nsc2013 - noenc - generator")
-    E.findAllPerturbationPoints()
+    # E.findAllPerturbationPoints()
+    E.findAllPerturbationPointsFirstRound(10)
+    E.PerturbationPoints = [5, 1, 6, 11, 13, 7, 0, 17, 12, 3]
     E.setPercentOfPointsToInvestigate(percentOfPointsToInvestigate)
     E.setProbabilities(probabilities)
-
     E.queuePerturbationJobs()
     E.executeJobs()
     E.saveExperiment()
@@ -284,9 +286,9 @@ def nsc2013_variants_noenc_2():
 
 
 def main():
-    # ches2016()
+    ches2016()
     # kryptologik()
     # nsc2013_variants_noenc_1()
-    nsc2013_variants_noenc_2()
+    # nsc2013_variants_noenc_2()
 
 main()

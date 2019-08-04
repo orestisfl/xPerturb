@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 color_list = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
+path = "/home/koski/xPerturb/llvmPerturb/"
 
 """
 Executable: /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_ches2016/linked_challenge_pone.bc
@@ -34,7 +35,8 @@ class CorrPointList():
             probability = int(line.strip().split(", ")[0])
             corr = float(line.strip().split(", ")[1])
             index = int(line.strip().split(", ")[2])
-            cp = CorrPoint(probability, corr, index)
+            actv = str(line.strip().split(", ")[3])
+            cp = CorrPoint(probability, corr, index, actv)
             if cp not in self.Points:
                 self.Points.append(cp)
         fd.close()
@@ -50,7 +52,6 @@ class CorrPointList():
         plt.title("Top - 10 highest correctness")
         plt.xlabel("Perturbation probability")
         plt.ylabel("Correctness")
-        print(len(top[0:num]))
         for i in top[0:num]:
             top_point_xy = [(y.percent, y.corr) for y in self.Points if i.index == y.index and y.corr >0]
             x, y = zip(*top_point_xy)
@@ -62,7 +63,7 @@ class CorrPointList():
             #print(i)
 
     def saveTopPoints(self, num, prob):
-        fd = open("./experiment_results/" + self.Title + "_top" + str(num) + "_p" + str(prob) + ".pts", "w")
+        fd = open(path + "experiment_results/" + self.Title + "_top" + str(num) + "_p" + str(prob) + ".pts", "w")
         top = [i for i in self.Points if i.percent == prob and i.corr != 1]
         top.sort()
         top.reverse()
@@ -76,6 +77,8 @@ class CorrPointList():
             top = len(self.Points)
         x = [i.percent for i in self.Points[0:top]]
         y = [i.corr for i in self.Points[0:top]]
+        if top != 0:
+            print(len(y))
         plt.ylim(0,1)
         plt.xlim(0,100)
         plt.title(self.Title)
@@ -84,10 +87,11 @@ class CorrPointList():
         plt.scatter(x, y)
 
 class CorrPoint():
-    def __init__(self, p, c, i):
+    def __init__(self, p, c, i, a):
         self.percent = p
         self.corr = c
         self.index = i
+        self.activations = a
     def __lt__(self, other):
         if(self.corr == other.corr):
             return self.percent < other.percent
@@ -97,31 +101,31 @@ class CorrPoint():
         return self.percent == other.percent and self.index == other.index
 
     def __str__(self):
-        return str(self.percent) + ", " + str(self.corr) + ", " + str(self.index)
+        return str(self.percent) + ", " + str(self.corr) + ", " + str(self.index) + ", " + str(self.activations)
 
 def ches2016_all():
     point_list = CorrPointList()
     point_list.setTitle("ches2016")
-    ches2016_files = ["./experiment_results/old/ches2016/points_p25_all.cvc",
-    "./experiment_results/old/ches2016/points_p50_all.cvc",
-    "./experiment_results/old/ches2016/points_p90_all.cvc",
-    "./experiment_results/old/ches2016/points_p99_all.cvc",
-    "./experiment_results/old/ches2016/points_p5_all.cvc",
-    "./experiment_results/old/ches2016/points_p10_all.cvc"
-    ]
+    ches2016_files = [path + "experiment_results/correctness/chess/chess2016_points_db.cvc"]
+    print(ches2016_files)
     for i in ches2016_files:
         point_list.getPointsFromFile(i)
+
+    print(len(point_list.Points))
 
     plt.subplot(2,3,1)
     point_list.plotPoints()
     plt.subplot(2,3,4)
     point_list.plotTopPoints(10, 90)
+    point_list.saveTopPoints(10, 10)
+    point_list.saveTopPoints(10, 50)
     point_list.saveTopPoints(10, 90)
+
 
 def kryptologik_all():
     point_list = CorrPointList()
     point_list.setTitle("kryptologik")
-    kryptologik_files = ["./experiment_results/kryptologik_points_px_n23721.cvc"]
+    kryptologik_files = [path + "experiment_results/correctness/kryptologik/kryptologik_points_db.cvc"]
     for i in kryptologik_files:
         point_list.getPointsFromFile(i)
 
@@ -129,19 +133,15 @@ def kryptologik_all():
     point_list.plotPoints()
     plt.subplot(2,3,5)
     point_list.plotTopPoints(10, 90)
+    point_list.saveTopPoints(10, 10)
+    point_list.saveTopPoints(10, 50)
     point_list.saveTopPoints(10, 90)
+
 
 def nsc2013_all():
     point_list = CorrPointList()
     point_list.setTitle("nsc2013")
-    # nsc2013_files = ["./experiment_results/nsc2013 - noenc_points_px_n114.cvc"]
-    # nsc2013 - noenc - generator_points_p50_all
-    nsc2013_files = [
-     "./experiment_results/nsc2013 - noenc - generator_points_p5_all.cvc",
-     "./experiment_results/nsc2013 - noenc - generator_points_p50_p99_n408.cvc",
-     "./experiment_results/nsc2013 - noenc - generator_points_px_n10.cvc",
-     "./experiment_results/nsc2013 - noenc - generator_points_px_n408.cvc"]
-
+    nsc2013_files = [path + "experiment_results/correctness/nsc/nsc2013_gen_points_db.cvc"]
 
     for i in nsc2013_files:
         point_list.getPointsFromFile(i)
@@ -150,7 +150,10 @@ def nsc2013_all():
     point_list.plotPoints()
     plt.subplot(2,3,6)
     point_list.plotTopPoints(10, 50)
+    point_list.saveTopPoints(10, 10)
     point_list.saveTopPoints(10, 50)
+    point_list.saveTopPoints(10, 90)
+
 
 def main():
     plt.title("Perturbation points")

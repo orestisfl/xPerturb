@@ -1,48 +1,9 @@
+#!/usr/bin/python
 from __future__ import division # Float division
 import sys
 import os
 import subprocess # Popen
 import random
-
-class RESULT:
-    def __init__(self, pr, e, path, pe):
-        self.Success = 0
-        self.Fail = 0
-        self.Error = 0
-        self.Activations = 0
-        self.Probability = pr
-        self.Executable = e
-        self.PerturbationPoint = pe
-        self.Path = path
-
-    def __str__(self):
-        return"""Executable: %s
-Correctness %1.3f
-Success: %d
-Fails: %d
-Errors: %d
-Index: %d
-Percent: %d
-Activations: %1.3f""" %(
-        self.Executable,
-        self.get_correctness(),
-        self.Success,
-        self.Fail,
-        self.Error,
-        self.PerturbationPoint,
-        self.Probability,
-        self.Activations
-        )
-
-    def get_correctness(self):
-        try:
-            return self.Success/(self.Fail + self.Error + self.Success)
-        except ZeroDivisionError:
-            return -1
-
-
-    def print_plottable_data(self):
-        return str(self.Probability) + ", " + str(self.get_correctness()) + ", " + str(self.PerturbationPoint) + ", " + str(self.Activations)
 
 class Compiler():
     # Compile neccesarry scripts to be able to work with stuff
@@ -215,7 +176,8 @@ class Runner():
             input_hex = self.getRandomInput()
             cmd0 = [path + "../perturbations/wb_p_"+ str(prob) +"_"+ str(i)]
             cmd1 = [path + "../perturbations/nosuchcon_2013_whitebox_noenc"] + input_hex.split()
-            cmd2 = [path + "wb_reference"] + input_hex.split()
+            cmd2 = [path + "/nosuchcon_2013_whitebox_noenc_generator"]
+            cmd3 = [path + "wb_reference"] + input_hex.split()
 
             p0o, p0e = subprocess.Popen(" ".join(cmd0), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             activations.append(self.countPerturbations(p0e))
@@ -226,10 +188,13 @@ class Runner():
 
             #print(out_opt)
             #print(err_opt)
-            p25o, p25e = subprocess.Popen(path + "/nosuchcon_2013_whitebox_noenc_generator", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-            p2 = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out_ref, err_ref = p2.communicate()
-            p0o, p0e = subprocess.Popen("rm " + path + "../perturbations/wbt_noenc", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+            p2o, p2e = subprocess.Popen(" ".join(cmd2), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+            p3 = subprocess.Popen(" ".join(cmd3), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out_ref, err_ref = p3.communicate()
+
+            pCo, pCe = subprocess.Popen("rm " + path + "../perturbations/wbt_noenc", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
             #print(out_ref)
             #print(err_ref)
