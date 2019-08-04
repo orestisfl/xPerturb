@@ -72,6 +72,7 @@ class TraceNsc2013():
         T=TracerGrind(self.BinaryPath + 'src/wb_reference', self.processinput, self.processoutput, ARCH.amd64, 16, addr_range='0x108000-0x130000') # filters=[DefaultFilters.stack_w1]
         T.run(self.runns) #25 Original
         bin2daredevil(config={'algorithm':'AES', 'position':'LUT/AES_AFTER_SBOX'}) # keyword=DefaultFilters.stack_w1,
+        print("Done!")
 
     def accuireTransformedTrace(self, prob, point):
         subprocess.Popen([self.BinaryPath + 'perturbations/wb_p_' + str(prob) + '_' + str(point)], shell=True)
@@ -81,6 +82,7 @@ class TraceNsc2013():
 
     def performDaredevilAttack(self):
         fl = os.listdir(".")
+
         #"stack_w1_" + str(self.runns) + "_32768.config"
         f = [i for i in fl if i.startswith("stack_w1_" + str(self.runns)) and i.endswith(".config")][0]
         print(f)
@@ -108,15 +110,16 @@ class TraceKryptologik():
             self.accuireReferenceTrace()
 
     def accuireReferenceTrace(self):
-        T = TracerGrind(self.BinaryPath + 'src/wb_reference', self.processinput, self.processoutput, ARCH.amd64, 16)
         # To run kryptologik it neds the file DemoKey_table.bin in its working directory. Add this file and rerun
-        T.run(self.runns)# original 200
+        # print(self.BinaryPath + 'src/DemoKey_table_encrypt')
+        T = TracerGrind(self.BinaryPath + 'src/wb_reference', self.processinput, self.processoutput, ARCH.amd64, 16)
+        T.run(self.runns)
         bin2daredevil(config={'algorithm':'AES', 'position':'LUT/AES_AFTER_SBOX'}) # keywords=filters,
 
     def accuireTransformedTrace(self, prob, point):
-        print(self.BinaryPath + 'perturbations/wb_p_' + str(prob) + '_' + str(point))
+        # print(self.BinaryPath + 'perturbations/wb_p_' + str(prob) + '_' + str(point))
         T=TracerGrind(self.BinaryPath + 'perturbations/wb_p_' + str(prob) + '_' + str(point), self.processinput, self.processoutput, ARCH.amd64, 16)
-        T.run(self.runns)# original 200
+        T.run(self.runns)
         bin2daredevil(config={'algorithm':'AES', 'position':'LUT/AES_AFTER_SBOX'}) # keywords=filters,
 
     def performDaredevilAttack(self):

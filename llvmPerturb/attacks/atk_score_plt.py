@@ -1,46 +1,176 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
-dataset = [0.8125, 0.75, 0.75, 0.9375, 0.8125, 0.75, 0.8125, 0.8125, 0.875, 0.9375]
-q1, q2, q3 = np.percentile(dataset,[25, 50, 75])
-upper = q3 + (q3-q1)*1.5
-lower = q1 - (q3-q1)*1.5
-x = range(0, 11)
-y1 = [q1] * len(x)
-y2 = [q2] * len(x)
-y3 = [q3] * len(x)
-
-fd = open("/home/koski/xPerturb/llvmPerturb/experiment_results/nsc_attackpoints", "r")
-fl = fd.readlines()
-fd.close()
-
-ppts = [i.strip().split()[2] for i in fl]
-ppts = list(dict.fromkeys(ppts)) #Remove duplicates
-
-fl = [(float(i.strip().split()[0]), i.strip().split()[2]) for i in fl]
-
-fig, ax1 = plt.subplots()
-
-for i in range(10):
-    y = [j[0] for j in fl if j[1] == ppts[i]]
-    myX = [i] * len(y)
-    print(len(myX), len(y))
-    print(myX)
-    print(y)
-    ax1.scatter(myX, y)
+from scipy import stats # t-test
+from termcolor import colored
 
 
-plt.ylim(0,1)
-plt.xlim(0,10)
-plt.title("NSC Attacks")
-plt.xlabel("Perturbation point")
-plt.ylabel("Success-score")
+#fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
 
-ax1.fill_between(x, y1, y3, alpha=0.1)
-ax1.plot(x, y1, color="blue", alpha=0.1)
-ax1.plot(x, y2, color="blue", alpha=0.1)
-ax1.plot(x, y3, color="blue", alpha=0.1)
+def get_activations_for_points(points, points_db):
+    # returns [(point, no_activations), ...]
+    fd = open(points_db, "r")
+    l = fd.readlines()
+    fd.close()
+    l2 = [(int(i.strip().split(", ")[-2]), float(i.strip().split(", ")[-1])) for i in l if int(i.strip().split(", ")[-2]) in points and int(i.strip().split(", ")[0]) == 50]
+    return l2
+
+def get_activations_for_point(point, prob, points_db):
+    fd = open(points_db, "r")
+    l = fd.readlines()
+    fd.close()
+    l2 = []
+    for i in l:
+        if int(i.strip().split(", ")[-2]) == point and int(i.strip().split(", ")[0]) == prob:
+            return int(round(float(i.strip().split(", ")[-1])))
+    return ""
+
+def get_correctness_for_points(points, points_db):
+    # returns [(point, no_activations), ...]
+    fd = open(points_db, "r")
+    l = fd.readlines()
+    fd.close()
+    l2 = [(int(i.strip().split(", ")[-2]), float(i.strip().split(", ")[1])) for i in l if int(i.strip().split(", ")[-2]) in points and int(i.strip().split(", ")[0]) == 50]
+    return l2
+
+def get_correctness_for_point(point, prob, points_db):
+    fd = open(points_db, "r")
+    l = fd.readlines()
+    fd.close()
+    l2 = []
+    for i in l:
+        if int(i.strip().split(", ")[-2]) == point and int(i.strip().split(", ")[0]) == prob:
+            return float(i.strip().split(", ")[1])
+    return ""
+
+def plot_reference_lines(ref):
+    dataset = [float(i.strip().split()[0]) for i in ref]
+
+    q1, q2, q3 = np.percentile(dataset,[25, 50, 75])
+    upper = q3 + (q3-q1)*1.5
+    lower = q1 - (q3-q1)*1.5
+
+    max_ = max(dataset)
+    min_ = min(dataset)
+
+    x = range(-1, 11)
+    y1 = [q1] * len(x)
+    y2 = [q2] * len(x)
+    y3 = [q3] * len(x)
+    yMax = [max_] * len(x)
+    yMin = [min_] * len(x)
+
+    plt.fill_between(x, y1, y3, alpha=0.1)
+    plt.plot(x, y1, color="blue", alpha=0.1)
+    plt.plot(x, y2, color="blue", alpha=0.1)
+    plt.plot(x, y3, color="blue", alpha=0.1)
+    plt.plot(x, yMax, color="blue", alpha=0.1)
+    plt.plot(x, yMin, color="blue", alpha=0.1)
+
+def calculate_t_test(ref, oth_vector):
+    ref_vector = [float(i.strip().split()[0]) for i in ref]
+    return stats.ttest_ind(ref_vector, oth_vector, equal_var = False)
+
+def populateGraph(path, points_db, left_label = None, right_label = None, bottom_label = None):
+    print(path.split("/")[-1])
+    plt.ylim(0.25,1.02)
+    plt.xlim(-0.5,10)
+    plt.title(path.split("/")[-1])
+
+    fd = open(path)
+    lines = fd.readlines()
+    fd.close()
+    ref = lines[0:lines.index("\n")]
+    att = lines[lines.index("\n")+1:]
+
+    plot_reference_lines(ref)
+
+    x = range(0, 11)
+    ppts = [int(i.strip().split()[2]) for i in att]
+    ppts = list(dict.fromkeys(ppts)) #Remove duplicates
+    ppts.sort()
+
+    attack_db = [(float(i.strip().split()[0]), i.strip().split()[2]) for i in att]
+
+    xTicks = []
+    corrs = []
+    letters = "abcdefghij"
+    for i in range(10):
+        c = get_correctness_for_point(ppts[i], 50, points_db)
+        a = get_activations_for_point(ppts[i], 50, points_db)
+        corrs.append(c)
+        xTicks.append(r'${}\ _{{{}}}$'.format(str(letters[i]), str(a)))
+
+        y = [j[0] for j in attack_db if int(j[1]) == ppts[i]]
+
+        t = calculate_t_test(ref, y)
+        str_buff = letters[i] + " " + str(round(t[0], 2)) + " " + str(round(t[1], 2))
+        color = ""
+        if t[0]>0:
+            color = "green"
+        else:
+            color = "red"
+
+        bump = " "*int(round(t[1]*10))
+
+        print colored(bump + str_buff, color)
+
+        myX = [i] * len(y)
+        plt.scatter(myX, y, s=5)
+        plt.violinplot(y, [i], showmeans=True, showextrema=True, showmedians=True)
+    plt.xticks(x, xTicks, rotation=45)
+    print("")
+    if left_label:
+        plt.ylabel(left_label)
+    if bottom_label:
+        plt.xlabel(bottom_label)
+
+    # Correctness Plot
+    if "r1" in path:
+        return
+    if len(corrs) != len(x)-1:
+        return
+    plt2 = plt.twinx()  # instantiate a second axes that shares the same x-axis
+    plt2.set_ylim(0,3)
+    plt2.set_yticks([0, 0.25, 0.50, 0.75, 1])
+    plt2.set_yticklabels([0, 0.25, 0.50, 0.75, 1])
+    plt2.bar(range(10), corrs, width=0.1, alpha=0.3)
+    if right_label:
+        plt2.set_ylabel(right_label) # we already handled the x-label with ax1
 
 
-print(q1, q2, q3)
-plt.show()
+
+def main():
+    plt.subplots_adjust(wspace = 0.3)
+    plt.subplot(2,3,1)
+    populateGraph("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/chess_attack_score",
+    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/chess/chess2016_points_db.cvc",
+    left_label = "Attack-score")
+
+    plt.subplot(2,3,2)
+    populateGraph("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/kryptologik_attack_score",
+    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/kryptologik/kryptologik_points_db.cvc")
+
+    plt.subplot(2,3,3)
+    populateGraph("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/nsc_attack_score",
+    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/nsc/nsc2013_gen_points_db.cvc",
+    right_label = "Correctness")
+
+    plt.subplot(2,3,4)
+    populateGraph("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/chess_attack_score_r1",
+    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/chess/chess2016_points_db.cvc",
+    left_label = "Attack-score",
+    bottom_label = r"$Perturbation\ point_{activations}$")
+
+    plt.subplot(2,3,5)
+    populateGraph("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/kryptologik_attack_score_r1",
+    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/kryptologik/kryptologik_points_db.cvc",
+    bottom_label = r"$Perturbation\ point_{activations}$")
+
+    plt.subplot(2,3,6)
+    populateGraph("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/nsc_attack_score_r1",
+    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/nsc/nsc2013_gen_points_db.cvc",
+    bottom_label = r"$Perturbation\ point_{activations}$")
+
+    plt.show()
+
+main()
