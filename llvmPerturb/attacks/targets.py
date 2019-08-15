@@ -44,7 +44,9 @@ class TraceChess2016():
                                'attack_multinv':{'algorithm':'AES', 'position':'LUT/AES_AFTER_MULTINV'}})
 
     def performDaredevilAttack(self):
-        sp = subprocess.Popen(["time", "daredevil", "-c", "mem_addr1_rw1_" + str(self.runns) + "_32400.attack_sbox.config"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        fl = os.listdir(".")
+        f = [i for i in fl if i.startswith("mem_addr1_rw1_" + str(self.runns)) and i.endswith(".attack_sbox.config")][0]
+        sp = subprocess.Popen(["time", "daredevil", "-c", f], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = sp.communicate()
         return out, err
 

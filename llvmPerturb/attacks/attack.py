@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from targets import *
 from attack_statistics import *
+import datetime
 
 def saveDaredevil(name, out, times):
     fd = open("./daredevilLogs/daredevil_" + name, 'w')
@@ -25,7 +26,7 @@ def runAttack(points, runns, name, path, perturbation_probability = 0):
         raise NameError("Did not recognize whitebox!")
     for p in points:
         print(p)
-        for i in range(4, 30): # 0 - 30
+        for i in range(0, 30): # 0 - 30
             #attackTitle = "chess2016_attack_" + str(runns) + "_" + str(p) + "_" + str(i)
             attackTitle = name + "_attack_" + str(runns) + "_" + str(p) + "_" + str(i)
             if p == "ref":
@@ -42,68 +43,150 @@ def runAttack(points, runns, name, path, perturbation_probability = 0):
             subprocess.Popen(["rm stack_*"], shell=True)
 
 
-def chess_attack():
+def chess_attack(probability = 50, reference_points = False, overall_top_points = False, round_one_points = False):
 
-    # runAttack(["ref"],
-    #             200,
-    #             "chess2016",
-    #             "../example_programs/wbs_aes_ches2016/")
+    if reference_points:
+        runAttack(["ref"],
+                    200,
+                    "chess2016",
+                    "../example_programs/wbs_aes_ches2016/")
 
-    runAttack([48000, 11400, 19800, 11700, 28200, 16200, 24600, 7300, 59700, 10000],
-                200,
-                "chess2016",
-                "../example_programs/wbs_aes_ches2016/",
-                50)
+    if overall_top_points:
+        # top3 = [11400, 48000, 16200]
+        #top10 = [48000, 11400, 19800, 11700, 28200, 16200, 24600, 7300, 59700, 10000]
+        top10 = [28200, 16200, 24600, 7300, 59700, 10000]
+        runAttack(top10,
+                    200,
+                    "chess2016",
+                    "../example_programs/wbs_aes_ches2016/",
+                    probability)
 
-    # runAttack([8040, 4740, 1320, 4860, 2760, 960, 6860, 3060, 4020, 1080],
-    #             200,
-    #             "chess2016_r1",
-    #             "../example_programs/wbs_aes_ches2016/",
-    #             50)  # R1 top 10
+    if round_one_points:
+        runAttack([8040, 4740, 1320, 4860, 2760, 960, 6860, 3060, 4020, 1080],
+                    200,
+                    "chess2016_r1",
+                    "../example_programs/wbs_aes_ches2016/",
+                    probability)  # R1 top 10
 
-def kryptologik_attack():
+def kryptologik_attack(probability = 50, reference_points = False, overall_top_points = False, round_one_points = False):
 
-    # runAttack(["ref"],
-    #             80,
-    #             "kryptologik",
-    #             "../example_programs/wbs_aes_kryptologik/")
+    if reference_points:
+        runAttack(["ref"],
+                    80,
+                    "kryptologik",
+                    "../example_programs/wbs_aes_kryptologik/")
+    if overall_top_points:
+        top3 = [8100, 18900, 12000]
+        #top10 = [8100, 18900, 12000, 3600, 12300, 15000, 1800, 19800, 16200, 16900]
+        top10 = [19800]
+        #top10 = [16200, 16900]
+        runAttack(top10,
+                    80,
+                    "kryptologik",
+                    "../example_programs/wbs_aes_kryptologik/",
+                    probability)
+    if round_one_points:
+        runAttack([1440, 1380, 480, 780, 180, 1740, 1620, 1800, 1560, 1320],
+                    80,
+                    "kryptologik_r1",
+                    "../example_programs/wbs_aes_kryptologik/",
+                    probability)  # R1 top 10
 
-    runAttack([8100, 18900, 12000, 3600, 12300, 15000, 1800, 19800, 16200, 16900],
-                80,
-                "kryptologik",
-                "../example_programs/wbs_aes_kryptologik/",
-                50)
+def nsc_attack(probability = 50, reference_points = False, overall_top_points = False, round_one_points = False):
+    if reference_points:
+        runAttack(["ref"],
+                    25,
+                    "nsc_gen",
+                    "../example_programs/wbs_aes_nsc2013_variants_generator/")
 
-    # runAttack([1440, 1380, 480, 780, 180, 1740, 1620, 1800, 1560, 1320],
-    #             80,
-    #             "kryptologik_r1",
-    #             "../example_programs/wbs_aes_kryptologik/",
-    #             50)  # R1 top 10
+    if overall_top_points:
+        top3 = [0, 12, 6]
+        top10 = [0, 12, 6, 122, 120, 118, 174, 288, 280, 108]
+        runAttack(top10,
+                    25,
+                    "nsc_gen",
+                    "../example_programs/wbs_aes_nsc2013_variants_generator/",
+                    probability)
 
-def nsc_attack():
-
-    # runAttack(["ref"],
-    #             25,
-    #             "nsc_gen",
-    #             "../example_programs/wbs_aes_nsc2013_variants_generator/")
-
-    runAttack([0, 12, 6, 122, 120, 118, 174, 288, 280, 108],
-                25,
-                "nsc_gen",
-                "../example_programs/wbs_aes_nsc2013_variants_generator/",
-                50)
-
-    # runAttack([7, 17, 11, 0, 12, 3, 6, 5, 13, 1],
-    #             25,
-    #             "nsc_gen_r1",
-    #             "../example_programs/wbs_aes_nsc2013_variants_generator/",
-    #             50)  # R1 top 10
-
+    if round_one_points:
+        runAttack([7, 17, 11, 0, 12, 3, 6, 5, 13, 1],
+                    25,
+                    "nsc_gen_r1",
+                    "../example_programs/wbs_aes_nsc2013_variants_generator/",
+                    probability)  # R1 top 10
 
 def main():
-    #runNsc([0, 12, 6, 122, 120, 118, 174, 288, 280, 108])
-    # chess_attack()
-    # kryptologik_attack()
-    nsc_attack()
 
+    # CHESS2016 ATTACKS
+    # Check
+    # chess_attack(probability = 10,
+    #                 reference_points = False,
+    #                 overall_top_points = True,
+    #                 round_one_points = False)
+    # Check!
+    # chess_attack(probability = 50,
+    #                 reference_points = False,
+    #                 overall_top_points = True,
+    #                 round_one_points = False)
+
+    # chess_attack(probability = 90,
+    #                 reference_points = False,
+    #                 overall_top_points = True,
+    #                 round_one_points = False)
+    #
+    # chess_attack(probability = 50,
+    #                 reference_points = False,
+    #                 overall_top_points = False,
+    #                 round_one_points = True)
+
+
+    # # KRYPTOLOGIK ATTACKS
+    # Check
+    # kryptologik_attack(probability = 10,
+    #                 reference_points = False,
+    #                 overall_top_points = True,
+    #                 round_one_points = False)
+    # Check!
+    # # kryptologik_attack(probability = 50,
+    # #                 reference_points = False,
+    # #                 overall_top_points = True,
+    # #                 round_one_points = False)
+    # Check
+    # kryptologik_attack(probability = 90,
+    #                 reference_points = False,
+    #                 overall_top_points = True,
+    #                 round_one_points = False)
+    # Check!
+    # # kryptologik_attack(probability = 50,
+    # #                 reference_points = False,
+    # #                 overall_top_points = False,
+    # #                 round_one_points = True)
+
+
+    # # NSC ATTACKS
+    #
+    # Check!
+    # nsc_attack(probability = 10,
+    #                 reference_points = False,
+    #                 overall_top_points = True,
+    #                 round_one_points = False)
+
+    # Check !
+    # # nsc_attack(probability = 50,
+    # #                 reference_points = True,
+    # #                 overall_top_points = True,
+    # #                 round_one_points = False)
+    # Check !
+    # nsc_attack(probability = 90,
+    #                 reference_points = False,
+    #                 overall_top_points = True,
+    #                 round_one_points = False)
+
+    # Check!
+    # # nsc_attack(probability = 50,
+    # #                 reference_points = False,
+    # #                 overall_top_points = True,
+    # #                 round_one_points = True)
+
+    print(datetime.datetime.now())
 main()

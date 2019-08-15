@@ -5,16 +5,20 @@ def chess():
     print("")
     print("Reference - Chess2016")
     print("Abs\tSum")
-    for i in range(0,10):
+    for i in range(0,30):
         a = AttackStatitic("Chess2016")
-        a.loadFromFile("./logs/overall_top_points/chess2016_ref_attack_500_"+str(i))
+        a.loadFromFile("./logs/references/chess/chess2016_attack_200_ref_"+str(i))
         a.setProgramScore("dec1a551f1eddec0de4b1dae5c0de511")
 
     print("")
 
-    for i in [j for j in os.listdir("./logs") if j.startswith("chess2016_attack_")]:
+    path = "./logs/overall_top_points_10/chess/"
+    #path = "./logs/overall_top_points_50/chess/"
+    #path = "./logs/overall_top_points_90/chess/"
+
+    for i in [j for j in os.listdir(path) if j.startswith("chess2016_attack_200")]:
         a = AttackStatitic("Chess2016")
-        a.loadFromFile("./logs/" + i)
+        a.loadFromFile("./logs/overall_top_points/chess/" + i)
         a.perturbationpoint = i.split("_")[-2]
         a.setProgramScore("dec1a551f1eddec0de4b1dae5c0de511")
 
@@ -30,7 +34,11 @@ def kryptologik():
 
     print("")
 
-    for i in [j for j in os.listdir("./logs/overall_top_points/kryptologik/") if j.startswith("kryptologik_attack_")]:
+    path ="./logs/overall_top_points_10/kryptologik/"
+    # path ="./logs/overall_top_points_50/kryptologik/"
+    # path ="./logs/overall_top_points_90/kryptologik/"
+
+    for i in [j for j in os.listdir(path) if j.startswith("kryptologik_attack_")]:
         a = AttackStatitic("Kryptologik")
         a.loadFromFile("./logs/overall_top_points/kryptologik/" + i)
         a.perturbationpoint = i.split("_")[-2]
@@ -48,18 +56,21 @@ def nsc():
         a.setProgramScore("4b45595f4b45595f4b45595f4b45595f")
 
     print("")
+    #path = "./logs/overall_top_points/nsc/"
+    # path = "./logs/overall_top_points_10/nsc/"
+    path = "./logs/overall_top_points_90/nsc/"
 
-    for i in [j for j in os.listdir("./logs/overall_top_points/nsc") if j.startswith("nsc_gen_attack_")]:
+    for i in [j for j in os.listdir(path) if j.startswith("nsc_gen_attack_")]:
         a = AttackStatitic("NSC")
-        a.loadFromFile("./logs/overall_top_points/nsc/" + i)
+        a.loadFromFile(path + i)
         a.perturbationpoint = i.split("_")[-2]
         a.setProgramScore("4b45595f4b45595f4b45595f4b45595f")
 
 
 def main():
-    #chess()
-    kryptologik()
-    #nsc()
+    # chess()
+    # kryptologik()
+    # nsc()
 
 
 
