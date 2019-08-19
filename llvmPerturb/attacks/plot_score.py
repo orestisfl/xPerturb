@@ -7,7 +7,7 @@ def plot_10():
     path = "/home/koski/xPerturb/llvmPerturb/experiment_results/attack/graphs/"
     attack_pairs = [
     ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/chess_attack_score_10",
-    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/chess/chess2016_points_db.cvc"),
+    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/ches/ches2016_points_db.cvc"),
     ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/kryptologik_attack_score_10",
     "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/kryptologik/kryptologik_points_db.cvc"),
     ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/nsc_attack_score_10",
@@ -25,16 +25,10 @@ def plot_50():
     path = "/home/koski/xPerturb/llvmPerturb/experiment_results/attack/graphs/"
     attack_pairs = [
     ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/chess_attack_score_50",
-    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/chess/chess2016_points_db.cvc"),
+    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/ches/ches2016_points_db.cvc"),
     ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/kryptologik_attack_score_50",
     "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/kryptologik/kryptologik_points_db.cvc"),
     ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/nsc_attack_score_50",
-    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/nsc/nsc2013_gen_points_db.cvc"),
-    ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/chess_attack_score_r1_50",
-    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/chess/chess2016_points_db.cvc"),
-    ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/kryptologik_attack_score_r1_50",
-    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/kryptologik/kryptologik_points_db.cvc"),
-    ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/nsc_attack_score_r1_50",
     "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/nsc/nsc2013_gen_points_db.cvc")
     ]
     for pair in attack_pairs:
@@ -49,16 +43,10 @@ def plot_90():
     path = "/home/koski/xPerturb/llvmPerturb/experiment_results/attack/graphs/"
     attack_pairs = [
     ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/chess_attack_score_90",
-    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/chess/chess2016_points_db.cvc"),
+    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/ches/ches2016_points_db.cvc"),
     ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/kryptologik_attack_score_90",
     "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/kryptologik/kryptologik_points_db.cvc"),
     ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/nsc_attack_score_90",
-    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/nsc/nsc2013_gen_points_db.cvc"),
-    ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/chess_attack_score_r1_90",
-    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/chess/chess2016_points_db.cvc"),
-    ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/kryptologik_attack_score_r1_90",
-    "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/kryptologik/kryptologik_points_db.cvc"),
-    ("/home/koski/xPerturb/llvmPerturb/experiment_results/attack/nsc_attack_score_r1_90",
     "/home/koski/xPerturb/llvmPerturb/experiment_results/correctness/nsc/nsc2013_gen_points_db.cvc")
     ]
     for pair in attack_pairs:

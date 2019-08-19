@@ -12,15 +12,18 @@ def chess():
 
     print("")
 
-    path = "./logs/overall_top_points_10/chess/"
-    #path = "./logs/overall_top_points_50/chess/"
-    #path = "./logs/overall_top_points_90/chess/"
+    paths=["./logs/overall_top_points_10/chess/", "./logs/overall_top_points_50/chess/", "./logs/overall_top_points_90/chess/"]
+    for path in paths:
+        print("")
+        print(path)
 
-    for i in [j for j in os.listdir(path) if j.startswith("chess2016_attack_200")]:
-        a = AttackStatitic("Chess2016")
-        a.loadFromFile("./logs/overall_top_points/chess/" + i)
-        a.perturbationpoint = i.split("_")[-2]
-        a.setProgramScore("dec1a551f1eddec0de4b1dae5c0de511")
+        for i in [j for j in os.listdir(path) if j.startswith("chess2016_attack_200")]:
+            if int(i.split("_")[-2]) not in [48000, 11400, 19800, 11700, 28200]:
+                continue
+            a = AttackStatitic("Chess2016")
+            a.loadFromFile(path + i)
+            a.perturbationpoint = i.split("_")[-2]
+            a.setProgramScore("dec1a551f1eddec0de4b1dae5c0de511")
 
 
 def kryptologik():
@@ -68,7 +71,7 @@ def nsc():
 
 
 def main():
-    # chess()
+    chess()
     # kryptologik()
     # nsc()
 

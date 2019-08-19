@@ -39,7 +39,7 @@ def get_correctness_for_point(point, prob, points_db):
             return float(i.strip().split(", ")[1])
     return ""
 
-def plot_reference_lines(ref):
+def plot_reference_lines(ref, x_length):
     dataset = [float(i.strip().split()[0]) for i in ref]
 
     q1, q2, q3 = np.percentile(dataset,[25, 50, 75])
@@ -49,7 +49,7 @@ def plot_reference_lines(ref):
     max_ = max(dataset)
     min_ = min(dataset)
 
-    x = range(-1, 11)
+    x = range(-1, x_length+1)
     y1 = [q1] * len(x)
     y2 = [q2] * len(x)
     y3 = [q3] * len(x)
@@ -81,22 +81,22 @@ def getDataFromFile(path):
 
 def populateGraph(path, points_db, probability, left_label = None, right_label = None, bottom_label = None):
     print(path.split("/")[-1])
-    plt.ylim(0.25,1.02)
-    plt.xlim(-0.5,10)
-    plt.title(path.split("/")[-1])
-
     ref, att, err = getDataFromFile(path)
     if err:
         return
-    plot_reference_lines(ref)
 
-    x = range(0, 11)
     # Extract points from attack data
     ppts = [int(i.strip().split()[2]) for i in att]
     ppts = list(dict.fromkeys(ppts)) #Remove duplicates
     ppts.sort()
 
+    plot_reference_lines(ref, len(ppts))
+    x = range(0, len(ppts)+1)
+
     attack_db = [(float(i.strip().split()[0]), i.strip().split()[2]) for i in att]
+    plt.ylim(0.25,1.02)
+    plt.xlim(-0.5, len(ppts))
+    plt.title(path.split("/")[-1])
 
     xTicks = []
     corrs = []
@@ -138,6 +138,6 @@ def populateGraph(path, points_db, probability, left_label = None, right_label =
     plt2.set_ylim(0,3)
     plt2.set_yticks([0, 0.25, 0.50, 0.75, 1])
     plt2.set_yticklabels([0, 0.25, 0.50, 0.75, 1])
-    plt2.bar(range(10), corrs, width=0.1, alpha=0.3)
+    plt2.bar(range(len(ppts)), corrs, width=0.1, alpha=0.3)
     if right_label:
         plt2.set_ylabel(right_label) # we already handled the x-label with ax1
