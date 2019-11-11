@@ -1,7 +1,9 @@
+from __future__ import division
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats # t-test
 from termcolor import colored
+import math
 
 def get_activations_for_points(points, prob, points_db):
     # returns [(point, no_activations), ...]
@@ -41,14 +43,11 @@ def get_correctness_for_point(point, prob, points_db):
 
 def plot_reference_lines(ref, x_length):
     dataset = [float(i.strip().split()[0]) for i in ref]
-
     q1, q2, q3 = np.percentile(dataset,[25, 50, 75])
     upper = q3 + (q3-q1)*1.5
     lower = q1 - (q3-q1)*1.5
-
     max_ = max(dataset)
     min_ = min(dataset)
-
     x = range(-1, x_length+1)
     y1 = [q1] * len(x)
     y2 = [q2] * len(x)
@@ -79,8 +78,49 @@ def getDataFromFile(path):
         return [], [], 1
     return ref, att, 0
 
-def populateGraph(path, points_db, probability, left_label = None, right_label = None, bottom_label = None):
-    print(path.split("/")[-1])
+def plotDiscussionGraph(path, points_db, probability):
+    markerDict={
+    "ches2016_points_db.cvc": ("o", ["lightcoral","indianred", "brown"]),
+    "kryptologik_points_db.cvc": ("s", ["lightsteelblue", "cornflowerblue", "midnightblue"]),
+    "nsc2013_gen_points_db.cvc": ("X", ["yellowgreen", "yellowgreen", "darkolivegreen"])
+    }
+    plt.ylabel("P - Value")
+    plt.xlabel("Correctness attraction")
+    plt.ylim(2.02, -0.02)
+    plt.xlim(-0.02, 1.02)
+
+    ref, att, err = getDataFromFile(path)
+    if err:
+        return
+    # Extract points from attack data
+    ppts = [int(i.strip().split()[2]) for i in att]
+    ppts = list(dict.fromkeys(ppts)) #Remove duplicates
+    ppts.sort()
+    x = range(0, len(ppts)+1)
+    attack_db = [(float(i.strip().split()[0]), i.strip().split()[2]) for i in att]
+    corrs = []
+    letters = "abcdefghij"
+    for i in range(len(ppts)):
+        c = get_correctness_for_point(ppts[i], probability, points_db)
+        if c == "":
+            c = 0.0
+
+        y = [j[0] for j in attack_db if int(j[1]) == ppts[i]]
+        t = calculate_t_test(ref, y)
+        if t[0] < 0:
+            t = [t[0], 2-t[1]]
+        myX = [i] * len(y)
+        _marker = markerDict[points_db.split("/")[-1]][0]
+        _color = markerDict[points_db.split("/")[-1]][1][1]
+        _label = points_db.split("/")[-1].split("_")[0]
+        plt.scatter(c, t[1], marker=_marker, color=_color, s=probability/2)
+        yticks_part = [abs(j)/100 for j in range(0, 125, 25)]
+        yticks_part.reverse()
+        plt.yticks([f/100 for f in range(0,225, 25)], [abs(j)/100 for j in range(0, 100, 25)]+ yticks_part)
+
+def populateGraph(path, points_db, probability):
+    left_label = "Attack-score"
+    bottom_label = r"$_{activations}\ Perturbation\ point\ ^{p\ value}_{corr. attr.}$"
     ref, att, err = getDataFromFile(path)
     if err:
         return
@@ -96,7 +136,8 @@ def populateGraph(path, points_db, probability, left_label = None, right_label =
     attack_db = [(float(i.strip().split()[0]), i.strip().split()[2]) for i in att]
     plt.ylim(0.25,1.02)
     plt.xlim(-0.5, len(ppts))
-    plt.title(path.split("/")[-1])
+    print(path.split("/")[-1] + " - 30 attacks")
+    plt.title(path.split("/")[-1].replace("_", " ") + "% probability - 30 attacks")
 
     xTicks = []
     corrs = []
@@ -107,37 +148,24 @@ def populateGraph(path, points_db, probability, left_label = None, right_label =
         if c == "":
             c = 0.0
         corrs.append(c)
-        xTicks.append(r'${}\ _{{{}}}^{{{}}}$'.format(str(letters[i]), str(a), ppts[i]))
-
         y = [j[0] for j in attack_db if int(j[1]) == ppts[i]]
         t = calculate_t_test(ref, y)
-        str_buff = letters[i] + " " + str(round(t[0], 2)) + " " + str(round(t[1], 2))
+        str_buff = str(t[1])
         color = ""
         if t[0]>0:
             color = "green"
         else:
             color = "red"
-
-        #bump = " "*int(round(t[1]*10))
         bump = ""
-        print colored(bump + str_buff, color)
-
+        print()
+        xt = (r'$_{{{}}}\ {}\ _{{{}}}^{{{}}}$'.format(str(a), str(letters[i]), str(c), str(round(t[1], 2))))
+        xTicks.append(xt)
         myX = [i] * len(y)
-        plt.scatter(myX, y, s=5)
-        plt.violinplot(y, [i], showmeans=True, showextrema=True, showmedians=True)
+        plt.violinplot(y, [i], showmeans=False, showextrema=True, showmedians=True)
     plt.xticks(x, xTicks, rotation=45)
+
     print("")
-    if left_label:
-        plt.ylabel(left_label)
-    if bottom_label:
-        plt.xlabel(bottom_label)
 
-    corrs = corrs + ([0] * ((len(x)-1) - len(corrs))) # Zero extend correctness barchart to cover all ticks
-
-    plt2 = plt.twinx()  # instantiate a second axes that shares the same x-axis
-    plt2.set_ylim(0,3)
-    plt2.set_yticks([0, 0.25, 0.50, 0.75, 1])
-    plt2.set_yticklabels([0, 0.25, 0.50, 0.75, 1])
-    plt2.bar(range(len(ppts)), corrs, width=0.1, alpha=0.3)
-    if right_label:
-        plt2.set_ylabel(right_label) # we already handled the x-label with ax1
+    plt.ylabel(left_label)
+    plt.xlabel(bottom_label)
+    plt.tight_layout()
