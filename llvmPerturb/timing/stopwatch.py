@@ -23,8 +23,10 @@ def only_char(s):
 class CryptoImplementation():
     def __init__(self):
         self.title = ""
+
     def input_(self):
         pass
+
     def time_reference(self):
         times = []
         global lastSum
@@ -87,7 +89,6 @@ class Kryptologik(CryptoImplementation):
         return ret
 
 class Nsc2013(CryptoImplementation):
-    # /home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_nsc2013_variants_generator/src/nosuchcon_2013_whitebox_noenc_generator
     def __init__(self):
         self.top_points = [0, 12, 6, 122, 120, 118, 174, 288, 280, 108]
         self.path = "/home/koski/xPerturb/llvmPerturb/example_programs/wbs_aes_nsc2013_variants_generator/"
@@ -117,8 +118,6 @@ class TimeGraph():
     def __init__(self):
         self.result_path = "/home/koski/xPerturb/llvmPerturb/experiment_results/timing/graphs/"
         self.fig, self.ax = plt.subplots()
-        # self.ax.set_xlim(0.0, 5)     # set the xlim to left, right
-        # self.ax.set_ylim(0.0, 800)     # set the xlim to left, right
 
     def get_variance(self, l):
         return round(np.var(l), 2)
@@ -127,6 +126,7 @@ class TimeGraph():
         return round(np.mean(l), 2)
 
     def create_graph(self, implementation, probability):
+        # Run the whitebox, the reference whitebox and note the execution times in a graph. Save the graph to ../experiment_results
         plt.title("Execution time " + str(probability) + "% perturbation probability")
         plt.ylabel("Occurences")
         plt.xlabel("Time (ms)")
@@ -158,12 +158,16 @@ class TimeGraph():
         self.fig.savefig(self.result_path + implementation.path.split("/")[-2] + "_" + str(probability))
 
 def main():
+    # Assumes "src/wb_reference" file is existing inside every whitebox folder for the measuring of the reference whitebox
+    # Assumes "perturbations/wb_p_50" etc. is existing inside every whitebox folder for the measuring of the perturbed whitebox
     implementations = [Ches2016(), Kryptologik(), Nsc2013()]
     for i in range(len(implementations)):
         tg10 = TimeGraph()
-        tg50 = TimeGraph()
-        tg90 = TimeGraph()
         tg10.create_graph(implementations[i], 10)
+
+        tg50 = TimeGraph()
         tg50.create_graph(implementations[i], 50)
+
+        tg90 = TimeGraph()
         tg90.create_graph(implementations[i], 90)
 main()
