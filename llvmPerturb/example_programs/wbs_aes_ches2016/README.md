@@ -1,12 +1,6 @@
 Compilation
 -----------
 
-The original challenge contains a statically linked binary as well as the source code.
-
-```bash
-tar xf ches_wb_challenge.tgz
-```
-
 If one wants to recompile the binary:
 
 ```bash
@@ -18,8 +12,8 @@ Usage
 
 ```bash
 ./wb_challenge 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
-INPUT:     00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 
-OUTPUT:    c1 bd 88 bf e6 5e 87 01 3f 3f 41 96 c1 8a f3 68 
+INPUT:     00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
+OUTPUT:    c1 bd 88 bf e6 5e 87 01 3f 3f 41 96 c1 8a f3 68
 ```
 
 Solution

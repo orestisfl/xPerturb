@@ -1,8 +1,7 @@
+https://blog.quarkslab.com/differential-fault-analysis-on-white-box-aes-implementations.html
+
 Compilation
 -----------
-
-The original challenge is written in JavaScript.
-A port has been made in C and the large table externalized to a file.
 
 To recompile it:
 
