@@ -49,6 +49,7 @@ def chess_attack(probability = 50, reference_points = False, overall_top_points 
                     "../example_programs/wbs_aes_ches2016/")
 
     if overall_top_points:
+        ## The perturbation points listed in top10 bellow are derived from the experiments in ../correctness_attraction
         top10 = [48000, 11400, 19800, 11700, 28200, 16200, 24600, 7300, 59700, 10000]
         runAttack(top10,
                     200,
@@ -64,6 +65,7 @@ def kryptologik_attack(probability = 50, reference_points = False, overall_top_p
                     "kryptologik",
                     "../example_programs/wbs_aes_kryptologik/")
     if overall_top_points:
+        ## The perturbation points listed in top10 bellow are derived from the experiments in ../correctness_attraction
         top10 = [8100, 18900, 12000, 3600, 12300, 15000, 1800, 19800, 16200, 16900]
         runAttack(top10,
                     80,
@@ -79,6 +81,7 @@ def nsc_attack(probability = 50, reference_points = False, overall_top_points = 
                     "../example_programs/wbs_aes_nsc2013_variants_generator/")
 
     if overall_top_points:
+        ## The perturbation points listed in top10 bellow are derived from the experiments in ../correctness_attraction
         top10 = [0, 12, 6, 122, 120, 118, 174, 288, 280, 108]
         runAttack(top10,
                     25,
@@ -89,6 +92,7 @@ def nsc_attack(probability = 50, reference_points = False, overall_top_points = 
 
 def main():
     # CHES2016 ATTACKS
+    chess_attack(reference_points = True)
     chess_attack(probability = 10,
                     reference_points = False,
                     overall_top_points = True)
@@ -99,6 +103,7 @@ def main():
                     reference_points = False,
                     overall_top_points = True)
     # KRYPTOLOGIK ATTACKS
+    kryptologik_attack(reference_points = True)
     kryptologik_attack(probability = 10,
                     reference_points = False,
                     overall_top_points = True)
@@ -109,6 +114,7 @@ def main():
                     reference_points = False,
                     overall_top_points = True)
     # NSC ATTACKS
+    nsc_attack(reference_points = True)
     nsc_attack(probability = 10,
                     reference_points = False,
                     overall_top_points = True)
