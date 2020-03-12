@@ -45,15 +45,15 @@ class Compiler():
 
         with open("perturbation_templates/pm_one.tmp", 'r') as ftemp:
             templateString = ftemp.read()
-        with open("example_programs/perturbation_types/pone_" + str(prob) + ".c", 'w') as f:
+        with open("../example_programs/perturbation_types/pone_" + str(prob) + ".c", 'w') as f:
             f.write(templateString.format(**d))
 
         with open("perturbation_templates/pm_oneh.tmp", 'r') as ftemp:
             templateString = ftemp.read()
-        with open("example_programs/perturbation_types/pone_"+ str(prob) +".h", 'w') as f:
+        with open("../example_programs/perturbation_types/pone_"+ str(prob) +".h", 'w') as f:
             f.write(templateString)
 
-        cmd0 = "clang -S -emit-llvm example_programs/perturbation_types/pone_"+ str(prob) +".c -o example_programs/perturbation_types/pone_"+ str(prob) +".ll"
+        cmd0 = "clang -S -emit-llvm ../example_programs/perturbation_types/pone_"+ str(prob) +".c -o ../example_programs/perturbation_types/pone_"+ str(prob) +".ll"
         # cmd0 = " ".join(["gcc", "-c", "example_programs/perturbation_types/pone_"+ str(prob) +".c", "-o", "example_programs/perturbation_types/pone_"+ str(prob) +".o" ])
         sp = subprocess.call(cmd0, shell=True)
 
