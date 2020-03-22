@@ -1,9 +1,18 @@
 #!/usr/bin/env python
+from errno import EEXIST
+
 from targets import *
 from attack_statistics import *
-import datetime
+
+def makedirs(path):
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno != EEXIST:
+            raise
 
 def saveDaredevil(name, out, times):
+    makedirs("./daredevilLogs")
     fd = open("./daredevilLogs/daredevil_" + name, 'w')
     fd.write(times)
     fd.write("\n")
@@ -33,6 +42,7 @@ def runAttack(points, runns, name, path, perturbation_probability = 0):
             out, err = target.performDaredevilAttack()
             atts = AttackStatitic(name)
             atts.parseDaredevilData(out, err)
+            makedirs("./logs")
             atts.saveToFile("./logs/" + attackTitle)
             saveDaredevil(attackTitle, out, err)
 
