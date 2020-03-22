@@ -27,7 +27,7 @@ class TraceChess2016():
             self.accuireReferenceTrace()
 
     def accuireReferenceTrace(self):
-        T = TracerGrind(self.BinaryPath + 'src/wb_reference', self.processinput, self.processoutput, ARCH.amd64, 16,  addr_range='0x108000-0x130000')
+        T = TracerGrind(self.BinaryPath + 'src/wb_reference', self.processinput, self.processoutput, ARCH.amd64, 16,  addr_range='0x108000-0x3ffffff')
         # Tracing only the first round:
         # T=TracerGrind('../target/wb_challenge', processinput, processoutput, ARCH.amd64, 16,  addr_range='0x108000-0x10c000')
         T.run(self.runns) # Original number 2000

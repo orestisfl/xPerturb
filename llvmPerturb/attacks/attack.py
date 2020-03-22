@@ -103,36 +103,5 @@ def nsc_attack(probability = 50, reference_points = False, overall_top_points = 
 def main():
     # CHES2016 ATTACKS
     chess_attack(reference_points = True)
-    chess_attack(probability = 10,
-                    reference_points = False,
-                    overall_top_points = True)
-    chess_attack(probability = 50,
-                    reference_points = False,
-                    overall_top_points = True)
-    chess_attack(probability = 90,
-                    reference_points = False,
-                    overall_top_points = True)
-    # KRYPTOLOGIK ATTACKS
-    kryptologik_attack(reference_points = True)
-    kryptologik_attack(probability = 10,
-                    reference_points = False,
-                    overall_top_points = True)
-    kryptologik_attack(probability = 50,
-                    reference_points = False,
-                    overall_top_points = True)
-    kryptologik_attack(probability = 90,
-                    reference_points = False,
-                    overall_top_points = True)
-    # NSC ATTACKS
-    nsc_attack(reference_points = True)
-    nsc_attack(probability = 10,
-                    reference_points = False,
-                    overall_top_points = True)
-    nsc_attack(probability = 50,
-                    reference_points = True,
-                    overall_top_points = True)
-    nsc_attack(probability = 90,
-                    reference_points = False,
-                    overall_top_points = True)
 
 main()

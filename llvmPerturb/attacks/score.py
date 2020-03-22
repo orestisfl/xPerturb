@@ -7,7 +7,7 @@ def chess():
     print("Abs\tSum")
     for i in range(0,30):
         a = AttackStatitic("Chess2016")
-        a.loadFromFile("./logs/references/chess/chess2016_attack_200_ref_"+str(i))
+        a.loadFromFile("./logs/chess2016_attack_200_ref_"+str(i))
         a.setProgramScore("dec1a551f1eddec0de4b1dae5c0de511")
 
     print("")
