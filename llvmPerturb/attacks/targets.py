@@ -10,11 +10,13 @@ class TraceChess2016:
         self.runns = r  # Original value = 2000
         self.corectKey = "dec1a551f1eddec0de4b1dae5c0de511"
 
-    def processinput(self, iblock, blocksize):
+    @staticmethod
+    def processinput(iblock, blocksize):
         p = "%0*x" % (2 * blocksize, iblock)
         return None, [p[j * 2 : (j + 1) * 2] for j in range(len(p) / 2)]
 
-    def processoutput(self, output, blocksize):
+    @staticmethod
+    def processoutput(output, blocksize):
         return int("".join([x for x in output.split("\n") if x.find("OUTPUT") == 0][0][10:].split(" ")), 16,)
 
     def accuireTrace(self, ppr=None, ppo=None):
@@ -78,10 +80,12 @@ class TraceNsc2013:
         self.runns = r  # Original value = 2000
         self.corectKey = "4b45595f4b45595f4b45595f4b45595f"
 
-    def processinput(self, iblock, blocksize):
+    @staticmethod
+    def processinput(iblock, blocksize):
         return None, ["%0*x" % (2 * blocksize, iblock)]
 
-    def processoutput(self, output, blocksize):
+    @staticmethod
+    def processoutput(output, blocksize):
         # print(''.join([x for x in output.split('\n') if x.find('Output')==0][0][10:57].split(' ')))
         return int("".join([x for x in output.split("\n") if x.find("Output") == 0][0][10:57].split(" ")), 16,)
 
@@ -139,11 +143,13 @@ class TraceKryptologik:
         self.runns = r  # Original value = 2000
         self.corectKey = "0D9BE960C438FF85F656BD48B78A0EE2"
 
-    def processinput(self, iblock, blocksize):
+    @staticmethod
+    def processinput(iblock, blocksize):
         p = "%0*x" % (2 * blocksize, iblock)
         return None, [p[j * 2 : (j + 1) * 2] for j in range(len(p) // 2)]
 
-    def processoutput(self, output, blocksize):
+    @staticmethod
+    def processoutput(output, blocksize):
         return int(output, 16)
 
     def accuireTrace(self, ppr=None, ppo=None):
