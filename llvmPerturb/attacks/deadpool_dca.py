@@ -143,7 +143,7 @@ def bin2daredevil(keyword=None, keywords=None, delete_bin=True, config=None, con
                     os.remove(filename)
         for configname, config in configs.iteritems():
             if 'threads' not in config:
-                config['threads']='8'
+                config['threads']='16'
             if 'algorithm' not in config:
                 config['algorithm']='AES'
             if 'position' not in config:
@@ -157,7 +157,7 @@ def bin2daredevil(keyword=None, keywords=None, delete_bin=True, config=None, con
             if 'bitnum' not in config:
                 config['bitnum']='all'
             if 'memory' not in config:
-                config['memory']='4G'
+                config['memory']='16G'
             if 'top' not in config:
                 config['top']='20'
             if 'comment_correct_key' not in config:
@@ -465,10 +465,13 @@ class TracerGrind(Tracer):
         self._trace_init(n, iblock, oblock)
         with open(self.tmptracefile, 'r') as trace:
             for line in iter(trace.readline, ''):
-                mem_mode=line[line.index('MODE')+6]
-                mem_addr=int(line[line.index('START_ADDRESS')+15:line.index('START_ADDRESS')+31], 16)
-                mem_size=int(line[line.index('LENGTH')+7:line.index('LENGTH')+10])
-                mem_data=int(line[line.index('DATA')+6:].replace(" ",""), 16)
+                try:
+                    mem_mode=line[line.index('MODE')+6]
+                    mem_addr=int(line[line.index('START_ADDRESS')+15:line.index('START_ADDRESS')+31], 16)
+                    mem_size=int(line[line.index('LENGTH')+7:line.index('LENGTH')+10])
+                    mem_data=int(line[line.index('DATA')+6:].replace(" ",""), 16)
+                except ValueError:
+                    continue
                 for f in self.filters:
                     if mem_mode in f.modes and f.condition(self.stack_range, mem_addr, mem_size, mem_data):
                         self._trace_data[f.keyword].append(f.extract(mem_addr, mem_size, mem_data))

@@ -32,7 +32,7 @@ def kryptologik():
     print("Abs\tSum")
     for i in range(0,30):
         a = AttackStatitic("Kryptologik")
-        a.loadFromFile("./logs/references/kryptologik/kryptologik_attack_80_ref_"+str(i))
+        a.loadFromFile("./logs/kryptologik_attack_80_ref_"+str(i))
         a.setProgramScore("0d9be960c438ff85f656bd48b78a0ee2")
 
     print("")
@@ -55,7 +55,7 @@ def nsc():
     print("Abs\tSum")
     for i in range(0,30):
         a = AttackStatitic("Nsc2013")
-        a.loadFromFile("./logs/references/nsc/nsc_gen_attack_25_ref_"+str(i))
+        a.loadFromFile("./logs/nsc_gen_attack_25_ref_"+str(i))
         a.setProgramScore("4b45595f4b45595f4b45595f4b45595f")
 
     print("")

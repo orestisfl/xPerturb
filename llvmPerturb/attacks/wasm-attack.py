@@ -15,7 +15,7 @@ def makedirs(path):
             raise
 
 
-RUNS = 200
+RUNS = 2000
 
 t = TracerWASM("../example_programs/wbs_aes_ches2016/src/a.wasm")
 args, outs = t.run(RUNS)
@@ -29,14 +29,11 @@ bin2daredevil(
     keywords=t.filters,
 )
 
-# for f in os.listdir("."):
-#     if f.startswith("mem_addr1_rw1_" + str(RUNS)) and f.endswith(".attack_sbox.config"):
-#         os.system("daredevil -c %s" % f)
-#         break
-
-t = TraceChess2016("", RUNS)
-out, err = t.performDaredevilAttack()
-atts = AttackStatitic("chess2016")
-atts.parseDaredevilData(out, err)
+tc = TraceChess2016("", RUNS)
 makedirs("./logs")
-atts.saveToFile("./logs/" + "wasm-attack")
+for keyword in map(str, t.filters):
+    out, err = tc.performDaredevilAttack(config_startswith=keyword + "_")
+    atts = AttackStatitic("chess2016")
+    atts.parseDaredevilData(out, err)
+    atts.saveToFile("./logs/" + "wasm-attack-" + keyword)
+    atts.setProgramScore("dec1a551f1eddec0de4b1dae5c0de511")

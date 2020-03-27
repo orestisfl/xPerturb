@@ -102,7 +102,7 @@ def nsc_attack(probability = 50, reference_points = False, overall_top_points = 
 
 
 def main():
-    # CHES2016 ATTACKS
-    chess_attack(reference_points = True)
+    # chess_attack(reference_points = True)
+    nsc_attack(reference_points=True)
 
 main()

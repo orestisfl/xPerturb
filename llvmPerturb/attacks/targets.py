@@ -70,9 +70,12 @@ class TraceChess2016:
             }
         )
 
-    def performDaredevilAttack(self):
-        fl = os.listdir(".")
-        f = [i for i in fl if i.startswith("mem_addr1_rw1_" + str(self.runns)) and i.endswith(".attack_sbox.config")][0]
+    def performDaredevilAttack(self, config_startswith="mem_addr1_rw1_"):
+        f = [
+            i
+            for i in os.listdir(".")
+            if i.startswith(config_startswith + str(self.runns)) and i.endswith(".attack_sbox.config")
+        ][0]
         sp = Popen(["time", "daredevil", "-c", f], stdout=PIPE, stderr=PIPE,)
         out, err = sp.communicate()
         return out, err
@@ -109,7 +112,8 @@ class TraceNsc2013:
             self.processoutput,
             ARCH.amd64,
             16,
-            addr_range="0x108000-0x130000",
+            addr_range="0x108000-0x3ffffff",
+            debug=True,
         )  # filters=[DefaultFilters.stack_w1]
         T.run(self.runns)  # 25 Original
         bin2daredevil(config={"algorithm": "AES", "position": "LUT/AES_AFTER_SBOX"})  # keyword=DefaultFilters.stack_w1,
@@ -177,6 +181,7 @@ class TraceKryptologik:
             self.processoutput,
             ARCH.amd64,
             16,
+            debug=True
         )
         T.run(self.runns)
         bin2daredevil(config={"algorithm": "AES", "position": "LUT/AES_AFTER_SBOX"})  # keywords=filters,
@@ -206,7 +211,7 @@ class TracerWASM(Tracer):
         tmptracefile="default",
         addr_range="default",
         stack_range="default",
-        filters=(DefaultFilters.mem_addr1_rw1,),
+        filters=(DefaultFilters.mem_addr1_rw1,DefaultFilters.mem_data_rw1,DefaultFilters.mem_data_rw4),
         debug=True,
     ):
         super(TracerWASM, self).__init__(
