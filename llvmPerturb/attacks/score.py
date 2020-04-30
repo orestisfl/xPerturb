@@ -30,12 +30,13 @@ def kryptologik():
     print("")
     print("Reference - Kryptologik")
     print("Abs\tSum")
-    for i in range(0,30):
+    for i in range(0,1):
         a = AttackStatitic("Kryptologik")
-        a.loadFromFile("./logs/kryptologik_attack_80_ref_"+str(i))
+        a.loadFromFile("./logs/kryptologik_attack_200_ref_"+str(i))
         a.setProgramScore("0d9be960c438ff85f656bd48b78a0ee2")
 
     print("")
+    return
 
     path ="./logs/overall_top_points_10/kryptologik/"
     # path ="./logs/overall_top_points_50/kryptologik/"
@@ -53,12 +54,13 @@ def nsc():
     print("")
     print("Reference - NSC")
     print("Abs\tSum")
-    for i in range(0,30):
+    for i in range(0, 100):
         a = AttackStatitic("Nsc2013")
         a.loadFromFile("./logs/nsc_gen_attack_25_ref_"+str(i))
         a.setProgramScore("4b45595f4b45595f4b45595f4b45595f")
 
     print("")
+    return
     #path = "./logs/overall_top_points/nsc/"
     # path = "./logs/overall_top_points_10/nsc/"
     path = "./logs/overall_top_points_90/nsc/"
@@ -71,9 +73,9 @@ def nsc():
 
 
 def main():
-    chess()
+    # chess()
     # kryptologik()
-    # nsc()
+    nsc()
 
 
 

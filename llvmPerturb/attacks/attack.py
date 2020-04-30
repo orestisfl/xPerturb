@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import subprocess
 from errno import EEXIST
+from tqdm import tqdm
 
 from targets import *
 from attack_statistics import *
@@ -34,12 +35,16 @@ def runAttack(points, runns, name, path, perturbation_probability = 0):
         raise NameError("Did not recognize whitebox!")
     for p in points:
         print(p)
-        for i in range(0, 30): # 0 - 30
+        for i in tqdm(range(0, 100)): # 0 - 30
             attackTitle = name + "_attack_" + str(runns) + "_" + str(p) + "_" + str(i)
             if p == "ref":
                 target.accuireTrace() ## No arguments for reference trace
             else:
                 target.accuireTrace(perturbation_probability, p) ## No arguments for reference trace
+
+            # Backup traces
+            assert subprocess.call('zip -q %d.zip *.grind* && rm -f *.grind*' % i, shell=True) == 0
+
             out, err = target.performDaredevilAttack()
             atts = AttackStatitic(name)
             atts.parseDaredevilData(out, err)
@@ -72,7 +77,7 @@ def kryptologik_attack(probability = 50, reference_points = False, overall_top_p
 
     if reference_points:
         runAttack(["ref"],
-                    80,
+                    200,
                     "kryptologik",
                     "../example_programs/wbs_aes_kryptologik/")
     if overall_top_points:
@@ -89,7 +94,8 @@ def nsc_attack(probability = 50, reference_points = False, overall_top_points = 
         runAttack(["ref"],
                     25,
                     "nsc_gen",
-                    "../example_programs/wbs_aes_nsc2013_variants_generator/")
+                    # "../example_programs/wbs_aes_nsc2013_variants_generator/src/")
+                    "/slumps/vulnerable_programs/deadpool/nosuchcon_2013_whitebox_noenc/bitcode/")
 
     if overall_top_points:
         ## The perturbation points listed in top10 bellow are derived from the experiments in ../correctness_attraction
@@ -102,7 +108,7 @@ def nsc_attack(probability = 50, reference_points = False, overall_top_points = 
 
 
 def main():
-    # chess_attack(reference_points = True)
+    #kryptologik_attack(reference_points = True)
     nsc_attack(reference_points=True)
 
 main()

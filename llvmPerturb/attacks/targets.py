@@ -37,7 +37,6 @@ class TraceChess2016:
             ARCH.amd64,
             16,
             addr_range="0x108000-0x3ffffff",
-            debug=True,
         )
         # Tracing only the first round:
         # T=TracerGrind('../target/wb_challenge', processinput, processoutput, ARCH.amd64, 16,  addr_range='0x108000-0x10c000')
@@ -57,7 +56,6 @@ class TraceChess2016:
             ARCH.amd64,
             16,
             addr_range="0x400000-0x440000",
-            debug=True,
         )
         # T=TracerGrind('../target/wb_challenge', self.processinput, self.processoutput, ARCH.amd64, 16,  addr_range='0x108000-0x130000')
         # Tracing only the first round:
@@ -104,16 +102,15 @@ class TraceNsc2013:
 
     def accuireReferenceTrace(self):
         Popen(
-            [self.BinaryPath + "src/nosuchcon_2013_whitebox_noenc_generator"], shell=True,
+            [self.BinaryPath + "nosuchcon_2013_whitebox_noenc_generator"], shell=True,
         )
         T = TracerGrind(
-            self.BinaryPath + "src/wb_reference",
+            self.BinaryPath,
             self.processinput,
             self.processoutput,
             ARCH.amd64,
             16,
             addr_range="0x108000-0x3ffffff",
-            debug=True,
         )  # filters=[DefaultFilters.stack_w1]
         T.run(self.runns)  # 25 Original
         bin2daredevil(config={"algorithm": "AES", "position": "LUT/AES_AFTER_SBOX"})  # keyword=DefaultFilters.stack_w1,
@@ -138,7 +135,7 @@ class TraceNsc2013:
         fl = os.listdir(".")
 
         # "stack_w1_" + str(self.runns) + "_32768.config"
-        f = [i for i in fl if i.startswith("stack_w1_" + str(self.runns)) and i.endswith(".config")][0]
+        f = [i for i in fl if i.startswith("mem_data_rw1_" + str(self.runns)) and i.endswith(".config")][0]
         print(f)
         sp = Popen(["time", "daredevil", "-c", f], stdout=PIPE, stderr=PIPE,)
         out, err = sp.communicate()
@@ -169,7 +166,7 @@ class TraceKryptologik:
     def accuireReferenceTrace(self):
         # To run kryptologik it neds the file DemoKey_table.bin in its working directory. Add this file and rerun
         # print(self.BinaryPath + 'src/DemoKey_table_encrypt')
-        T = TracerGrind(self.BinaryPath + "src/wb_reference", self.processinput, self.processoutput, ARCH.amd64, 16,)
+        T = TracerGrind(self.BinaryPath + "src/wb_reference", self.processinput, self.processoutput, ARCH.amd64, 16,addr_range="0x108000-0x3ffffff",)
         T.run(self.runns)
         bin2daredevil(config={"algorithm": "AES", "position": "LUT/AES_AFTER_SBOX"})  # keywords=filters,
 
@@ -181,7 +178,6 @@ class TraceKryptologik:
             self.processoutput,
             ARCH.amd64,
             16,
-            debug=True
         )
         T.run(self.runns)
         bin2daredevil(config={"algorithm": "AES", "position": "LUT/AES_AFTER_SBOX"})  # keywords=filters,
@@ -190,7 +186,7 @@ class TraceKryptologik:
         # mem_stack_w1_200_33544
         fl = os.listdir(".")
         # "stack_w1_" + str(self.runns) + "_32768.config"
-        f = [i for i in fl if i.startswith("stack_w1_" + str(self.runns)) and i.endswith(".config")][0]
+        f = [i for i in fl if i.startswith("mem_addr1_rw1_" + str(self.runns)) and i.endswith(".config")][0]
         print(f)
         sp = Popen(["time", "daredevil", "-c", f], stdout=PIPE, stderr=PIPE,)
         out, err = sp.communicate()

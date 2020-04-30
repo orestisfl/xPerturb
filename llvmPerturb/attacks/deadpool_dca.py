@@ -448,6 +448,10 @@ class TracerGrind(Tracer):
                 self.stack_range =(0xff0000000, 0xfffffffff)
         if record_info:
             raise ValueError("Sorry, option not yet supported!")
+        self.targets = glob.glob(self.target[0] + "*.out")
+        print(self.targets)
+        if not self.targets:
+            raise ValueError("No targets found")
 
     def get_trace(self, n, iblock):
         processed_input=self.processinput(iblock, self.blocksize)
@@ -456,12 +460,10 @@ class TracerGrind(Tracer):
             input_stdin=b''
         if input_args is None:
             input_args=[]
-        cmd_list=[tracergrind_exec, '--quiet', '--trace-children=yes', '--tool=tracergrind', '--filter='+str(self.addr_range), '--vex-iropt-register-updates=allregs-at-mem-access', '--output='+self.tmptracefile+'.grind'] + self.target + input_args
+        cmd_list=[tracergrind_exec, '--quiet', '--trace-children=yes', '--tool=tracergrind', '--filter='+str(self.addr_range), '--vex-iropt-register-updates=allregs-at-mem-access', '--output='+self.tmptracefile+'.grind', random.choice(self.targets)] + input_args
         output=self._exec(cmd_list, input_stdin)
         oblock=self.processoutput(output, self.blocksize)
         output=subprocess.check_output("texttrace %s >(grep '^.M' > %s)" % (self.tmptracefile+'.grind', self.tmptracefile), shell=True, executable='/bin/bash')
-        if not self.debug:
-            os.remove(self.tmptracefile+'.grind')
         self._trace_init(n, iblock, oblock)
         with open(self.tmptracefile, 'r') as trace:
             for line in iter(trace.readline, ''):
@@ -475,9 +477,10 @@ class TracerGrind(Tracer):
                 for f in self.filters:
                     if mem_mode in f.modes and f.condition(self.stack_range, mem_addr, mem_size, mem_data):
                         self._trace_data[f.keyword].append(f.extract(mem_addr, mem_size, mem_data))
+        # Keep temp files
+        os.rename(self.tmptracefile + '.grind', str(n) + '.grind')
+        os.rename(self.tmptracefile, str(n) + '.grind.txt')
         self._trace_dump()
-        if not self.debug:
-            os.remove(self.tmptracefile)
         return oblock
 
     def run_once(self, iblock=None, tracefile=None):
