@@ -1,5 +1,6 @@
 from attack_statistics import *
 import os
+import sys
 
 def chess():
     print("")
@@ -56,7 +57,7 @@ def nsc():
     print("Abs\tSum")
     for i in range(0, 100):
         a = AttackStatitic("Nsc2013")
-        a.loadFromFile("./logs/nsc_gen_attack_25_ref_"+str(i))
+        a.loadFromFile("./logs/nsc_gen_attack_%s_ref_%d" % (sys.argv[1], i))
         a.setProgramScore("4b45595f4b45595f4b45595f4b45595f")
 
     print("")

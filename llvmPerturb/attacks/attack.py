@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 import subprocess
 from errno import EEXIST
 from tqdm import tqdm
@@ -92,7 +93,7 @@ def kryptologik_attack(probability = 50, reference_points = False, overall_top_p
 def nsc_attack(probability = 50, reference_points = False, overall_top_points = False):
     if reference_points:
         runAttack(["ref"],
-                    25,
+                    int(sys.argv[1]),
                     "nsc_gen",
                     # "../example_programs/wbs_aes_nsc2013_variants_generator/src/")
                     "/slumps/vulnerable_programs/deadpool/nosuchcon_2013_whitebox_noenc/bitcode/")
