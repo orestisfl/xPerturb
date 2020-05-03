@@ -143,7 +143,7 @@ def bin2daredevil(keyword=None, keywords=None, delete_bin=True, config=None, con
                     os.remove(filename)
         for configname, config in configs.iteritems():
             if 'threads' not in config:
-                config['threads']='16'
+                config['threads']='8'
             if 'algorithm' not in config:
                 config['algorithm']='AES'
             if 'position' not in config:
@@ -464,6 +464,8 @@ class TracerGrind(Tracer):
         output=self._exec(cmd_list, input_stdin)
         oblock=self.processoutput(output, self.blocksize)
         output=subprocess.check_output("texttrace %s >(grep '^.M' > %s)" % (self.tmptracefile+'.grind', self.tmptracefile), shell=True, executable='/bin/bash')
+        if not self.debug:
+            os.remove(self.tmptracefile+'.grind')
         self._trace_init(n, iblock, oblock)
         with open(self.tmptracefile, 'r') as trace:
             for line in iter(trace.readline, ''):
@@ -477,10 +479,9 @@ class TracerGrind(Tracer):
                 for f in self.filters:
                     if mem_mode in f.modes and f.condition(self.stack_range, mem_addr, mem_size, mem_data):
                         self._trace_data[f.keyword].append(f.extract(mem_addr, mem_size, mem_data))
-        # Keep temp files
-        os.rename(self.tmptracefile + '.grind', str(n) + '.grind')
-        os.rename(self.tmptracefile, str(n) + '.grind.txt')
         self._trace_dump()
+        if not self.debug:
+            os.remove(self.tmptracefile)
         return oblock
 
     def run_once(self, iblock=None, tracefile=None):

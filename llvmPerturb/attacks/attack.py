@@ -36,15 +36,12 @@ def runAttack(points, runns, name, path, perturbation_probability = 0):
         raise NameError("Did not recognize whitebox!")
     for p in points:
         print(p)
-        for i in tqdm(range(0, 100)): # 0 - 30
+        for i in tqdm(range(0, 5)): # 0 - 30
             attackTitle = name + "_attack_" + str(runns) + "_" + str(p) + "_" + str(i)
             if p == "ref":
                 target.accuireTrace() ## No arguments for reference trace
             else:
                 target.accuireTrace(perturbation_probability, p) ## No arguments for reference trace
-
-            # Backup traces
-            assert subprocess.call('zip -q %d.zip *.grind* && rm -f *.grind*' % i, shell=True) == 0
 
             out, err = target.performDaredevilAttack()
             atts = AttackStatitic(name)
@@ -95,8 +92,8 @@ def nsc_attack(probability = 50, reference_points = False, overall_top_points = 
         runAttack(["ref"],
                     int(sys.argv[1]),
                     "nsc_gen",
-                    # "../example_programs/wbs_aes_nsc2013_variants_generator/src/")
-                    "/slumps/vulnerable_programs/deadpool/nosuchcon_2013_whitebox_noenc/bitcode/")
+                    "../example_programs/wbs_aes_nsc2013_variants_generator/src/")
+                    #"/slumps/vulnerable_programs/deadpool/nosuchcon_2013_whitebox_noenc/bitcode/")
 
     if overall_top_points:
         ## The perturbation points listed in top10 bellow are derived from the experiments in ../correctness_attraction
